@@ -1,13 +1,14 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput, Modal, Pressable } from 'react-native';
+import { launchImageLibrary } from 'react-native-image-picker';
 
 const SignupScreen = () => {
   const [nickname, setNickname] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState(null);
 
   const handleDuplicateCheck = () => {
-    // Show modal on duplicate check
     setModalVisible(true);
     // TODO: Firebase에 닉네임 연결, 중복될 때의 알림창도 구현
   };
@@ -17,32 +18,32 @@ const SignupScreen = () => {
   };
 
   const handleNicknameChange = (text) => {
-    // 닉네임 유효성 검사
     const isValidNickname = /^[a-zA-Z0-9가-힣_ ]{2,}$/.test(text);
     setIsValid(isValidNickname);
     setNickname(text);
   };
 
+  const handleProfileImagePick = () => {
+    launchImageLibrary({}, (response) => {
+      if (response.errorCode) {
+        console.log(response.errorCode); // Handle error
+      } else if (!response.didCancel) {
+        setProfileImage(response.assets[0].uri); // Note the updated path
+      }
+    });
+  };
+
   return (
     <View style={styles.container}>
-      <StatusBar
-        translucent
-        backgroundColor="transparent"
-        barStyle="dark-content"
-      />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      {/* Header */}
       <View style={styles.header}>
         <TouchableOpacity onPress={() => { /* 뒤로가기 기능 */ }} style={styles.backButtonContainer}>
-          <Image
-            source={require('../image/signup/backbutton.png')}
-            style={styles.backButton}
-          />
+          <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>정보 입력</Text>
       </View>
 
-      {/* Progress Bar */}
       <View style={styles.progressContainer}>
         <View style={styles.progressCircleContainer}>
           <View style={styles.circleEmptyProgress}></View>
@@ -55,15 +56,18 @@ const SignupScreen = () => {
         </View>
       </View>
 
-      {/* Ellipse 102 */}
-      <View style={styles.ellipse102} />
+      <TouchableOpacity style={styles.ellipse102} onPress={handleProfileImagePick}>
+        {profileImage ? (
+          <Image source={{ uri: profileImage }} style={styles.profileImage} />
+        ) : (
+          <Image source={require('../image/signup/default_profile.png')} style={styles.profileImage} />
+        )}
+      </TouchableOpacity>
 
-      {/* Group 219 (Camera Icon) */}
-      <View style={styles.group219}>
+      <TouchableOpacity style={styles.group219} onPress={handleProfileImagePick}>
         <Image source={require('../image/signup/camera.png')} style={styles.cameraIcon} />
-      </View>
+      </TouchableOpacity>
 
-      {/* Nickname Input */}
       <Text style={styles.nicknameTitle}>닉네임</Text>
       <TextInput
         style={[styles.placeholder, !isValid && styles.invalidInput]}
@@ -75,26 +79,17 @@ const SignupScreen = () => {
       <Text style={styles.minText}>최소 2글자 이상 사용 가능</Text>
       <Text style={styles.infoText}>한글/영어/숫자/밑줄/ 띄어쓰기를 사용 할 수 있습니다.</Text>
 
-      {/* Line */}
       <View style={styles.line64} />
 
-      {/* Duplicate Check Button */}
       <TouchableOpacity style={styles.frame340} onPress={handleDuplicateCheck}>
         <Text style={styles.nameCheckText}>중복확인</Text>
       </TouchableOpacity>
 
-      {/* Submit Button */}
       <TouchableOpacity style={[styles.submitButton, { backgroundColor: '#B3B6BD' }]}>
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>
 
-      {/* Modal for Duplicate Check */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        animationType="fade"
-        onRequestClose={handleModalClose}
-      >
+      <Modal transparent={true} visible={modalVisible} animationType="fade" onRequestClose={handleModalClose}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContainer}>
             <Text style={styles.modalText}>사용 가능한 닉네임입니다!</Text>
@@ -107,6 +102,7 @@ const SignupScreen = () => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -137,49 +133,53 @@ const styles = StyleSheet.create({
     height: 30,
   },
   progressContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 95,
-    justifyContent: 'center',
-  },
-  progressCircleContainer: {
-    alignItems: 'center',
-    marginHorizontal: 5,
-  },
-  circleFilledProgress: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#6495ED',
-  },
-  circleEmptyProgress: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#B3B6BD',
-  },
-  progressLine: {
-    width: 56,
-    height: 3,
-    backgroundColor: '#B3B6BD',
-    opacity: 0.5,
-    position: 'absolute',
-    top: 5,
-  },
-  activeText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 12,
-    color: '#6495ED',
-    marginTop: 5,
-  },
-  inactiveText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '400',
-    fontSize: 12,
-    color: '#B3B6BD',
-    marginTop: 5,
-  },
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 95,
+      justifyContent: 'center',
+      position: 'relative',
+    },
+    progressCircleContainer: {
+      alignItems: 'center',
+      marginHorizontal: 5,
+    },
+    circleFilledProgress: {
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      backgroundColor: '#6495ED',
+      zIndex: 2,
+    },
+    circleEmptyProgress: {
+      width: 14,
+      height: 14,
+      borderRadius: 7,
+      backgroundColor: '#B3B6BD',
+      zIndex: 2,
+    },
+    progressLine: {
+      width: 56,
+      height: 3,
+      backgroundColor: '#B3B6BD',
+      opacity: 0.5,
+      position: 'absolute',
+      top: 5,
+      zIndex: -1,
+    },
+    activeText: {
+      fontFamily: 'Pretendard',
+      fontWeight: '600',
+      fontSize: 12,
+      color: '#6495ED',
+      marginTop: 5,
+    },
+    inactiveText: {
+      fontFamily: 'Pretendard',
+      fontWeight: '400',
+      fontSize: 12,
+      color: '#B3B6BD',
+      marginTop: 5,
+    },
   submitButton: {
     position: 'absolute',
     height: 48,
@@ -205,6 +205,13 @@ const styles = StyleSheet.create({
     marginLeft: -51,
     top: 161,
     backgroundColor: '#B3B6BD',
+    borderRadius: 51,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  profileImage: {
+    width: 102,
+    height: 102,
     borderRadius: 51,
   },
   // 카메라 아이콘
