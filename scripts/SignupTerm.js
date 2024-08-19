@@ -158,7 +158,7 @@ const styles = StyleSheet.create({
   progressContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 95,
+    marginTop: 85,
     justifyContent: 'center',
     position: 'relative',
   },

@@ -20,7 +20,8 @@ import testtest from './scripts/testtest';
 //import FindRoute from './scripts/FindRoute';
 import test2 from './scripts/test2';
 import SignupTerm from './scripts/SignupTerm';
+import SignupNickname from './scripts/SignupNickname';
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => SignupTerm);
+AppRegistry.registerComponent(appName, () => SignupNickname);

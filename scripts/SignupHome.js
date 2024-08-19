@@ -1,74 +1,61 @@
 import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Image, StatusBar } from 'react-native'; // StatusBar 추가
+import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
 
-const SignupScreen = () => {
+const SignUpHome = () => {
+  // 핸들러 함수 예제
+  const handlePrivacyPolicyPress = () => {
+    console.log('개인정보 처리방침 클릭됨');
+    // 여기에 개인정보 처리방침 페이지로 네비게이션 추가
+  };
+
+  const handleTermsOfServicePress = () => {
+    console.log('이용약관 클릭됨');
+    // 여기에 이용약관 페이지로 네비게이션 추가
+  };
+
   return (
     <View style={styles.container}>
-      {/* 상태바 설정 */}
       <StatusBar
         translucent
-        backgroundColor="transparent" // 상태바 배경 투명으로 설정
+        backgroundColor="transparent"
         barStyle="dark-content" // 상태 표시줄 내용물 색상 설정
       />
 
-      {/* 헤더 영역 */}
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => {/* 뒤로가기 기능 */}} style={styles.backButtonContainer}>
+      <Image source={require('../image/signup/logo.png')} style={styles.logo} />
+
+      <TouchableOpacity style={styles.kakaoButton}>
+        <View style={styles.iconAndText}>
           <Image
-            source={require('../image/signup/backbutton.png')}
-            style={styles.backButton}
+            source={require('../image/signup/LoginWithKakao.png')}
+            style={{ width: 100, height: 100, resizeMode: 'contain' }} // 여기서 크기 조정
           />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>이용약관</Text>
-      </View>
-
-      {/* 약관 동의 섹션 */}
-      <View style={styles.agreementContainer}>
-        <View style={styles.agreementOption}>
-          <View style={styles.circleFilled}></View>
-          <Text style={styles.activeText}>약관 동의</Text>
         </View>
-        <View style={styles.agreementOption}>
-          <View style={styles.circleEmpty}></View>
-          <Text style={styles.inactiveText}>정보입력</Text>
-        </View>
-      </View>
-
-      <View style={styles.line}></View>
-
-      {/* 전체 동의 박스 */}
-      <View style={styles.agreementBox}>
-        <View style={styles.checkBox}></View>
-        <Text style={styles.agreementText}>전체 동의합니다</Text>
-      </View>
-
-      <View style={styles.divider}></View>
-
-      {/* 상세 약관 */}
-      <View style={styles.agreementDetailBox}>
-        <View style={styles.checkBox}></View>
-        <Text style={styles.detailText}>[필수] 서비스 이용약관</Text>
-      </View>
-
-      <View style={styles.agreementDetailBox}>
-        <View style={styles.checkBox}></View>
-        <Text style={styles.detailText}>[필수] 만 14세 이상입니다.</Text>
-      </View>
-
-      <View style={styles.agreementDetailBox}>
-        <View style={styles.checkBox}></View>
-        <Text style={styles.detailText}>[필수] 개인정보 수집 및 이용 동의</Text>
-      </View>
-
-      <View style={styles.agreementDetailBox}>
-        <View style={styles.checkBox}></View>
-        <Text style={styles.optionalText}>[선택] 위치 서비스 이용 동의</Text>
-      </View>
-
-      {/* 제출 버튼 */}
-      <TouchableOpacity style={styles.submitButton}>
-        <Text style={styles.submitButtonText}>동의하고 시작하기</Text>
       </TouchableOpacity>
+
+      <TouchableOpacity style={styles.googleButton}>
+        <View style={styles.iconAndText}>
+          <Image
+            source={require('../image/signup/LoginWithGoogle.png')}
+            style={{ width: 100, height: 100, resizeMode: 'contain' }} // 여기서 크기 조정
+          />
+        </View>
+      </TouchableOpacity>
+
+      <Text style={styles.agreementText}>
+        로그인을 할 경우 아래의 내용을 동의하는 것으로 간주 됩니다.
+      </Text>
+
+      <View style={styles.termsWrapper}>
+        <TouchableOpacity onPress={handlePrivacyPolicyPress}>
+          <Text style={styles.termsText}>개인정보 처리방침</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={handleTermsOfServicePress}>
+          <Text style={styles.termsText}>이용약관</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.divider} />
     </View>
   );
 };
@@ -76,130 +63,127 @@ const SignupScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
-    padding: 20,
-  },
-  header: {
     position: 'relative',
-    alignItems: 'center',
-  },
-  headerText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#111111',
-    textAlign: 'center',
-  },
-  backButtonContainer: {
-    position: 'absolute',
-    left: 5,
-    top: 30,
-    width: 39.51,
-    height: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
+    width: '100%', // 화면 너비에 맞추기
     backgroundColor: '#FFFFFF',
   },
-  backButton: {
-    width: 24,
-    height: 24,
+  logo: {
+    position: 'absolute',
+    width: 166,
+    height: 83,
+    left: 97,
+    top: 183,
   },
-  agreementContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 50,
-  },
-  agreementOption: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  activeText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 12,
-    color: '#6495ED',
-    marginLeft: 10,
-  },
-  inactiveText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '400',
-    fontSize: 12,
-    color: '#B3B6BD',
-    marginLeft: 10,
-  },
-  circleFilled: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#6495ED',
-  },
-  circleEmpty: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#B3B6BD',
-  },
-  line: {
-    borderBottomWidth: 1,
-    borderColor: '#B3B6BD',
-    marginVertical: 20,
-  },
-  agreementBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  checkBox: {
-    width: 20,
-    height: 20,
-    borderColor: '#DDDEE0',
-    borderWidth: 1,
-    borderRadius: 5,
-  },
-  agreementText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 16,
-    color: '#111111',
-    marginLeft: 10,
-  },
-  divider: {
-    borderBottomWidth: 1,
-    borderColor: '#B3B6BD',
-    marginVertical: 10,
-  },
-  agreementDetailBox: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-  },
-  detailText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 14,
-    color: '#111111',
-    marginLeft: 10,
-  },
-  optionalText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '400',
-    fontSize: 14,
-    color: '#111111',
-    marginLeft: 10,
-  },
-  submitButton: {
-    backgroundColor: '#6495ED',
+  kakaoButton: {
+    position: 'absolute',
+    height: 48,
+    left: 20,
+    right: 20,
+    bottom: 182,
+    backgroundColor: '#F9E000',
     borderRadius: 12,
     justifyContent: 'center',
     alignItems: 'center',
-    paddingVertical: 12,
-    marginTop: 40,
+    paddingVertical: 11,
+    paddingHorizontal: 84,
   },
-  submitButtonText: {
+  googleButton: {
+    position: 'absolute',
+    height: 48,
+    left: 20,
+    right: 20,
+    bottom: 119,
+    backgroundColor: '#E4E4E4',
+    borderRadius: 12,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 11,
+    paddingHorizontal: 84,
+  },
+  iconAndText: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 14,
+  },
+  kakaoIconWrapper: {
+    width: 23.12,
+    height: 23.12,
+    position: 'relative',
+  },
+  ellipse: {
+    position: 'absolute',
+    width: 23.12,
+    height: 18.84,
+    left: 0,
+    top: 0,
+    backgroundColor: '#3B1C1C',
+  },
+  polygon: {
+    position: 'absolute',
+    width: 8.84,
+    height: 7.71,
+    left: 13.12,
+    top: 23.12,
+    backgroundColor: '#3B1C1C',
+    borderRadius: 1,
+    transform: [{ rotate: '180deg' }],
+  },
+  googleIconWrapper: {
+    width: 23,
+    height: 24,
+    position: 'relative',
+  },
+  agreementText: {
+    position: 'absolute',
+    height: 22,
+    left: 20,
+    right: 23,
+    bottom: 52,
     fontFamily: 'Pretendard',
+    fontStyle: 'normal',
     fontWeight: '400',
-    fontSize: 16,
-    color: '#FFFFFF',
+    fontSize: 12,
+    lineHeight: 22,
+    textAlign: 'center',
+    letterSpacing: -0.025,
+    color: '#97A0A7',
+  },
+  termsWrapper: {
+    position: 'absolute',
+    width: 173,
+    height: 22,
+    left: '50%',
+    marginLeft: -86.5,
+    bottom: 25,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: 3,
+  },
+  termsText: {
+    fontFamily: 'Pretendard',
+    fontStyle: 'normal',
+    fontWeight: '400',
+    fontSize: 10,
+    lineHeight: 22,
+    textAlign: 'center',
+    letterSpacing: -0.025,
+    textDecorationLine: 'underline',
+    color: '#97A0A7',
+  },
+  divider: {
+    position: 'absolute',
+    height: 0,
+    left: '5.83%',
+    right: '5.83%',
+    bottom: 89,
+    borderColor: '#97A0A7',
+    borderBottomWidth: 1,
+  },
+  rightSide: {
+    flexDirection: 'row',
+    alignItems: 'center',
   },
 });
 
-export default SignupScreen;
+export default SignUpHome;
