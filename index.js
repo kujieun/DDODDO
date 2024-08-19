@@ -14,10 +14,13 @@ AppRegistry.registerComponent(appName, () => App);
 
 import {AppRegistry} from 'react-native';
 import App from './App';
-//import bus from './scripts/bus';
+import SignupHome from './scripts/SignupHome';
 //import PathAndMap from './scripts/PathAndMap';
-import Parking from './scripts/Parking';
+import testtest from './scripts/testtest';
+//import FindRoute from './scripts/FindRoute';
+import test2 from './scripts/test2';
+import SignupTerm from './scripts/SignupTerm';
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => PathAndMap);
+AppRegistry.registerComponent(appName, () => SignupTerm);
