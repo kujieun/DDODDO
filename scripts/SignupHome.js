@@ -64,7 +64,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     position: 'relative',
-    width: '100%', // 화면 너비에 맞추기
+    width: '100%',
     backgroundColor: '#FFFFFF',
   },
   logo: {
