@@ -1,203 +1,180 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
 
-export default function Home() {
-  return (
+const SignupScreen = () => {
+const [selectedCategory, setSelectedCategory] = useState(1);
+
+  const handleCategoryPress = (id) => {
+    setSelectedCategory(id);
+  };
+
+ return (
     <View style={styles.container}>
-      {/* 추천 맛집/ 홈 */}
-      <Text style={styles.title}>추천맛집</Text>
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      {/* 선택지 스크롤 뷰 */}
-      <ScrollView horizontal style={styles.scrollContainer}>
-        <View style={styles.scrollItem}>
-          <Text style={styles.scrollItemText}>안녕</Text>
-          <View style={styles.scrollItemLine} />
-        </View>
-        <View style={styles.scrollItem}>
-          <Text style={styles.scrollItemText}>헬로</Text>
-          <View style={styles.scrollItemLine} />
-        </View>
-        <View style={styles.scrollItem}>
-          <Text style={styles.scrollItemText}>니하오</Text>
-          <View style={styles.scrollItemLine} />
-        </View>
-        {/* 더 많은 아이템들 */}
-      </ScrollView>
+      {/* Header Section */}
+      <View style={styles.header}>
+        <TouchableOpacity onPress={() => { /* 뒤로가기 기능 */ }} style={styles.backButtonContainer}>
+          <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
+        </TouchableOpacity>
+        <Text style={styles.headerText}>추천 맛집</Text>
 
-      {/* 추천 맛집 리스트 */}
-      <View style={styles.restaurantList}>
-        {/* 첫 번째 레스토랑 아이템 */}
-        <View style={styles.restaurantItem}>
-          <View style={styles.restaurantImage} />
-          <View style={styles.restaurantInfo}>
-            <Text style={styles.restaurantName}>장소이름</Text>
-            <Text style={styles.restaurantDescription}>
-              이 가게는 ~~가 특징입니다유! 혹시나 두줄이 될 수도?
-            </Text>
-            <View style={styles.ratingRow}>
-              <View style={styles.starRating}>
-                <View style={styles.star} />
-                <Text style={styles.ratingText}>5.0 (35)</Text>
-              </View>
-              <View style={styles.distanceRow}>
-                <View style={styles.dot} />
-                <Text style={styles.distanceText}>111m</Text>
-              </View>
+        {/* Search Icon Button */}
+        <TouchableOpacity onPress={() => { /* Search 기능 */ }} style={styles.searchButtonContainer}>
+          <Image source={require('../image/searchicon.png')} style={styles.searchIcon} />
+        </TouchableOpacity>
+      </View>
+
+      {/* Navigation Bar */}
+      <View style={styles.navContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContainer}
+        >
+          <View style={styles.categoryWrapper}>
+            {categories.map((category) => (
+              <TouchableOpacity
+                key={category.id}
+                onPress={() => handleCategoryPress(category.id)}
+                style={[
+                  styles.categoryContainer,
+                  selectedCategory === category.id && styles.selectedCategory
+                ]}
+              >
+                <Text
+                  style={[
+                    styles.categoryText,
+                    selectedCategory === category.id && styles.selectedCategoryText
+                  ]}
+                >
+                  {category.label}
+                </Text>
+              </TouchableOpacity>
+            ))}
+            <View style={styles.lineContainer}>
+              {categories.map((category) => (
+                <View
+                  key={category.id}
+                  style={[
+                    styles.line,
+                    (selectedCategory === category.id) ? styles.activeLine : styles.inactiveLine
+                  ]}
+                />
+              ))}
             </View>
           </View>
-          <View style={styles.actionButton}>
-            <View style={styles.actionIcon} />
-          </View>
-        </View>
-
-        {/* 두 번째 레스토랑 아이템 */}
-        <View style={styles.restaurantItem}>
-          <View style={styles.restaurantImage} />
-          <View style={styles.restaurantInfo}>
-            <Text style={styles.restaurantName}>장소이름</Text>
-            <Text style={styles.restaurantDescription}>
-              이 가게는 ~~가 특징입니다유! 혹시나 두줄이 될 수도?
-            </Text>
-            <View style={styles.ratingRow}>
-              <View style={styles.starRating}>
-                <View style={styles.star} />
-                <Text style={styles.ratingText}>5.0 (35)</Text>
-              </View>
-              <View style={styles.distanceRow}>
-                <View style={styles.dot} />
-                <Text style={styles.distanceText}>111m</Text>
-              </View>
-            </View>
-          </View>
-          <View style={styles.actionButton}>
-            <View style={styles.actionIcon} />
-          </View>
-        </View>
+        </ScrollView>
       </View>
     </View>
   );
-}
+};
+
+const categories = [
+  { id: 1, label: '한식' },
+  { id: 2, label: '서양식' },
+  { id: 3, label: '일식' },
+  { id: 4, label: '중식' },
+  { id: 5, label: '이색음식' },
+  { id: 6, label: '카페' },
+  { id: 7, label: '클럽' },
+];
+
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#FFFFFF',
   },
-  title: {
-    position: 'absolute',
+  header: {
+    alignItems: 'center',
+  },
+  headerText: {
     top: 45,
-    alignSelf: 'center',
-    fontSize: 16,
+    fontFamily: 'Pretendard',
     fontWeight: '600',
-    lineHeight: 20,
+    fontSize: 16,
     color: '#111111',
   },
-  scrollContainer: {
+  backButtonContainer: {
     position: 'absolute',
-    top: 95,
-    left: 0,
-    right: 0,
+    left: 20,
+    top: 30,
+    width: 39.51,
+    height: 50,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  backButton: {
+    width: 30,
+    height: 30,
+  },
+
+  // Frame 228 - Search Button Styles
+  searchButtonContainer: {
+    position: 'absolute',
+    right: 5,
+    top: 30,
+    width: 42,
+    height: 50,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  searchIcon: {
+    width: 20,
+    height: 20,
+  },
+  navContainer: {
+      position: 'absolute',
+      top: 90,
+      left: 0,
+      width: '100%',
+      height: 33,
+      backgroundColor: '#FFFFFF',
+    },
+    scrollContainer: {
+      paddingHorizontal: 0,
+    },
+categoryWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
     height: 33,
   },
-  scrollItem: {
-    width: 56,
+  categoryContainer: {
     alignItems: 'center',
-    justifyContent: 'center',
-    paddingVertical: 8,
+    marginRight: 0,
+    width: 56,
+    position: 'relative',
   },
-  scrollItemText: {
+  categoryText: {
+    fontFamily: 'Pretendard',
     fontSize: 16,
     lineHeight: 22,
+    letterSpacing: -0.025,
+    color: '#646C79',
+  },
+  selectedCategoryText: {
     color: '#6495ED',
   },
-  scrollItemLine: {
-    width: '100%',
-    height: 2,
-    backgroundColor: '#6495ED',
-    marginTop: 4,
-  },
-  restaurantList: {
+  lineContainer: {
     position: 'absolute',
-    top: 185,
-    left: 20,
-    right: 14,
-  },
-  restaurantItem: {
+    bottom: 0,
+    left: 0,
+    width: '100%',
     flexDirection: 'row',
-    alignItems: 'center',
-    height: 93,
-    marginBottom: 14,
+    height: 2,
+    backgroundColor: '#DDDEE0',
   },
-  restaurantImage: {
-    width: 93,
-    height: 93,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 12,
+  line: {
+    width: 56,
+    height: 2,
   },
-  restaurantInfo: {
-    flex: 1,
-    justifyContent: 'center',
-    marginLeft: 14,
+  activeLine: {
+    backgroundColor: '#6495ED',
   },
-  restaurantName: {
-    fontSize: 15,
-    fontWeight: '500',
-    lineHeight: 21,
-    color: '#111111',
-  },
-  restaurantDescription: {
-    fontSize: 12,
-    lineHeight: 17,
-    color: '#646C79',
-    marginTop: 4,
-  },
-  ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  starRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  star: {
-    width: 15,
-    height: 15,
-    backgroundColor: '#FFB800',
-    borderRadius: 0.8,
-  },
-  ratingText: {
-    fontSize: 10,
-    lineHeight: 14,
-    color: '#B8B6C3',
-    marginLeft: 4,
-  },
-  distanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 8,
-  },
-  dot: {
-    width: 4,
-    height: 4,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 2,
-  },
-  distanceText: {
-    fontSize: 10,
-    lineHeight: 14,
-    color: '#B8B6C3',
-    marginLeft: 4,
-  },
-  actionButton: {
-    width: 33,
-    height: 93,
-    justifyContent: 'center',
-    alignItems: 'flex-end',
-  },
-  actionIcon: {
-    width: 27,
-    height: 27,
-    backgroundColor: '#D9D9D9',
+  inactiveLine: {
+    backgroundColor: 'transparent',
   },
 });
+
+export default SignupScreen;
