@@ -26,6 +26,11 @@ import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
 
 import Detail from './scripts/Detail';
 
+import Community from './screens/Community';
+import Weather from './screens/Weather'
+import Write from './screens/WritePost'
+
+
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TourPlaceHome);
+AppRegistry.registerComponent(appName, () => Community);
