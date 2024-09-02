@@ -4,13 +4,13 @@ import axios from 'axios';
 
 const categories = [
   { id: 1, label: '전체' },
-  { id: 2, label: '한식' },
-  { id: 3, label: '서양식' },
-  { id: 4, label: '일식' },
-  { id: 5, label: '중식' },
-  { id: 6, label: '이색음식' },
-  { id: 7, label: '카페' },
-  { id: 8, label: '클럽' },
+  { id: 2, label: '촬영지' },
+  { id: 3, label: '해수욕장' },
+  { id: 4, label: '자연명소' },
+  { id: 5, label: '테마파크' },
+  { id: 6, label: '문화유적' },
+  { id: 7, label: '체험관광' },
+  { id: 8, label: '쇼핑' },
 ];
 
 const SignupScreen = () => {
@@ -37,7 +37,7 @@ const SignupScreen = () => {
           MobileOS: 'AND',
           MobileApp: '또,강릉',
           _type: 'json',
-          contentTypeId: 39,
+          contentTypeId: 15,
           areaCode: 32,
           sigunguCode: 1,
           listYN: 'Y',
@@ -142,7 +142,7 @@ const SignupScreen = () => {
         >
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>추천 맛집</Text>
+        <Text style={styles.headerText}>추천 여행지</Text>
         <TouchableOpacity
           onPress={() => { /* Search 기능 */ }}
           style={styles.searchButtonContainer}

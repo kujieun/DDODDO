@@ -350,7 +350,7 @@ const handleMarkerPress = useCallback(async (marker) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" />
+      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
       <View style={styles.topsection}>
         <View style={styles.inputContainer}>
           <TextInput
@@ -403,7 +403,7 @@ const handleMarkerPress = useCallback(async (marker) => {
             >
               <View style={{ alignItems: 'center' }}>
                 <Image
-                  source={require('../image/marker3.png')}
+                  source={require('../image/marker.png')}
                   style={{ width: 20, height: 20 }}  // 크기를 반으로 줄임
                   resizeMode="contain"
                 />
