@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, FlatList, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useEffect ,useMemo} from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
 
 const categories = [
-  { id: 1, label: '전체' },
-  { id: 2, label: '한식' },
-  { id: 3, label: '서양식' },
-  { id: 4, label: '일식' },
-  { id: 5, label: '중식' },
-  { id: 6, label: '이색음식' },
-  { id: 7, label: '카페' },
-  { id: 8, label: '클럽' },
+  { id: 1, label: '전체', code: null },
+  { id: 2, label: '한식', code: 'A05020100' },
+  { id: 3, label: '서양식', code: 'A05020200' },
+  { id: 4, label: '일식', code: 'A05020300' },
+  { id: 5, label: '중식', code: 'A05020400' },
+  { id: 6, label: '이색음식', code: 'A05020700' },
+  { id: 7, label: '카페', code: 'A05020900' },
 ];
 
 const SignupScreen = () => {
@@ -21,14 +20,37 @@ const SignupScreen = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [likedItems, setLikedItems] = useState({});
 
+  // searchbox 표시 여부를 관리하는 상태 추가
+    const [searchVisible, setSearchVisible] = useState(false);
+
   const handleCategoryPress = (id) => {
     setSelectedCategory(id);
     setPageNo(1);
     setLoading(true);
   };
 
+  // 검색 아이콘 클릭 시 searchbox 표시
+    const handleSearchPress = () => {
+      setSearchVisible(!searchVisible);
+    };
+
+    // 장소 검색 'searchText' 상태 추가
+    const [searchText, setSearchText] = useState('');
+
+    //tourData 필터링
+const filteredData = useMemo(() => {
+  return tourData.filter(item =>
+    item.title.toLowerCase().includes(searchText.toLowerCase())
+  );
+}, [searchText, tourData]);
+
+
+
+
   const fetchTourData = async (page) => {
     try {
+      const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
+
       const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
         params: {
           serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
@@ -42,6 +64,8 @@ const SignupScreen = () => {
           sigunguCode: 1,
           listYN: 'Y',
           arrange: 'Q',
+          cat3: selectedCategoryCode,
+
         },
       });
 
@@ -58,9 +82,8 @@ const SignupScreen = () => {
           }));
 
           const uniqueData = formattedData.filter((item, index, self) =>
-                    index === self.findIndex((t) => t.contentid === item.contentid)
-                  );
-
+            index === self.findIndex((t) => t.contentid === item.contentid)
+          );
 
           setTourData(prev => (page === 1 ? formattedData : [...prev, ...formattedData]));
           setTotalCount(response.data.response.body.totalCount);
@@ -95,11 +118,11 @@ const SignupScreen = () => {
   };
 
   const renderItem = ({ item }) => (
-    <View style={styles.restaurantItem}>
-      <Image
-        source={{ uri: item.image }}
-        style={styles.restaurantImage}
-      />
+ <View style={styles.restaurantItem}>
+    <Image
+      source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+      style={styles.restaurantImage}
+    />
       <View style={styles.restaurantInfo}>
         <Text style={styles.restaurantName}>{item.title}</Text>
         <Text style={styles.restaurantDescription}>{item.overview}</Text>
@@ -144,12 +167,26 @@ const SignupScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>추천 맛집</Text>
         <TouchableOpacity
-          onPress={() => { /* Search 기능 */ }}
+          onPress={handleSearchPress}
           style={styles.searchButtonContainer}
         >
-          <Image source={require('../image/searchicon.png')} style={styles.searchIcon} />
+          <Image source={require('../image/restaurant/searchicon.png')} style={styles.searchIcon} />
         </TouchableOpacity>
       </View>
+
+      {/* searchbox 표시 */}
+            {searchVisible && (
+              <View style={styles.searchBoxContainer}>
+                <Image source={require('../image/restaurant/searchbox.png')} style={styles.searchBox} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="장소 이름 검색"
+                  placeholderTextColor="#999"
+                  value={searchText}
+                  onChangeText={(text) => setSearchText(text)}
+                />
+              </View>
+            )}
 
       <View style={styles.navContainer}>
         <ScrollView
@@ -210,13 +247,13 @@ const SignupScreen = () => {
 
       <FlatList
         style={styles.restaurantList}
-        data={tourData}
+        data={filteredData}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.contentid.toString() + index.toString()}  // 고유한 키 생성
         onEndReached={loadMoreData}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        //contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
   );
@@ -260,9 +297,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   searchIcon: {
+  top:2,
     width: 19,
     height: 19,
   },
+  searchBoxContainer: {
+      position: 'absolute',
+      left: '5.28%',
+      right: '14.72%',
+      top: 40,
+      height: 38,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    searchBox: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      resizeMode: 'contain', // 이미지 비율 유지
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 10, // 여백
+      color: '#111',
+      fontSize: 16,
+    },
   navContainer: {
     position: 'absolute',
     top: 95,
@@ -304,7 +363,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDDEE0',
   },
   line: {
-    width: 56,
+    width: 60,
     height: 2,
   },
   activeLine: {
@@ -372,6 +431,7 @@ const styles = StyleSheet.create({
     top: 165,
     left: 20,
     right: 14,
+    marginBottom:175,
   },
   restaurantItem: {
     flexDirection: 'row',
@@ -443,7 +503,7 @@ const styles = StyleSheet.create({
     height: 93,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    right: 50, // 화면 오른쪽에서 60 단위 위치
+    right: 50,
   },
   actionIcon: {
     width: 19.02,
