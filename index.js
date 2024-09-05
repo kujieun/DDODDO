@@ -34,4 +34,4 @@ import Write from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => LoginPage);
+AppRegistry.registerComponent(appName, () => App);
