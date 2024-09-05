@@ -24,6 +24,7 @@ import SignupNickname from './scripts/SignupNickname';
 import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집
 import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
 import Detail from './scripts/Detail';
+import LoginPage from './scripts/LoginPage';
 
 //지수
 import Community from './screens/Community';
@@ -33,4 +34,4 @@ import Write from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => RestaurantHome);
+AppRegistry.registerComponent(appName, () => LoginPage);

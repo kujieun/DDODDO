@@ -11,6 +11,7 @@ buildscript {
     repositories {
         google()
         mavenCentral()
+        maven { url 'https://devrepo.kakao.com/nexus/content/groups/public/' }
 
     }
     dependencies {
@@ -19,6 +20,7 @@ buildscript {
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin")
         //파이어베이스 수정
         classpath("com.google.gms:google-services:4.4.2")
+
     }
 }
 
