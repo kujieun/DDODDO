@@ -18,7 +18,7 @@ import SignupHome from './scripts/SignupHome';
 //import PathAndMap from './scripts/PathAndMap';
 import testtest from './scripts/testtest';
 //import FindRoute from './scripts/FindRoute';
-import test2 from './scripts/test2'; //장소 카테고리 지도에 표시
+//import test2 from './scripts/test2'; //장소 카테고리 지도에 표시
 import SignupTerm from './scripts/SignupTerm';
 import SignupNickname from './scripts/SignupNickname';
 import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집

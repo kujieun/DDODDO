@@ -1,6 +1,7 @@
 import React, { useState, useEffect ,useMemo} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
+import { useCurrentLocation } from './MyLocation';
 
 const categories = [
   { id: 1, label: '전체', code: null },
@@ -17,8 +18,9 @@ const SignupScreen = () => {
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
+   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
@@ -44,61 +46,59 @@ const filteredData = useMemo(() => {
   );
 }, [searchText, tourData]);
 
+const fetchTourData = async () => {
+  try {
+    const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
 
+    const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
+      params: {
+        serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
+        numOfRows: totalCount,  // 전체 데이터를 한 번에 가져오도록 설정
+        pageNo: 1,
+        MobileOS: 'AND',
+        MobileApp: '또,강릉',
+        _type: 'json',
+        contentTypeId: 39,
+        areaCode: 32,
+        sigunguCode: 1,
+        listYN: 'Y',
+        arrange: 'Q',
+        cat3: selectedCategoryCode,
+      },
+    });
 
+    if (response.status === 200 && response.data.response && response.data.response.body && response.data.response.body.items) {
+      const items = response.data.response.body.items.item;
 
-  const fetchTourData = async (page) => {
-    try {
-      const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
+      if (Array.isArray(items)) {
+        const formattedData = items.map(item => ({
+          title: item.title || "No Title",
+          overview: item.overview || "No Overview",
+          image: item.firstimage || '',
+          tel: item.tel || "",
+          contentid: item.contentid,
+          mapx: item.mapx || null, // 좌표 X
+          mapy: item.mapy || null, // 좌표 Y
+        }));
 
-      const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
-        params: {
-          serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
-          numOfRows: 10,
-          pageNo: page,
-          MobileOS: 'AND',
-          MobileApp: '또,강릉',
-          _type: 'json',
-          contentTypeId: 39,
-          areaCode: 32,
-          sigunguCode: 1,
-          listYN: 'Y',
-          arrange: 'Q',
-          cat3: selectedCategoryCode,
+        const uniqueData = formattedData.filter((item, index, self) =>
+          index === self.findIndex((t) => t.contentid === item.contentid)
+        );
 
-        },
-      });
-
-      if (response.status === 200 && response.data.response && response.data.response.body && response.data.response.body.items) {
-        const items = response.data.response.body.items.item;
-
-        if (Array.isArray(items)) {
-          const formattedData = items.map(item => ({
-            title: item.title || "No Title",
-            overview: item.overview || "No Overview",
-            image: item.firstimage || '',
-            tel: item.tel || "",
-            contentid: item.contentid,
-          }));
-
-          const uniqueData = formattedData.filter((item, index, self) =>
-            index === self.findIndex((t) => t.contentid === item.contentid)
-          );
-
-          setTourData(prev => (page === 1 ? formattedData : [...prev, ...formattedData]));
-          setTotalCount(response.data.response.body.totalCount);
-        } else {
-          console.error('Items is not an array or is empty:', items);
-        }
+        setTourData(uniqueData);  // 전체 데이터를 한 번에 저장
       } else {
-        console.error('Unexpected response structure:', response.data);
+        console.error('Items is not an array or is empty:', items);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Unexpected response structure:', response.data);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTourData(pageNo);
@@ -117,6 +117,15 @@ const filteredData = useMemo(() => {
     }
   };
 
+  const calculateDistance = (item) => {
+    if (currentLocation && item.mapx && item.mapy) {
+      const destination = { latitude: parseFloat(item.mapy), longitude: parseFloat(item.mapx) };
+      const distance = getDistanceBetweenCoordinates(currentLocation, destination);
+      return `${(distance * 1000).toFixed(0)}m`; // 거리 결과를 미터 단위로 변환
+    }
+    return '정보 없음';
+  };
+
   const renderItem = ({ item }) => (
  <View style={styles.restaurantItem}>
     <Image
@@ -133,7 +142,7 @@ const filteredData = useMemo(() => {
           </View>
           <View style={styles.distanceRow}>
             <View style={styles.dot} />
-            <Text style={styles.distanceText}>111m</Text>
+            <Text style={styles.distanceText}>{calculateDistance(item)}</Text>
           </View>
         </View>
       </View>
