@@ -2,6 +2,7 @@ import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
 import { login } from "@react-native-seoul/kakao-login";  // Kakao Login 모듈 임포트
 import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore'; //추가, db업로드
 
 const SignUpHome = () => {
     const navigation = useNavigation();
@@ -10,6 +11,17 @@ const SignUpHome = () => {
         try {
           const token = await login();
           console.log("로그인 성공:", JSON.stringify(token));
+          
+          // 사용자 정보 db에 전달
+          const profile = await getKakaoProfile();
+          const userId = profile.id;  
+      
+          await firestore().collection('users').doc(userId.toString()).set({
+            name: profile.nickname,
+            email: profile.email,
+            profileImage: profile.profile_image_url
+          }, { merge: true });
+      
           navigation.navigate('SignupTerm');
         } catch (err) {
           console.error("카카오 로그인 에러", err);
