@@ -17,7 +17,9 @@ const Stack = createStackNavigator();
 const App = () => {
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="SignupHome">
+      <Stack.Navigator initialRouteName="SignupHome"
+      screenOptions={{ headerShown: false }} // 모든 화면에서 헤더 숨김
+            >
         <Stack.Screen name="SignupHome" component={SignupHome} />
         <Stack.Screen name="SignupTerm" component={SignupTerm} />
         <Stack.Screen name="SignupNickname" component={SignupNickname} />
@@ -27,4 +29,3 @@ const App = () => {
 };
 
 export default App;
-

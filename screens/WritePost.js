@@ -4,21 +4,25 @@ import firestore from '@react-native-firebase/firestore';
 // import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
+import auth from '@react-native-firebase/auth';
 
 const CommunityPost = () => {
     // const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const postsCollection = firestore().collection('community'); 
+  const postsCollection = firestore().collection('community');
   const [modalVisible, setModalVisible] = useState(false);
   const [selectMenu, setSelectMenu] = useState('최신 게시물');
-  const [tabVisible, setTabVisible] = useState(false);  
+  const [tabVisible, setTabVisible] = useState(false);
   // 태그 관리
   const [selectedTags, setSelectedTags] = useState([]);
   const [availableTags, setAvailableTags] = useState(['맛집', '카페', '바닷가', '인생샷', '회']);
   const [inputTag, setInputTag] = useState('');
   // 사진 관리
   const [images, setImages] = useState([]);
-  const [uploadedImageURLs, setUploadedImageURLs] = useState([]);  
+  const [uploadedImageURLs, setUploadedImageURLs] = useState([]);
+
+  // 현재 로그인한 사용자의 ID 가져오기
+  const user = auth().currentUser;
 
 
 
@@ -44,13 +48,13 @@ const CommunityPost = () => {
     }
   };
 
-  
+
   //사진 추가 + storage 업로드
   const pickImages = async () => {
     try {
       const selectedImages = await ImagePicker.openPicker({
-        multiple: true, 
-        mediaType: 'photo', 
+        multiple: true,
+        mediaType: 'photo',
       });
 
        //storage
@@ -73,10 +77,10 @@ const CommunityPost = () => {
       const newUploadedImages = await Promise.all(uploadPromises);
 
       setUploadedImageURLs([...uploadedImageURLs, ...newUploadedImages.map(image => image.downloadURL)]);
-  
+
       setImages([...images, ...newUploadedImages.map(image => ({ path: image.uri }))]);
 
-  
+
       //새로운 이미지 선택 시 기존 이미지에 병합
       // setImages([...images, ...selectedImages]);
 
@@ -91,11 +95,11 @@ const CommunityPost = () => {
     try {
       const imageToRemove = images[indexToRemove];
       const downloadURLToRemove = uploadedImageURLs[indexToRemove];
-  
+
       // Storage에서 이미지 삭제
       const storageRef = storage().refFromURL(downloadURLToRemove);
       await storageRef.delete();
-  
+
       // 상태에서 이미지와 URL 제거
       setImages(images.filter((_, index) => index !== indexToRemove));
       setUploadedImageURLs(uploadedImageURLs.filter((_, index) => index !== indexToRemove));
@@ -103,16 +107,17 @@ const CommunityPost = () => {
       console.log('Image removal error: ', error);
     }
   };
-  
+
 
   const addPost = async () => {
     try {
       await postsCollection.add({
         menu: selectMenu,
         content: content,
-        createdAt: firestore.FieldValue.serverTimestamp(), 
-        tags: selectedTags, 
+        createdAt: firestore.FieldValue.serverTimestamp(),
+        tags: selectedTags,
         images: uploadedImageURLs,
+        userEmail: user.email // 추가: 사용자 이메일
       });
 
       setSelectMenu('최신 게시물');
