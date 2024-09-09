@@ -744,24 +744,6 @@ const styles = StyleSheet.create({
           marginTop: 15,
           marginBottom: 15,
         },
-         webViewContainer: {
-                    flex: 1,
-                  },
-                  webView: {
-                    flex: 1,
-                  },
-                  closeButton: {
-                    position: 'absolute',
-                    top: 40,
-                    right: 20,
-                    backgroundColor: 'rgba(0,0,0,0.5)',
-                    padding: 10,
-                    borderRadius: 5,
-                  },
-                  closeButtonText: {
-                    fontSize: 18,
-                    color: '#fff',
-                  },
 
 });
 
