@@ -1,16 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity, Image, Modal, ScrollView} from 'react-native';
 import firestore from '@react-native-firebase/firestore';
 // import MultipleImagePicker from '@baronha/react-native-multiple-image-picker';
 import ImagePicker from 'react-native-image-crop-picker';
 import storage from '@react-native-firebase/storage';
 import auth from '@react-native-firebase/auth';
-import { useNavigation } from '@react-navigation/native';
 
-const CommunityPost = ({route}) => {
+const CommunityPost = () => {
     // const [title, setTitle] = useState('');
-  const navigation = useNavigation();
-
   const [content, setContent] = useState('');
   const postsCollection = firestore().collection('community');
   const [modalVisible, setModalVisible] = useState(false);
@@ -24,9 +21,8 @@ const CommunityPost = ({route}) => {
   const [images, setImages] = useState([]);
   const [uploadedImageURLs, setUploadedImageURLs] = useState([]);
 
-  const { userInfo } = route.params;
-
-
+  // 현재 로그인한 사용자의 ID 가져오기
+  const user = auth().currentUser;
 
 
 
@@ -121,7 +117,7 @@ const CommunityPost = ({route}) => {
         createdAt: firestore.FieldValue.serverTimestamp(),
         tags: selectedTags,
         images: uploadedImageURLs,
-        user: userInfo,
+        userEmail: user.email // 추가: 사용자 이메일
       });
 
       setSelectMenu('최신 게시물');
@@ -129,7 +125,6 @@ const CommunityPost = ({route}) => {
       setSelectedTags([]);
       setImages([]); 
       // console.log('Post Created Successfully!');
-      navigation.navigate('Community', {userInfo} );
     } catch (error) {
       console.log(error.message);
     }

@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 
-const SignupScreen = ({route}) => {
+const SignupScreen = () => {
   const navigation = useNavigation();
   const [isAgreeAll, setIsAgreeAll] = useState(false);
   const [serviceTerms, setServiceTerms] = useState(false);
@@ -11,7 +11,6 @@ const SignupScreen = ({route}) => {
   const [locationConsent, setLocationConsent] = useState(false);
 
   const areRequiredTermsAgreed = serviceTerms && ageConsent && privacyConsent;
-  const { userInfo } = route.params;
 
   const updateAgreeAll = () => {
     const allChecked = areRequiredTermsAgreed && locationConsent;
@@ -35,7 +34,7 @@ const SignupScreen = ({route}) => {
 
       const handleSubmit = () => {
           if (areRequiredTermsAgreed) {
-              navigation.navigate('SignupNickname', {userInfo});
+              navigation.navigate('SignupNickname');
           }
       };
 
