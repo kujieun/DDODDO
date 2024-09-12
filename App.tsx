@@ -7,6 +7,7 @@ import SignupNickname from './scripts/SignupNickname';
 import MainHome from './scripts/MainHome';
 import gangneungmap from './scripts/gangneungmap';
 import RestaurantHome from './scripts/RestaurantHome';
+import Community from './screens/Community';
 
 const Stack = createStackNavigator();
 
@@ -22,6 +23,7 @@ const App = () => {
         <Stack.Screen name="MainHome" component={MainHome} />
         <Stack.Screen name="gangneungmap" component={gangneungmap} />
         <Stack.Screen name="RestaurantHome" component={RestaurantHome} />
+        <Stack.Screen name="Community" component={Community} />
       </Stack.Navigator>
     </NavigationContainer>
   );

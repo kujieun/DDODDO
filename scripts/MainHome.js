@@ -33,9 +33,21 @@ const navigation = useNavigation();
     //하단 바 선택 메뉴
     const [selectedMenu, setSelectedMenu] = useState(null);
 
-    const handleBarMenu = (menu) => {
-        setSelectedMenu(menu);
-    };
+const handleBarMenu = (menu) => {
+    setSelectedMenu(menu);
+    switch(menu) {
+        case 'home':
+            navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
+            break;
+        case 'community':
+            navigation.navigate('Community'); // 예시: Home 화면으로 이동
+            break;
+        // 다른 케이스를 여기에 추가하세요.
+        default:
+            // 예를 들어, 존재하지 않는 메뉴 처리
+            break;
+    }
+};
 
     //ar 메뉴
     const [isCharacterPressed, setIsCharacterPressed] = useState(false); // 상태 관리
