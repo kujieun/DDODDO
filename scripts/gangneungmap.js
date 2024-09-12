@@ -4,6 +4,7 @@ import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import Geolocation from "react-native-geolocation-service"
 import { WebView } from 'react-native-webview';
+import { useNavigation } from '@react-navigation/native';
 
 const { height, width } = Dimensions.get('window'); // 화면 높이와 너비
 const googleMapsApiKey = 'AIzaSyBi7dTSWOJEE6JepCHm-ABWDjt2Yne_3cw'; // 구글 API 키
@@ -152,6 +153,7 @@ const getDistanceBetweenCoordinates = (coord1, coord2) => {
 
 
 const TopSection = () => {
+  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [predictions, setPredictions] = useState([]);

@@ -1,16 +1,20 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput, Modal, Pressable } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
+import { useNavigation } from '@react-navigation/native';
 
 const SignupScreen = () => {
+  const navigation = useNavigation();
   const [nickname, setNickname] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
-  const handleDuplicateCheck = () => {
+const handleDuplicateCheck = () => {
+    // 여기에 Firebase 또는 API 호출 로직 추가
     setModalVisible(true);
-    // TODO: Firebase에 닉네임 연결, 중복될 때의 알림창도 구현
+    setIsButtonEnabled(true); // 닉네임 확인 후 '다음' 버튼 활성화
   };
 
   const handleModalClose = () => {
@@ -22,6 +26,13 @@ const SignupScreen = () => {
     setIsValid(isValidNickname);
     setNickname(text);
   };
+
+   const handleNextButtonPress = () => {
+      if (isButtonEnabled) {
+        navigation.navigate('MainHome'); // MainHome으로 이동
+      }
+    };
+
 
   const handleProfileImagePick = () => {
     launchImageLibrary({}, (response) => {
@@ -88,6 +99,15 @@ const SignupScreen = () => {
       <TouchableOpacity style={[styles.submitButton, { backgroundColor: '#B3B6BD' }]}>
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>
+
+            {/* '다음' 버튼 */}
+            <TouchableOpacity
+              style={[styles.submitButton,  { backgroundColor: '#B3B6BD' }, isButtonEnabled ? styles.buttonEnabled : styles.buttonDisabled]}
+              onPress={handleNextButtonPress}
+              disabled={!isButtonEnabled}
+            >
+              <Text style={styles.submitButtonText}>다음</Text>
+            </TouchableOpacity>
 
       <Modal transparent={true} visible={modalVisible} animationType="fade" onRequestClose={handleModalClose}>
         <View style={styles.modalOverlay}>

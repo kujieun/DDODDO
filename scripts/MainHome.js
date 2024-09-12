@@ -2,7 +2,7 @@ import * as React from "react";
 import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
-// import { TouchableOpacity } from "react-native-gesture-handler";
+import { useNavigation } from '@react-navigation/native';
 
 // 화면 너비 가져오기
 const { width: screenWidth } = Dimensions.get('window');
@@ -21,7 +21,9 @@ const menuImages = {
 
 
 const MainHome = () => {
+const navigation = useNavigation();
     const [daysLeft, setDaysLeft] = useState(0);
+
     const [weather, setWeather] = useState({
         icon: require('../image/mainhome/weather/clear.png'),
         temperature: '22.6°',
@@ -81,9 +83,16 @@ const MainHome = () => {
         setDaysLeft(diffDays);
     }, []);
 
+// 메뉴 항목 클릭 시 동작
     const handleMenuPress = (menuIndex) => {
         console.log(`Menu ${menuIndex} pressed`);
-        // 여기에 메뉴 항목 클릭 시의 동작을 추가합니다.
+        if (menuIndex === 7) {
+                    navigation.navigate('RestaurantHome'); // Test2로 이동
+                }
+        if (menuIndex === 8) {
+            navigation.navigate('gangneungmap'); // Test2로 이동
+        }
+        // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
 
     return (
