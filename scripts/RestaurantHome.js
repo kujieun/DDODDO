@@ -20,7 +20,7 @@ const SignupScreen = () => {
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
-   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+  const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
