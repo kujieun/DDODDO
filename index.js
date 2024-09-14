@@ -25,6 +25,7 @@ import testtest from './scripts/testtest'; // 강릉 지도 테스트 버전
 import gangneungmap from './scripts/gangneungmap'; // 강릉 지도
 import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집
 import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
+import ARScreen from './scripts/ARScreen'; // 추천 여행지
 
 
 
@@ -39,4 +40,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => App);
+AppRegistry.registerComponent(appName, () => ARScreen);
