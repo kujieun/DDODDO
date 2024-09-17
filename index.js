@@ -35,4 +35,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => test2);
+AppRegistry.registerComponent(appName, () => App);

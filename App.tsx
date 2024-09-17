@@ -16,6 +16,7 @@ import SignupNickname from './scripts/SignupNickname';
 import WritePost from './screens/WritePost';
 import Community from './screens/Community';
 import CommunityDetail from './screens/CommunityDetail';
+import MainHome from './scripts/MainHome';
 
 const Stack = createStackNavigator();
 
@@ -31,6 +32,7 @@ const App = () => {
         <Stack.Screen name="WritePost" component={WritePost} />
         <Stack.Screen name="Community" component={Community} />
         <Stack.Screen name="CommunityDetail" component={CommunityDetail} />
+        <Stack.Screen name="MainHome" component={MainHome} />
       </Stack.Navigator>
     </NavigationContainer>
   );

@@ -122,6 +122,8 @@ const CommunityPost = ({route}) => {
         tags: selectedTags,
         images: uploadedImageURLs,
         user: userInfo,
+        commentcounts: 0,
+        likes: 0,
       });
 
       setSelectMenu('최신 게시물');

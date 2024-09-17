@@ -69,7 +69,7 @@ const SignupScreen = ( {route}) => {
     const updatedUserInfo = { ...userInfo, name: nickname, profileImage: imageUrl };
   
     // 다음 화면으로 이동, userInfo 전달
-    navigation.navigate('Community', { userInfo: updatedUserInfo });
+    navigation.navigate('MainHome', { userInfo: updatedUserInfo });
   };
 
 

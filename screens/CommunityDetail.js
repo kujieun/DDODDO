@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, Image, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; 
+import firestore from '@react-native-firebase/firestore';
 
 const PostDetail = ({route}) => {
 
@@ -14,22 +15,54 @@ const PostDetail = ({route}) => {
     const [commentcount, setCount] = useState(0);
     const [liked, setLiked] = useState(false); // 좋아요 상태
 
+    const [currentPost, setCurrentPost] = useState(post);
+
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('community')
+            .doc(post.id)
+            .onSnapshot(doc => {
+                const updatedPost = doc.data();
+                setCurrentPost(updatedPost); // This updates the entire post
+                setLikes(updatedPost.likes); // Syncs the like count
+                setComments(updatedPost.comments || []); // Syncs the comments
+                setCount(updatedPost.commentcount || 0); // Syncs the comment count
+            });
+    
+        return () => unsubscribe();
+    }, [post.id]);
+    
+
+
     const toggleLike = () => {
-        if (liked) {
-            setLikes(likes - 1);
-        } else {
-            setLikes(likes + 1);
-        }
+        const updatedLikes = liked ? likes - 1 : likes + 1;
+        setLikes(updatedLikes);
         setLiked(!liked);
+        firestore()
+        .collection('community')
+        .doc(post.id)
+        .update({ likes: updatedLikes }); // update the likes in Firestore
     };
+
 
     const addComment = () => {
         if (newComment.trim()) {
-            setComments([...comments, newComment]);
+            const updatedComments = [...comments, newComment];
+            setComments(updatedComments);
             setNewComment("");
+            setCount(commentcount + 1);
+    
+            // Save the comment to Firestore
+            firestore()
+              .collection('community')
+              .doc(post.id)
+              .update({
+                  comments: updatedComments,
+                  commentcount: commentcount + 1
+              });
         }
-        setCount(commentcount + 1);
     };
+    
 
     return (
         <View style={styles.container}>
