@@ -2,6 +2,7 @@ import React, { useState, useEffect ,useMemo} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
 import { useCurrentLocation } from './MyLocation';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const categories = [
   { id: 1, label: '전체', code: null },
@@ -37,6 +38,7 @@ const TourPlaceHome = () => {
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+  const navigation = useNavigation();
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
@@ -158,7 +160,12 @@ const fetchTourData = async () => {
   };
 
   const renderItem = ({ item }) => (
- <View style={styles.restaurantItem}>
+    // TourPlaceHome.js
+    <TouchableOpacity
+      style={styles.restaurantItem}
+      onPress={() => navigation.navigate('Detail', { contentid: item.contentid })} // Pass contentId
+    >
+
     <Image
       source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
       style={styles.restaurantImage}
@@ -188,7 +195,7 @@ const fetchTourData = async () => {
           style={styles.actionIcon}
         />
       </TouchableOpacity>
-    </View>
+     </TouchableOpacity>
   );
 
   const renderFooter = () => {

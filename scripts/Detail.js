@@ -1,110 +1,193 @@
-import React from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, Linking } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { Dimensions, StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, ScrollView, ActivityIndicator } from 'react-native';
+import axios from 'axios';
+import { useNavigation } from '@react-navigation/native'; // Navigation hook 추가
 
-const EventDetail = ({ route }) => {
-  const { item } = route.params;
+const TourPlaceHome = ({ route }) => {
+  const navigation = useNavigation();
+  const { contentid } = route.params; // `contentId`, 'title'을 받아옵니다.
+  const [isLiked, setIsLiked] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [tourData, setTourData] = useState([]);
+  const [placeName, setPlaceName] = useState('');
+
+  const fetchItemDetails = async () => {
+    try {
+      const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/detailCommon1', {
+        params: {
+          serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==',
+          numOfRows: 10,
+          pageNo: 1,
+          MobileOS: 'AND',
+          MobileApp: '또,강릉',
+          _type: 'json',
+          defaultYN: 'Y',
+          contentId: contentid,
+          firstImageYN: 'Y',
+          overviewYN: 'Y',
+          addrinfoYN: 'Y',
+          mapinfoYN: 'Y',
+        },
+      });
+
+      console.log('API Response:', response.data);
+
+      if (response.status === 200 && response.data.response?.body?.items?.item) {
+        const items = response.data.response.body.items.item;
+
+        const formattedData = items.map(item => ({
+          title: item.title || "No Title",
+          overview: item.overview || "No Overview",
+          firstimage: item.firstimage || '',
+          addr1: item.addr1 || "No Address",
+          tel: item.tel || "No Phone Number",
+          homepage: item.homepage || "No Website",
+          mapx: item.mapx || null,
+          mapy: item.mapy || null,
+        }));
+
+        setTourData(formattedData);
+         setPlaceName(items[0].title || 'Unknown Place');
+         console.log(`Number of images fetched: ${formattedData.length}`);
+      } else {
+        setError('No items found.');
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('Error fetching data.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchItemDetails();
+  }, []);
+
+  const handleBackButton = () => {
+      navigation.goBack(); // 이전 화면으로 돌아가는 함수
+    };
+
+  const handleActionPress = () => {
+    setIsLiked(!isLiked);
+  };
+
+  if (error) return <Text style={styles.error}>{`Error: ${error}`}</Text>;
 
   return (
-    <ScrollView style={styles.container}>
-      {/* 대표 이미지 표시 */}
-      {item.firstimage ? (
-        <Image source={{ uri: item.firstimage }} style={styles.largeImage} />
-      ) : (
-        <View style={styles.noImageContainer}>
-          <Text style={styles.noImageText}>No Image</Text>
-        </View>
-      )}
-
-      {/* 추가 이미지들 표시 */}
-      {item.images && item.images.length > 0 && (
-        <ScrollView horizontal style={styles.imageContainer}>
-          {item.images.map((image, index) => (
-            <Image key={index} source={{ uri: image }} style={styles.additionalImage} />
-          ))}
-        </ScrollView>
-      )}
-
-      {/* 기타 정보 표시 */}
-      <View style={styles.textContainer}>
-        {item.title && <Text style={styles.detail}>✅ {item.title}</Text>}
-        {item.addr1 && <Text style={styles.detail}>🏠 {item.addr1}</Text>}
-
-        {item.tel && (
-          <Text style={styles.detail} onPress={() => Linking.openURL(`tel:${item.tel}`)}>
-            📞 {item.tel}
-          </Text>
-        )}
-        {item.homepage && (
-          <Text
-            style={styles.detail}
-            onPress={() => Linking.openURL(item.homepage)}
-          >
-            Homepage: {item.homepage}
-          </Text>
-        )}
-        {item.overview && <Text style={styles.detail}>Overview: {item.overview}</Text>}
-        {/* 추가적인 세부 정보 */}
-        {item.eventstartdate && <Text style={styles.detail}>Start Date: {item.eventstartdate}</Text>}
-        {item.eventenddate && <Text style={styles.detail}>End Date: {item.eventenddate}</Text>}
-        {item.usetimefestival && <Text style={styles.detail}>Use Time: {item.usetimefestival}</Text>}
-        {item.subevent && <Text style={styles.detail}>Sub Event: {item.subevent}</Text>}
-        {item.playtime && <Text style={styles.detail}>Play Time: {item.playtime}</Text>}
-        {item.bookingplace && <Text style={styles.detail}>Booking Place: {item.bookingplace}</Text>}
+    <View style={styles.container}>
+      <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
+      <View style={styles.header}>
+        <TouchableOpacity
+           onPress={handleBackButton}
+          style={styles.backButtonContainer}
+        >
+          <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
+        </TouchableOpacity>
+         <Text style={styles.headerText}>{placeName}</Text>
+        <TouchableOpacity
+          onPress={handleActionPress}
+          style={styles.actionButtonContainer}
+        >
+          <Image
+            source={isLiked ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+            style={styles.actionIcon}
+          />
+        </TouchableOpacity>
       </View>
-    </ScrollView>
+
+<View style={styles.backgroundContainer}></View>
+
+
+      <View
+        horizontal
+        style={styles.imageView}
+
+      >
+        {tourData.map((place, index) => (
+          <View key={index} style={styles.imageContainer}>
+            <Image
+              source={{ uri: place.firstimage }}
+              style={styles.placeImage}
+            />
+          </View>
+        ))}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
-   marginTop: 50, // 여기에 marginTop 추가
     flex: 1,
-    padding: 16,
-    backgroundColor: '#f8f8f8',
+    backgroundColor: '#FFFFFF',
   },
-  largeImage: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 16,
-  },
-  noImageContainer: {
-    width: '100%',
-    height: 200,
-    borderRadius: 8,
-    marginBottom: 16,
-    justifyContent: 'center',
+  header: {
     alignItems: 'center',
-    backgroundColor: '#ccc',
   },
-  noImageText: {
+  headerText: {
+    top: 45,
+    fontFamily: 'Pretendard',
+    fontWeight: '600',
     fontSize: 16,
-    color: '#fff',
+    color: '#111111',
+  },
+  backButtonContainer: {
+    position: 'absolute',
+    left: 20,
+    top: 30,
+    width: 39.51,
+    height: 50,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  backButton: {
+    width: 30,
+    height: 30,
+  },
+  actionButtonContainer: {
+    position: 'absolute',
+    right: 5,
+    top: 30,
+    width: 42,
+    height: 50,
+    justifyContent: 'center',
+    backgroundColor: '#FFFFFF',
+  },
+  actionIcon: {
+    top: 2,
+    width: 19,
+    height: 19,
+    resizeMode: 'contain',
+  },
+  imageView: {
+    marginTop: 80,
   },
   imageContainer: {
-    marginBottom: 16,
-  },
-  additionalImage: {
-    width: 200,
-    height: 150,
-    borderRadius: 8,
+    width: Dimensions.get('window').width,
+    height: 265,
     marginRight: 10,
   },
-  textContainer: {
-    padding: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    shadowOffset: { width: 0, height: 2 },
-    elevation: 3,
+  placeImage: {
+    width: '100%',
+    height: '100%',
   },
-  detail: {
-    fontSize: 16,
-    color: '#666',
-    marginBottom: 8,
+  error: {
+    color: 'red',
+    textAlign: 'center',
   },
+ backgroundContainer: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    top: 308,
+    height: 223,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 25,
+    zIndex:1,
+  },
+
 });
 
-export default EventDetail;
+export default TourPlaceHome;

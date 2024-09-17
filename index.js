@@ -27,6 +27,8 @@ import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집
 import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
 import ARScreen from './scripts/ARScreen'; // 추천 여행지
 
+/*================완전 테스트테스트 ==========*/
+import TestNavigation from './TestNavigation';
 
 
 import Detail from './scripts/Detail';
@@ -40,4 +42,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TourPlaceHome);
+AppRegistry.registerComponent(appName, () => TestNavigation);
