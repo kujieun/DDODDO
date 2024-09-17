@@ -40,4 +40,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => ARScreen);
+AppRegistry.registerComponent(appName, () => TourPlaceHome);

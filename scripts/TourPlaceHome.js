@@ -5,15 +5,31 @@ import { useCurrentLocation } from './MyLocation';
 
 const categories = [
   { id: 1, label: '전체', code: null },
-  { id: 2, label: '한식', code: 'A05020100' },
-  { id: 3, label: '서양식', code: 'A05020200' },
-  { id: 4, label: '일식', code: 'A05020300' },
-  { id: 5, label: '중식', code: 'A05020400' },
-  { id: 6, label: '이색음식', code: 'A05020700' },
-  { id: 7, label: '카페', code: 'A05020900' },
+  { id: 2, label: '촬영지' },
+  { id: 3, label: '자연명소', code: 'A01' },
+  { id: 4, label: '해수욕장', code: 'A01011200' },
+  { id: 5, label: '휴양', code: 'A0202' },
+  { id: 6, label: '문화유적', code: 'A0201' },
+  { id: 7, label: '체험관광', code: 'A0203' },
 ];
 
-const SignupScreen = () => {
+const filmingLocations = [
+  {
+    title: "도깨비 촬영지",
+    address: "강원도 강릉시 주문진읍 해안동",
+    image: "https://example.com/filminglocation1.jpg",
+    contentid: 'filmingLocation1'
+  },
+  {
+    title: "미스터 션샤인 촬영지",
+    address: "강원도 강릉시 낙산동 산 1-1",
+    image: "https://example.com/filminglocation2.jpg",
+    contentid: 'filminglocation2'
+  },
+  // ... 더 많은 촬영지를 추가
+];
+
+const TourPlaceHome = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -24,6 +40,9 @@ const SignupScreen = () => {
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
+
+    // 장소 검색 'searchText' 상태 추가
+    const [searchText, setSearchText] = useState('');
 
   const handleCategoryPress = (id) => {
     setSelectedCategory(id);
@@ -36,21 +55,31 @@ const SignupScreen = () => {
       setSearchVisible(!searchVisible);
     };
 
-    // 장소 검색 'searchText' 상태 추가
-    const [searchText, setSearchText] = useState('');
+
 
     //tourData 필터링
-const filteredData = useMemo(() => {
-  return tourData.filter(item =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
-}, [searchText, tourData]);
+ const filteredData = useMemo(() => {
+    const filteredByCategory =
+      selectedCategory === 1
+        ? [...tourData, ...filmingLocations] // 전체 선택 시 API 데이터와 filmingLocations 합침
+        : selectedCategory === 2
+        ? filmingLocations // 촬영지 선택 시 filmingLocations만 사용
+        : tourData.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase()));
+    return filteredByCategory;
+  }, [searchText, tourData, filmingLocations, selectedCategory]);
+
 
 const fetchTourData = async () => {
   try {
+    // 선택된 카테고리 코드 가져오기
     const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
 
-    const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/detailCommon1', {
+    // 카테고리 코드가 null이 아닌 경우에만 길이 확인
+    const cat1 = selectedCategoryCode && selectedCategoryCode.length === 3 ? selectedCategoryCode : ''; // 5글자면 대분류
+    const cat2 = selectedCategoryCode && selectedCategoryCode.length === 5 ? selectedCategoryCode : ''; // 5글자면 대분류
+    const cat3 = selectedCategoryCode && selectedCategoryCode.length === 9 ? selectedCategoryCode : ''; // 9글자면 소분류
+
+    const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
       params: {
         serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
         numOfRows: totalCount,  // 전체 데이터를 한 번에 가져오도록 설정
@@ -58,14 +87,14 @@ const fetchTourData = async () => {
         MobileOS: 'AND',
         MobileApp: '또,강릉',
         _type: 'json',
-       // contentTypeId: 39,
-        contentId: 126508,
-      //  areaCode: 12,
-      //  sigunguCode: 1,
-       // listYN: 'Y',
-      //  arrange: 'Q',
-        cat3: selectedCategoryCode,
-        overviewYN: 'Y',
+        contentTypeId: 12,
+        areaCode: 32,
+        sigunguCode: 1,
+        listYN: 'Y',
+        arrange: 'Q',
+        cat1: cat1, // 대분류
+        cat2: cat2, // 대분류
+        cat3: cat3, // 소분류
       },
     });
 
@@ -75,7 +104,7 @@ const fetchTourData = async () => {
       if (Array.isArray(items)) {
         const formattedData = items.map(item => ({
           title: item.title || "No Title",
-          overview: item.overview || "No Overview",
+          address: item.addr1 || "No Address",
           image: item.firstimage || '',
           tel: item.tel || "",
           contentid: item.contentid,
@@ -136,7 +165,9 @@ const fetchTourData = async () => {
     />
       <View style={styles.restaurantInfo}>
         <Text style={styles.restaurantName}>{item.title}</Text>
-        <Text style={styles.restaurantDescription}>{item.overview}</Text>
+        <Text style={styles.restaurantDescription}>
+              {item.address.replace('강원특별자치도 강릉시', '').trim()}
+            </Text>
         <View style={styles.ratingRow}>
           <View style={styles.starRating}>
             <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
@@ -176,7 +207,7 @@ const fetchTourData = async () => {
         >
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>추천 맛집</Text>
+        <Text style={styles.headerText}>추천 여행지</Text>
         <TouchableOpacity
           onPress={handleSearchPress}
           style={styles.searchButtonContainer}
@@ -260,7 +291,7 @@ const fetchTourData = async () => {
         style={styles.restaurantList}
         data={filteredData}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item.contentid.toString() + index.toString()}  // 고유한 키 생성
+        keyExtractor={(item, index) => (item.contentid || index).toString()}
         onEndReached={loadMoreData}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -522,4 +553,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default TourPlaceHome;
