@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Text } from 'react-native';
+import React, { useState, useEffect, useRef } from 'react'; // useRef 추가
+import { View, Button, StyleSheet, Text, Platform } from 'react-native'; // Platform 추가
 import { ViroARScene, ViroARSceneNavigator, ViroText, ViroTrackingStateConstants } from '@reactvision/react-viro';
 import Geolocation from 'react-native-geolocation-service';
 import axios from 'axios';
@@ -7,6 +7,19 @@ import axios from 'axios';
 const HelloWorldSceneAR = ({ category }) => {
   const [places, setPlaces] = useState([]);
   const [userLocation, setUserLocation] = useState(null);
+
+ const textRef = useRef(null);
+  const [isFontLoaded, setIsFontLoaded] = useState(false);
+
+  useEffect(() => {
+    if (Platform.OS === 'android' && textRef.current) {
+      textRef.current.setNativeProps({
+        fontFamily: 'NotoSansCJK', // NotoSansCJK 폰트만 사용
+      });
+    }
+
+    setIsFontLoaded(true);
+  }, []);
 
   useEffect(() => {
     if (!category) return; // 카테고리가 설정되지 않은 경우 데이터 가져오지 않음
@@ -45,7 +58,7 @@ const HelloWorldSceneAR = ({ category }) => {
 
   async function fetchNearbyPlaces(lat, lon, type) {
     const apiKey = 'AIzaSyBi7dTSWOJEE6JepCHm-ABWDjt2Yne_3cw';
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=1000&type=${type}&language=ko&key=${apiKey}`;
+    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=1000&type=${type}&key=${apiKey}`;
     try {
       const response = await axios.get(url);
       // 상위 7개 장소만 반환
@@ -96,6 +109,7 @@ const HelloWorldSceneAR = ({ category }) => {
     <ViroARScene onTrackingUpdated={onInitialized}>
       {places.length === 0 && category && (
         <ViroText
+ref={textRef}
           text={`주변에 ${category} 정보가 없습니다.`}
           scale={[0.5, 0.5, 0.5]}
           position={[0, 0, -1]}
@@ -108,7 +122,12 @@ const HelloWorldSceneAR = ({ category }) => {
           text={`${place.name}\n별점: ${place.rating || '정보 없음'}\n영업 상태: ${place.opening_hours ? (place.opening_hours.open_now ? '영업 중' : '영업 종료') : '알 수 없음'}`}
           scale={[0.5, 0.5, 0.5]}
           position={getPosition(place)}
-          style={styles.helloWorldTextStyle}
+           style={{
+              fontFamily: 'NotoSansCJK', // 폰트 이름 설정
+              fontSize: 20,
+              color: '#ffffff',
+              textAlign: 'center'
+            }}
         />
       ))}
     </ViroARScene>
@@ -150,7 +169,7 @@ const styles = StyleSheet.create({
   },
   f1: { flex: 1 },
   helloWorldTextStyle: {
-    fontFamily: 'SamsungKorean',
+    fontFamily: 'NotoSansCJK',
     fontSize: 20,
     color: '#ffffff',
     textAlignVertical: 'center',
@@ -160,10 +179,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     fontSize: 18,
     margin: 20,
-    fontFamily: 'SamsungKorean',
+    fontFamily: 'NotoSansCJK',
   },
   buttonText: {
-    fontFamily: 'SamsungKorean',
+    fontFamily: 'NotoSansCJK',
   }
 });
 

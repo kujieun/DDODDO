@@ -32,6 +32,9 @@ import TestNavigation from './TestNavigation';
 
 
 import Detail from './scripts/Detail';
+import JisooTest from './scripts/JisooTest';
+
+import ViroCustomText from './scripts/ViroCustomText';
 
 /* ---------------------------------------------------------------------------- */
 
@@ -42,4 +45,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TestNavigation);
+AppRegistry.registerComponent(appName, () => ARScreen);

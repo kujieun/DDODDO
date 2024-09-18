@@ -12,9 +12,9 @@ const SignUpHome = () => {
           const token = await login();
           console.log("로그인 성공:", JSON.stringify(token));
 
-          // 사용자 정보 db에 전달
-          const profile = await getKakaoProfile();
-          const userId = profile.id;
+            // 사용자 정보 db에 전달
+            const profile = await getKakaoProfile();
+            const userId = profile.id;
 
             // 각 필드가 undefined가 아닌지 확인 후 기본 값 설정
             const name = profile.nickname || '';

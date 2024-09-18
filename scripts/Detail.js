@@ -85,16 +85,12 @@ const TourPlaceHome = ({ route }) => {
    const handleSaveToggle = () => {
       setIsSaved(!isSaved);
     };
-
 const cleanURL = (url) => {
-  if (!url || typeof url !== 'string') return '';
-
-  const cleanUrl = url.replace(/<[^>]*>/g, '').trim();
-
-  const match = cleanUrl.match(/https?:\/\/[^\s"]+/);
-
-  return match ? match[0] : cleanUrl;
+  if (typeof url !== 'string') return ''; // url이 문자열이 아닐 경우 빈 문자열 반환
+  const match = url.match(/https:\/\/[^\s"]+/);
+  return match ? match[0] : url;
 };
+
 
 
  const handlePress = () => {

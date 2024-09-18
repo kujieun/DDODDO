@@ -483,12 +483,12 @@ const styles = StyleSheet.create({
     animatedButtonContainer1: {
         position: 'absolute',
         bottom: 10,
-        left: 135, // 왼쪽으로 배치
+        left: 110, // 왼쪽으로 배치
     },
     animatedButtonContainer2: {
         position: 'absolute',
         bottom: 10,
-        right: 135, // 오른쪽으로 배치
+        right: 110, // 오른쪽으로 배치
     },
     buttonImage: {
         resizeMode: 'contain',
