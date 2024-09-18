@@ -39,21 +39,25 @@ const MainHome = ({ route, navigation }) => {
     const [selectedMenu, setSelectedMenu] = useState(null);
 
 
-const handleBarMenu = (menu) => {
-    setSelectedMenu(menu);
-    switch(menu) {
-        case 'home':
-            navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
-            break;
-        case 'community':
-            navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
-            break;
-        // 다른 케이스를 여기에 추가하세요.
-        default:
-            // 예를 들어, 존재하지 않는 메뉴 처리
-            break;
+    const handleBarMenu = (menu) => {
+        setSelectedMenu(menu);
+        switch(menu) {
+            case 'home':
+                navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
+                break;
+            case 'community':
+                navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
+                break;
+            // 다른 케이스를 여기에 추가하세요.
+            default:
+                // 예를 들어, 존재하지 않는 메뉴 처리
+                break;
+        }
+    };
+
+    const gotoCommunity = () => {
+        navigation.navigate('Community',  { userInfo });
     }
-};
 
 
     //ar 메뉴

@@ -10,6 +10,7 @@ import RestaurantHome from './scripts/RestaurantHome';
 import Community from './screens/Community';
 
 import CommunityDetail from './screens/CommunityDetail';
+import WritePost from './screens/WritePost';
 
 const Stack = createStackNavigator();
 
@@ -28,6 +29,7 @@ const App = () => {
         <Stack.Screen name="Community" component={Community} />
 
         <Stack.Screen name="CommunityDetail" component={CommunityDetail} />
+        <Stack.Screen name="WritePost" component={WritePost} />
 
       </Stack.Navigator>
     </NavigationContainer>
