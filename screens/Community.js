@@ -1,27 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList, TextInput } from 'react-native';
 import firestore from '@react-native-firebase/firestore';
-import { useNavigation } from '@react-navigation/native'; 
+// import { useNavigation } from '@react-navigation/native'; 
 
-const Community = ({route}) => {
+const Community = () => {
     const [posts, setPosts] = useState([]);
     // const navigation = useNavigation();
     const [selectmenu, setSelectMenu] = useState('latest');
     const [isSearchVisible, setIsSearchVisible] = useState(false); 
     const [searchQuery, setSearchQuery] = useState(''); 
     const [searchfilter, setFilteredPosts] = useState([]);
-    
-
-    const navigation = useNavigation();
-    const { userInfo } = route.params;
-    
-    const gotoWritePage = () => {
-      navigation.navigate('WritePost',  { userInfo });
-    }
-
-    const gotoDetailPage = (post) => {
-      navigation.navigate('CommunityDetail', { post });
-    };
     
  
   //db 데이터 받아오기 
@@ -138,24 +126,13 @@ const renderItem = ({ item }) => {
 
       const testImageUrl = images[0] || '';
 
-      const user = item.user || [];
-
 
 
       return (
-        <TouchableOpacity style={styles.postContainer}
-          onPress={() => gotoDetailPage(item)}>
+        <View style={styles.postContainer}>
             <View style={styles.postHeader}>
-                  {user.profileImage ? (
-                      <Image
-                        source={{ uri: user.profileImage }} 
-                        style={styles.profile}
-                      />
-                    ) : (
-                      <View style={styles.nullprofile} /> 
-                    )}
-
-                <Text style={styles.nickname}>{user.name}</Text>
+                <View style={styles.profile} />
+                <Text style={styles.nickname}>user</Text>
             </View>
 
     
@@ -201,7 +178,7 @@ const renderItem = ({ item }) => {
             </View>
     
             <View style={styles.line44} />
-        </TouchableOpacity>
+        </View>
       )
     };
 
@@ -318,7 +295,7 @@ const renderItem = ({ item }) => {
     />
 
     <TouchableOpacity style={styles.writeButton}
-      onPress={gotoWritePage}>
+      >
         <View style={styles.writeButtonContent}>
             <Text style={styles.writeButtonText}>글쓰기</Text>
         </View>
@@ -415,17 +392,10 @@ const styles = StyleSheet.create({
     alignItems: 'center', // 세로 가운데 정렬
     marginBottom: 10, // 하단 여백 추가
   },
-  nullprofile: {
-    width: 40,
-    height: 40,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 12,
-    marginBottom: 10,
-    marginRight: 10,
-  },
   profile: {
     width: 40,
     height: 40,
+    backgroundColor: '#D9D9D9',
     borderRadius: 12,
     marginBottom: 10,
     marginRight: 10,

@@ -28,8 +28,7 @@ const SignUpHome = () => {
                 profileImage: profileImage
             }, { merge: true });
 
-          navigation.navigate('SignupTerm', { userInfo: { name, email, profileImage } });
-          // navigation.navigate('Community', { userInfo: { name, email, profileImage } });
+          navigation.navigate('SignupTerm');
         } catch (err) {
           console.error("카카오 로그인 에러", err);
         }

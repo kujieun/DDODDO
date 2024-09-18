@@ -1,0 +1,4 @@
+<ArViewerView
+  model={'file:///android_asset/dice.glb'}
+  {...otherProps}
+/>

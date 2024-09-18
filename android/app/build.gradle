@@ -109,6 +109,18 @@ android {
             assets.srcDirs += ['src/main/main/assets/fonts']
         }
     }
+
+    packagingOptions {
+        pickFirst 'lib/armeabi-v7a/libarcore_sdk_c.so'
+        pickFirst 'lib/arm64-v8a/libarcore_sdk_c.so'
+        pickFirst 'lib/x86/libarcore_sdk_c.so'
+        pickFirst 'lib/x86_64/libarcore_sdk_c.so'
+        pickFirst 'lib/armeabi-v7a/libarcore_sdk_jni.so'
+        pickFirst 'lib/arm64-v8a/libarcore_sdk_jni.so'
+        pickFirst 'lib/x86/libarcore_sdk_jni.so'
+        pickFirst 'lib/x86_64/libarcore_sdk_jni.so'
+    }
+
 }
 
 dependencies {
@@ -126,6 +138,21 @@ dependencies {
 
     implementation 'com.google.firebase:firebase-analytics-ktx'
 
+    implementation fileTree(dir: "libs", include: ["*.jar"])
+    //noinspection GradleDynamicVersion
+
+    implementation "com.facebook.react:react-native:+"  // From node_modules
+
+    // Add these lines
+    implementation project(':gvr_common')
+    implementation project(':arcore_client')
+    implementation project(path: ':react_viro')
+    implementation project(path: ':viro_renderer')
+    implementation 'androidx.media3:media3-exoplayer:1.1.1'
+    implementation 'androidx.media3:media3-exoplayer-dash:1.1.1'
+    implementation 'androidx.media3:media3-exoplayer-hls:1.1.1'
+    implementation 'androidx.media3:media3-exoplayer-smoothstreaming:1.1.1'
+    implementation 'com.google.protobuf.nano:protobuf-javanano:3.1.0'
 }
 
 apply from: file("../../node_modules/@react-native-community/cli-platform-android/native_modules.gradle"); applyNativeModulesAppBuildGradle(project)
