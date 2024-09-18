@@ -32,7 +32,7 @@ const MainHome = ({ route, navigation }) => {
         windSpeed: '0.3m/s',
     });
 
-    const navigation = useNavigation();
+    // const navigation = useNavigation();
     const { userInfo } = route.params;
 
     //하단 바 선택 메뉴
