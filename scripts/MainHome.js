@@ -20,8 +20,11 @@ const menuImages = {
 };
 
 
-const MainHome = () => {
-const navigation = useNavigation();
+const MainHome = ({ route, navigation }) => {
+/*지수꺼 포함!!*/
+const { userInfo } = route.params;
+
+
     const [daysLeft, setDaysLeft] = useState(0);
 
     const [weather, setWeather] = useState({
@@ -40,7 +43,7 @@ const handleBarMenu = (menu) => {
             navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
             break;
         case 'community':
-            navigation.navigate('Community'); // 예시: Home 화면으로 이동
+            navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
             break;
         // 다른 케이스를 여기에 추가하세요.
         default:
