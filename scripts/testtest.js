@@ -265,7 +265,7 @@ const handleTouchOutside = useCallback((evt) => {
             <View style={styles.topSection}>
               <View style={styles.rectangle}>
                 <Text style={styles.searchText}>장소 검색</Text>
-                <Image source={require('../image/searchicon.png')} style={styles.searchIcon} />
+                <Image source={require('../image/gangneungmap/searchicon.png')} style={styles.searchIcon} />
               </View>
               <View style={styles.navBar}>
                 {['길찾기'].map(tab => (

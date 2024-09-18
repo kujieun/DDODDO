@@ -1,15 +1,13 @@
-//잘된다
-// 사용자 위치 표시
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { View, StyleSheet, Dimensions, StatusBar, TextInput, Image, Text, TouchableOpacity, FlatList, Animated, ScrollView, TouchableWithoutFeedback , PermissionsAndroid,   BackHandler,} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import Geolocation from "react-native-geolocation-service"
 import { WebView } from 'react-native-webview';
+import { useNavigation } from '@react-navigation/native';
 
-const { height, width } = Dimensions.get('window');
-const googleMapsApiKey = 'AIzaSyBi7dTSWOJEE6JepCHm-ABWDjt2Yne_3cw';
-
+const { height, width } = Dimensions.get('window'); // 화면 높이와 너비
+const googleMapsApiKey = 'AIzaSyBi7dTSWOJEE6JepCHm-ABWDjt2Yne_3cw'; // 구글 API 키
 const removeCountryName = (description) => description.replace(/대한민국/g, '').trim();
 
 const getButtonStyle = (selectedCategory, category) => ({
@@ -25,9 +23,12 @@ const getButtonTextStyle = (selectedCategory, category) => ({
 
 const searchPlaces = async (query) => {
   try {
+    // 검색어에 강릉을 강제로 포함
+    const fullQuery = query + ' 강릉';
+
     const response = await axios.get('https://maps.googleapis.com/maps/api/place/autocomplete/json', {
       params: {
-        input: query,
+        input: fullQuery,
         key: googleMapsApiKey,
         types: 'establishment',
         language: 'ko',
@@ -51,7 +52,7 @@ const searchCategoryPlaces = async (category, location) => {
   try {
     const response = await axios.get('https://maps.googleapis.com/maps/api/place/nearbysearch/json', {
       params: {
-         location: `${location.latitude},${location.longitude}`,
+        location: `${location.latitude},${location.longitude}`,
         radius: 5000,
         type: category,
         key: googleMapsApiKey,
@@ -152,6 +153,7 @@ const getDistanceBetweenCoordinates = (coord1, coord2) => {
 
 
 const TopSection = () => {
+  const navigation = useNavigation();
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [predictions, setPredictions] = useState([]);
@@ -167,9 +169,18 @@ const TopSection = () => {
   const [currentLocation, setCurrentLocation] = useState(null)
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [isPanelVisible, setPanelVisible] = useState(false);
-
+  const [likedItems, setLikedItems] = useState({}); // New state for liked items
   const mapRef = useRef(null);
   const pan = useRef(new Animated.ValueXY({ x: 0, y: height })).current;
+
+
+    const handleLikePress = (restaurantId) => {
+      setLikedItems({
+        ...likedItems,
+        [restaurantId]: !likedItems[restaurantId],
+      });
+    };
+
 
   // 웹뷰 url
   const [webViewUrl, setWebViewUrl] = useState(null);
@@ -193,14 +204,13 @@ const TopSection = () => {
       return false;
     }, [showWebView]);
 
-    useEffect(() => {
+
+ useEffect(() => {
       BackHandler.addEventListener('hardwareBackPress', handleBackPress);
       return () => {
         BackHandler.removeEventListener('hardwareBackPress', handleBackPress);
       };
     }, [handleBackPress]);
-
-
 
 
 useEffect(() => {
@@ -306,6 +316,7 @@ useEffect(() => {
 const handleMarkerPress = useCallback(async (marker) => {
   if (currentLocation) {
     const details = await fetchPlaceDetails(marker.id);
+
  setSelectedPlace(details);
     setPanelVisible(true);
     Animated.spring(pan, {
@@ -350,7 +361,7 @@ const handleMarkerPress = useCallback(async (marker) => {
 
   return (
     <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content"/>
+      <StatusBar translucent backgroundColor="transparent" />
       <View style={styles.topsection}>
         <View style={styles.inputContainer}>
           <TextInput
@@ -362,7 +373,7 @@ const handleMarkerPress = useCallback(async (marker) => {
           />
           <TouchableOpacity onPress={handleSearchIconPress} style={styles.searchIconContainer}>
             <Image
-              source={require('../image/searchicon.png')}
+              source={require('../image/gangneungmap/searchicon.png')}
               style={styles.searchIcon}
             />
           </TouchableOpacity>
@@ -403,7 +414,7 @@ const handleMarkerPress = useCallback(async (marker) => {
             >
               <View style={{ alignItems: 'center' }}>
                 <Image
-                  source={require('../image/marker.png')}
+                  source={require('../image/gangneungmap/marker.png')}
                   style={{ width: 20, height: 20 }}  // 크기를 반으로 줄임
                   resizeMode="contain"
                 />
@@ -431,65 +442,75 @@ const handleMarkerPress = useCallback(async (marker) => {
       )}
 
 {/* 스와이프 패널 */}
-{isPanelVisible && (
-  <Animated.View style={[styles.panel, { transform: [{ translateY: pan.y }] }]}>
-    <ScrollView contentContainerStyle={styles.panelContent}>
+      {isPanelVisible && (
+        <Animated.View style={[styles.panel, { transform: [{ translateY: pan.y }] }]}>
+          <ScrollView contentContainerStyle={styles.panelContent}>
+            <View style={styles.swipePanelHandle} />
+            <Text style={[styles.panelTitle, { fontSize: 20 }]}>
+              {selectedPlace?.name}
+            </Text>
+            <Text style={styles.panelAddress}>{selectedPlace?.formatted_address}</Text>
+            <View style={styles.ratingDistanceContainer}>
+              <View style={styles.panelRating}>
+                <Image
+                  source={require('../image/gangneungmap/star.png')}
+                  style={styles.starImage}
+                />
+                <Text style={{ fontSize: 15 }}>{selectedPlace?.rating || '정보 없음'}</Text>
+              </View>
+              <View style={styles.panelDistance}>
+                <Image
+                  source={require('../image/gangneungmap/distance.png')}
+                  style={styles.distanceImage}
+                />
+                <Text style={{ fontSize: 15 }}>
+                  거리: {selectedPlace?.distance ? `${selectedPlace.distance} km` : '정보 없음'}
+                </Text>
+              </View>
+            </View>
 
-      <View style={styles.swipePanelHandle} />
-        <Text style={[styles.panelTitle, { fontSize: 20 }]}>
-          {selectedPlace?.name}
-        </Text>
-      <Text style={styles.panelAddress}>{selectedPlace?.formatted_address}</Text>
-<View style={styles.ratingDistanceContainer}>
-  <View style={styles.panelRating}>
-    <Image
-      source={require('../image/star.png')}
-      style={styles.starImage}
-    />
-    <Text style={{ fontSize: 15 }}>{selectedPlace?.rating || '정보 없음'}</Text>
-  </View>
+            {/* 여러 이미지 출력 및 가로 스크롤 */}
+            {selectedPlace.photos && selectedPlace.photos.length > 0 ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                style={styles.imageScrollContainer}
+              >
+                {selectedPlace.photos.map((photo, index) => (
+                  <Image
+                    key={index}
+                    source={{ uri: getPhotoUrl(photo.photo_reference) }}
+                    style={styles.swipePanelImage}
+                  />
+                ))}
+              </ScrollView>
+            ) : (
+              <View style={styles.imageScrollContainer}>
+                <Image
+                  source={require('../image/restaurant/emptythumbnail.png')}
+                  style={styles.swipePanelImage}
+                />
+              </View>
+            )}
 
-  <View style={styles.panelDistance}>
-    <Image
-      source={require('../image/distance.png')}
-      style={styles.distanceImage}
-    />
-    <Text style={{ fontSize: 15 }}>
-      거리: {selectedPlace?.distance ? `${selectedPlace.distance} km` : '정보 없음'}
-    </Text>
-  </View>
-</View>
-
-
-      {/* 여러 이미지 출력 및 가로 스크롤 */}
-      {selectedPlace.photos && selectedPlace.photos.length > 0 && (
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          style={styles.imageScrollContainer}
-        >
-          {selectedPlace.photos.map((photo, index) => (
-            <Image
-              key={index}
-              source={{ uri: getPhotoUrl(photo.photo_reference) }}
-              style={styles.swipePanelImage}
-            />
-          ))}
-        </ScrollView>
+            <TouchableOpacity
+              onPress={() => handleLikePress(selectedPlace.contentid)}
+              style={styles.actionButton}
+            >
+              <Image
+                source={likedItems[selectedPlace.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+                style={styles.actionIcon}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.directionsButton}
+              onPress={() => handleWebViewOpen(`https://map.kakao.com/link/to/${selectedPlace.name},${selectedPlace.geometry.location.lat},${selectedPlace.geometry.location.lng}`)}
+            >
+              <Text style={styles.directionsButtonText}>카카오로 길찾기</Text>
+            </TouchableOpacity>
+          </ScrollView>
+        </Animated.View>
       )}
-
-<TouchableOpacity
-  style={styles.directionsButton}
-  onPress={() => handleWebViewOpen(`https://map.kakao.com/link/to/${selectedPlace.name},${selectedPlace.geometry.location.lat},${selectedPlace.geometry.location.lng}`)}
->
-  <Text style={styles.directionsButtonText}>카카오로 길찾기</Text>
-</TouchableOpacity>
-
-
-    </ScrollView>
-  </Animated.View>
-)}
-
 
       {showWebView && (
         <View style={styles.webViewContainer}>
@@ -514,6 +535,7 @@ const handleMarkerPress = useCallback(async (marker) => {
     </View>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
@@ -619,12 +641,12 @@ const styles = StyleSheet.create({
           textShadowOffset: { width: 1, height: 1 },
           textShadowRadius: 2,
         },
-  panel: {
+ panel: {
       position: 'absolute',
       bottom: 0,
       left: 0,
       right: 0,
-      height: height * 0.5, // 패널 높이 설정
+      height: 400, // 패널 높이 설정
       backgroundColor: '#FFFFFF',
       borderTopLeftRadius: 20,
       borderTopRightRadius: 20,
@@ -642,12 +664,22 @@ const styles = StyleSheet.create({
     panelContent: {
       padding: 20,
     },
-
     panelTitle: {
       fontSize: 18,
       fontWeight: 'bold',
       marginVertical: 10,
     },
+      actionButton: {
+        width: 33,
+        height: 93,
+        position: 'absolute', // 절대 위치 설정
+        top: 55, // 상단에서의 거리
+        right: 10, // 오른쪽에서의 거리
+      },
+      actionIcon: {
+        width: 19.02,
+        height: 15.81,
+      },
     panelAddress: {
       fontSize: 16,
       color: '#666666',
@@ -679,14 +711,22 @@ const styles = StyleSheet.create({
          height: 4,
          marginRight: 7,
        },
-
+/*
     panelImage: {
           width: '100%',
           height: 200,
           borderRadius: 10,
+          marginTop:10,
     },
+    */
+            swipePanelImage: {
+              width: 155, // 각 이미지의 너비
+              height: 144, // 각 이미지의 높이
+              borderRadius: 10,
+              marginRight: 10, // 이미지 간의 간격
+              marginBottom: 10,
+            },
     directionsButton: {
-      marginTop: 20,
       paddingVertical: 10,
       backgroundColor: '#6495ED',
       borderRadius: 10,
@@ -697,44 +737,16 @@ const styles = StyleSheet.create({
       fontSize: 16,
       fontWeight: 'bold',
     },
+    overlay: {
+        ...StyleSheet.absoluteFillObject,
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        zIndex: 14,
+      },
       imageScrollContainer: {
           marginTop: 15,
           marginBottom: 15,
         },
-        swipePanelImage: {
-          width: 155, // 각 이미지의 너비
-          height: 144, // 각 이미지의 높이
-          borderRadius: 10,
-          marginRight: 10, // 이미지 간의 간격
-        },
-      webViewContainer: {
-          flex: 1, // 전체 화면을 차지하게 설정
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          backgroundColor: 'white', // 배경색을 흰색으로 설정하거나 원하는 색상으로 변경
-          zIndex: 20, // 스와이프 패널보다 위에 위치하도록 설정
-        },
-  closeButtonContainer: {
-    position: 'absolute',
-    top: 40,
-    right: 20,
-    padding: 10,
-  },
-  closeButton: {
-    marginTop: 20,
-    paddingVertical: 10,
-    backgroundColor: '#6495ED',
-    borderRadius: 10,
-    alignItems: 'center',
 
-  },
-  closeButtonText: {
-    fontSize: 18,
-    color: '#FFFFFF',
-  },
 });
 
 export default TopSection;

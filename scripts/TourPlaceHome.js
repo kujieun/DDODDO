@@ -1,25 +1,50 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, FlatList, ActivityIndicator, ScrollView } from 'react-native';
+import React, { useState, useEffect ,useMemo} from 'react';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
+import { useCurrentLocation } from './MyLocation';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const categories = [
-  { id: 1, label: '전체' },
+  { id: 1, label: '전체', code: null },
   { id: 2, label: '촬영지' },
-  { id: 3, label: '해수욕장' },
-  { id: 4, label: '자연명소' },
-  { id: 5, label: '테마파크' },
-  { id: 6, label: '문화유적' },
-  { id: 7, label: '체험관광' },
-  { id: 8, label: '쇼핑' },
+  { id: 3, label: '자연명소', code: 'A01' },
+  { id: 4, label: '해수욕장', code: 'A01011200' },
+  { id: 5, label: '휴양', code: 'A0202' },
+  { id: 6, label: '문화유적', code: 'A0201' },
+  { id: 7, label: '체험관광', code: 'A0203' },
 ];
 
-const SignupScreen = () => {
+const filmingLocations = [
+  {
+    title: "도깨비 촬영지",
+    address: "강원도 강릉시 주문진읍 해안동",
+    image: "https://example.com/filminglocation1.jpg",
+    contentid: 'filmingLocation1'
+  },
+  {
+    title: "미스터 션샤인 촬영지",
+    address: "강원도 강릉시 낙산동 산 1-1",
+    image: "https://example.com/filminglocation2.jpg",
+    contentid: 'filminglocation2'
+  },
+  // ... 더 많은 촬영지를 추가
+];
+
+const TourPlaceHome = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNo, setPageNo] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
+  const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
+  const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+  const navigation = useNavigation();
+
+  // searchbox 표시 여부를 관리하는 상태 추가
+    const [searchVisible, setSearchVisible] = useState(false);
+
+    // 장소 검색 'searchText' 상태 추가
+    const [searchText, setSearchText] = useState('');
 
   const handleCategoryPress = (id) => {
     setSelectedCategory(id);
@@ -27,55 +52,86 @@ const SignupScreen = () => {
     setLoading(true);
   };
 
-  const fetchTourData = async (page) => {
-    try {
-      const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
-        params: {
-          serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
-          numOfRows: 10,
-          pageNo: page,
-          MobileOS: 'AND',
-          MobileApp: '또,강릉',
-          _type: 'json',
-          contentTypeId: 15,
-          areaCode: 32,
-          sigunguCode: 1,
-          listYN: 'Y',
-          arrange: 'Q',
-        },
-      });
-
-      if (response.status === 200 && response.data.response && response.data.response.body && response.data.response.body.items) {
-        const items = response.data.response.body.items.item;
-
-        if (Array.isArray(items)) {
-          const formattedData = items.map(item => ({
-            title: item.title || "No Title",
-            overview: item.overview || "No Overview",
-            image: item.firstimage || '',
-            tel: item.tel || "",
-            contentid: item.contentid,
-          }));
-
-          const uniqueData = formattedData.filter((item, index, self) =>
-                    index === self.findIndex((t) => t.contentid === item.contentid)
-                  );
+  // 검색 아이콘 클릭 시 searchbox 표시
+    const handleSearchPress = () => {
+      setSearchVisible(!searchVisible);
+    };
 
 
-          setTourData(prev => (page === 1 ? formattedData : [...prev, ...formattedData]));
-          setTotalCount(response.data.response.body.totalCount);
-        } else {
-          console.error('Items is not an array or is empty:', items);
-        }
+
+    //tourData 필터링
+ const filteredData = useMemo(() => {
+    const filteredByCategory =
+      selectedCategory === 1
+        ? [...tourData, ...filmingLocations] // 전체 선택 시 API 데이터와 filmingLocations 합침
+        : selectedCategory === 2
+        ? filmingLocations // 촬영지 선택 시 filmingLocations만 사용
+        : tourData.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase()));
+    return filteredByCategory;
+  }, [searchText, tourData, filmingLocations, selectedCategory]);
+
+
+const fetchTourData = async () => {
+  try {
+    // 선택된 카테고리 코드 가져오기
+    const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
+
+    // 카테고리 코드가 null이 아닌 경우에만 길이 확인
+    const cat1 = selectedCategoryCode && selectedCategoryCode.length === 3 ? selectedCategoryCode : ''; // 5글자면 대분류
+    const cat2 = selectedCategoryCode && selectedCategoryCode.length === 5 ? selectedCategoryCode : ''; // 5글자면 대분류
+    const cat3 = selectedCategoryCode && selectedCategoryCode.length === 9 ? selectedCategoryCode : ''; // 9글자면 소분류
+
+    const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
+      params: {
+        serviceKey: "FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==",
+        numOfRows: totalCount,  // 전체 데이터를 한 번에 가져오도록 설정
+        pageNo: 1,
+        MobileOS: 'AND',
+        MobileApp: '또,강릉',
+        _type: 'json',
+        contentTypeId: 12,
+        areaCode: 32,
+        sigunguCode: 1,
+        listYN: 'Y',
+        arrange: 'Q',
+        cat1: cat1, // 대분류
+        cat2: cat2, // 대분류
+        cat3: cat3, // 소분류
+      },
+    });
+
+    if (response.status === 200 && response.data.response && response.data.response.body && response.data.response.body.items) {
+      const items = response.data.response.body.items.item;
+
+      if (Array.isArray(items)) {
+        const formattedData = items.map(item => ({
+          title: item.title || "No Title",
+          address: item.addr1 || "No Address",
+          image: item.firstimage || '',
+          tel: item.tel || "",
+          contentid: item.contentid,
+          mapx: item.mapx || null, // 좌표 X
+          mapy: item.mapy || null, // 좌표 Y
+        }));
+
+        const uniqueData = formattedData.filter((item, index, self) =>
+          index === self.findIndex((t) => t.contentid === item.contentid)
+        );
+
+        setTourData(uniqueData);  // 전체 데이터를 한 번에 저장
       } else {
-        console.error('Unexpected response structure:', response.data);
+        console.error('Items is not an array or is empty:', items);
       }
-    } catch (error) {
-      console.error('Error fetching data:', error);
-    } finally {
-      setLoading(false);
+    } else {
+      console.error('Unexpected response structure:', response.data);
     }
-  };
+  } catch (error) {
+    console.error('Error fetching data:', error);
+  } finally {
+    setLoading(false);
+  }
+};
+
 
   useEffect(() => {
     fetchTourData(pageNo);
@@ -94,15 +150,31 @@ const SignupScreen = () => {
     }
   };
 
+  const calculateDistance = (item) => {
+    if (currentLocation && item.mapx && item.mapy) {
+      const destination = { latitude: parseFloat(item.mapy), longitude: parseFloat(item.mapx) };
+      const distance = getDistanceBetweenCoordinates(currentLocation, destination);
+      return `${(distance * 1000).toFixed(0)}m`; // 거리 결과를 미터 단위로 변환
+    }
+    return '정보 없음';
+  };
+
   const renderItem = ({ item }) => (
-    <View style={styles.restaurantItem}>
-      <Image
-        source={{ uri: item.image }}
-        style={styles.restaurantImage}
-      />
+    // TourPlaceHome.js
+    <TouchableOpacity
+      style={styles.restaurantItem}
+      onPress={() => navigation.navigate('Detail', { contentid: item.contentid })} // Pass contentId
+    >
+
+    <Image
+      source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+      style={styles.restaurantImage}
+    />
       <View style={styles.restaurantInfo}>
         <Text style={styles.restaurantName}>{item.title}</Text>
-        <Text style={styles.restaurantDescription}>{item.overview}</Text>
+        <Text style={styles.restaurantDescription}>
+              {item.address.replace('강원특별자치도 강릉시', '').trim()}
+            </Text>
         <View style={styles.ratingRow}>
           <View style={styles.starRating}>
             <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
@@ -110,7 +182,7 @@ const SignupScreen = () => {
           </View>
           <View style={styles.distanceRow}>
             <View style={styles.dot} />
-            <Text style={styles.distanceText}>111m</Text>
+            <Text style={styles.distanceText}>{calculateDistance(item)}</Text>
           </View>
         </View>
       </View>
@@ -123,7 +195,7 @@ const SignupScreen = () => {
           style={styles.actionIcon}
         />
       </TouchableOpacity>
-    </View>
+     </TouchableOpacity>
   );
 
   const renderFooter = () => {
@@ -144,12 +216,26 @@ const SignupScreen = () => {
         </TouchableOpacity>
         <Text style={styles.headerText}>추천 여행지</Text>
         <TouchableOpacity
-          onPress={() => { /* Search 기능 */ }}
+          onPress={handleSearchPress}
           style={styles.searchButtonContainer}
         >
-          <Image source={require('../image/searchicon.png')} style={styles.searchIcon} />
+          <Image source={require('../image/restaurant/searchicon.png')} style={styles.searchIcon} />
         </TouchableOpacity>
       </View>
+
+      {/* searchbox 표시 */}
+            {searchVisible && (
+              <View style={styles.searchBoxContainer}>
+                <Image source={require('../image/restaurant/searchbox.png')} style={styles.searchBox} />
+                <TextInput
+                  style={styles.searchInput}
+                  placeholder="장소 이름 검색"
+                  placeholderTextColor="#999"
+                  value={searchText}
+                  onChangeText={(text) => setSearchText(text)}
+                />
+              </View>
+            )}
 
       <View style={styles.navContainer}>
         <ScrollView
@@ -210,13 +296,13 @@ const SignupScreen = () => {
 
       <FlatList
         style={styles.restaurantList}
-        data={tourData}
+        data={filteredData}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item.contentid.toString() + index.toString()}  // 고유한 키 생성
+        keyExtractor={(item, index) => (item.contentid || index).toString()}
         onEndReached={loadMoreData}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
-        contentContainerStyle={{ paddingBottom: 20 }}
+        //contentContainerStyle={{ paddingBottom: 20 }}
       />
     </View>
   );
@@ -260,9 +346,31 @@ const styles = StyleSheet.create({
     backgroundColor: '#FFFFFF',
   },
   searchIcon: {
+  top:2,
     width: 19,
     height: 19,
   },
+  searchBoxContainer: {
+      position: 'absolute',
+      left: '5.28%',
+      right: '14.72%',
+      top: 40,
+      height: 38,
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    searchBox: {
+      position: 'absolute',
+      width: '100%',
+      height: '100%',
+      resizeMode: 'contain', // 이미지 비율 유지
+    },
+    searchInput: {
+      flex: 1,
+      marginLeft: 10, // 여백
+      color: '#111',
+      fontSize: 16,
+    },
   navContainer: {
     position: 'absolute',
     top: 95,
@@ -304,7 +412,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDDEE0',
   },
   line: {
-    width: 56,
+    width: 60,
     height: 2,
   },
   activeLine: {
@@ -372,6 +480,7 @@ const styles = StyleSheet.create({
     top: 165,
     left: 20,
     right: 14,
+    marginBottom:175,
   },
   restaurantItem: {
     flexDirection: 'row',
@@ -443,7 +552,7 @@ const styles = StyleSheet.create({
     height: 93,
     justifyContent: 'center',
     alignItems: 'flex-end',
-    right: 50, // 화면 오른쪽에서 60 단위 위치
+    right: 50,
   },
   actionIcon: {
     width: 19.02,
@@ -451,4 +560,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default TourPlaceHome;

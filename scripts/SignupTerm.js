@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 
 const SignupScreen = () => {
+  const navigation = useNavigation();
   const [isAgreeAll, setIsAgreeAll] = useState(false);
   const [serviceTerms, setServiceTerms] = useState(false);
   const [ageConsent, setAgeConsent] = useState(false);
@@ -15,6 +17,8 @@ const SignupScreen = () => {
     setIsAgreeAll(allChecked);
   };
 
+
+
   useEffect(() => {
     updateAgreeAll();
   }, [serviceTerms, ageConsent, privacyConsent, locationConsent]);
@@ -27,6 +31,12 @@ const SignupScreen = () => {
     setPrivacyConsent(newAgreeAll);
     setLocationConsent(newAgreeAll);
   };
+
+      const handleSubmit = () => {
+          if (areRequiredTermsAgreed) {
+              navigation.navigate('SignupNickname');
+          }
+      };
 
   return (
     <View style={styles.container}>
@@ -94,14 +104,15 @@ const SignupScreen = () => {
         onDetailPress={() => {/* 위치 서비스 이용 동의 상세 페이지 열기 */}}
       />
 
-      <TouchableOpacity
-        style={[styles.submitButton, { backgroundColor: areRequiredTermsAgreed ? '#6495ED' : '#B3B6BD' }]}
-        disabled={!areRequiredTermsAgreed}
-      >
-        <Text style={styles.submitButtonText}>다음</Text>
-      </TouchableOpacity>
-    </View>
-  );
+ <TouchableOpacity
+                style={[styles.submitButton, { backgroundColor: areRequiredTermsAgreed ? '#6495ED' : '#B3B6BD' }]}
+                disabled={!areRequiredTermsAgreed}
+                onPress={handleSubmit}
+            >
+                <Text style={styles.submitButtonText}>다음</Text>
+            </TouchableOpacity>
+        </View>
+    );
 };
 
 const AgreementDetailBox = ({ isChecked, onPress, text, optional, onDetailPress }) => (

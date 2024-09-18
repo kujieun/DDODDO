@@ -1,7 +1,39 @@
 import React from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import { login, getProfile as getKakaoProfile, } from "@react-native-seoul/kakao-login";  // Kakao Login 모듈 임포트
+import { useNavigation } from '@react-navigation/native';
+import firestore from '@react-native-firebase/firestore'; //추가, db업로드
 
 const SignUpHome = () => {
+    const navigation = useNavigation();
+
+    const signInWithKakao = async () => {
+        try {
+          const token = await login();
+          console.log("로그인 성공:", JSON.stringify(token));
+
+          // 사용자 정보 db에 전달
+          const profile = await getKakaoProfile();
+          const userId = profile.id;
+
+            // 각 필드가 undefined가 아닌지 확인 후 기본 값 설정
+            const name = profile.nickname || '';
+            const email = profile.email || '';
+            const profileImage = profile.profile_image_url || '';
+
+            // 사용자 정보 db에 저장
+            await firestore().collection('users').doc(userId.toString()).set({
+                name: name,
+                email: email,
+                profileImage: profileImage
+            }, { merge: true });
+
+          navigation.navigate('SignupTerm');
+        } catch (err) {
+          console.error("카카오 로그인 에러", err);
+        }
+      };
+
   // 핸들러 함수 예제
   const handlePrivacyPolicyPress = () => {
     console.log('개인정보 처리방침 클릭됨');
@@ -23,7 +55,7 @@ const SignUpHome = () => {
 
       <Image source={require('../image/signup/logo.png')} style={styles.logo} />
 
-      <TouchableOpacity style={styles.kakaoButton}>
+      <TouchableOpacity style={styles.kakaoButton} onPress={signInWithKakao}>
         <View style={styles.iconAndText}>
           <Image
             source={require('../image/signup/LoginWithKakao.png')}
