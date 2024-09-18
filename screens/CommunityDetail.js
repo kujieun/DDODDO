@@ -1,18 +1,12 @@
-import React, { useState } from 'react';
-import { View, Text, FlatList, Image, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, Image, TextInput, Button, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; 
+import firestore from '@react-native-firebase/firestore';
 
-const PostDetail = () => {
-    const post = {
-        content: "다중 이미지 테스트",
-        createdAt: "2024-09-01T02:48:27Z", 
-        images: [
-            "https://firebasestorage.googleapis.com/v0/b/reviewtest-5f0d8.appspot.com/o/communityImages%2Fimage_1725158880851.jpg?alt=media&token=0634cb79-226c-4d69-8b8a-0a921a7cb8b5",
-            "https://firebasestorage.googleapis.com/v0/b/reviewtest-5f0d8.appspot.com/o/communityImages%2Fimage_1725158886923.jpg?alt=media&token=79d42f32-f1e5-4dea-8bb4-e37346973d5f",
-            "https://firebasestorage.googleapis.com/v0/b/reviewtest-5f0d8.appspot.com/o/communityImages%2Fimage_1725158896064.jpg?alt=media&token=d2ec6f65-09c9-4693-80fc-0e2f1d3b5fce"
-        ],
-        menu: "최신 게시물",
-        tags: ["맛집", "카페", "바닷가"],
-    };
+const PostDetail = ({route}) => {
+
+    const navigation = useNavigation();
+    const { post } = route.params;
 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
@@ -21,30 +15,69 @@ const PostDetail = () => {
     const [commentcount, setCount] = useState(0);
     const [liked, setLiked] = useState(false); // 좋아요 상태
 
+    const [currentPost, setCurrentPost] = useState(post);
+
+    useEffect(() => {
+        const unsubscribe = firestore()
+            .collection('community')
+            .doc(post.id)
+            .onSnapshot(doc => {
+                const updatedPost = doc.data();
+                setCurrentPost(updatedPost); // This updates the entire post
+                setLikes(updatedPost.likes); // Syncs the like count
+                setComments(updatedPost.comments || []); // Syncs the comments
+                setCount(updatedPost.commentcount || 0); // Syncs the comment count
+            });
+    
+        return () => unsubscribe();
+    }, [post.id]);
+    
+
+
     const toggleLike = () => {
-        if (liked) {
-            setLikes(likes - 1);
-        } else {
-            setLikes(likes + 1);
-        }
+        const updatedLikes = liked ? likes - 1 : likes + 1;
+        setLikes(updatedLikes);
         setLiked(!liked);
+        firestore()
+        .collection('community')
+        .doc(post.id)
+        .update({ likes: updatedLikes }); // update the likes in Firestore
     };
+
 
     const addComment = () => {
         if (newComment.trim()) {
-            setComments([...comments, newComment]);
+            const updatedComments = [...comments, newComment];
+            setComments(updatedComments);
             setNewComment("");
+            setCount(commentcount + 1);
+    
+            // Save the comment to Firestore
+            firestore()
+              .collection('community')
+              .doc(post.id)
+              .update({
+                  comments: updatedComments,
+                  commentcount: commentcount + 1
+              });
         }
-        setCount(commentcount + 1);
     };
+    
 
     return (
         <View style={styles.container}>
             <ScrollView style={styles.contentContainer}>
                 {/* 사용자 프로필 */}
                 <View style={styles.profileContainer}>
-                    <View style={styles.profileImage}></View>
-                    <Text style={styles.profileName}>꼬꼬닭발</Text>
+                    {post.user.profileImage ? (
+                      <Image
+                        source={{ uri: post.user.profileImage }} 
+                        style={styles.profile}
+                      />
+                    ) : (
+                      <View style={styles.nullprofile} /> 
+                    )}
+                    <Text style={styles.profileName}>{post.user.name || "닉네임 없음"}</Text>
                 </View>
 
                 {/* 게시글 내용 */}
@@ -73,21 +106,21 @@ const PostDetail = () => {
 
                 {/* 좋아요 및 댓글 수 */}
                 <View style={styles.interactionContainer}>
-                <TouchableOpacity onPress={toggleLike} style={styles.interactionButton}>
-                    <Image
-                        source={liked ? require('../img/SelectLike.png') : require('../img/Like.png')}
-                        style={styles.interactionIcon}
-                    />
-                    <Text style={styles.interactionText}>{likes}</Text>
-                </TouchableOpacity>
-                <TouchableOpacity style={styles.interactionButton}>
-                    <Image
-                        source={require('../img/Coment.png')}
-                        style={styles.interactionIcon}
-                    />
-                    <Text style={styles.interactionText}>{commentcount}</Text>
-                </TouchableOpacity>
-            </View>
+                    <TouchableOpacity onPress={toggleLike} style={styles.interactionButton}>
+                        <Image
+                            source={liked ? require('../img/SelectLike.png') : require('../img/Like.png')}
+                            style={styles.interactionIcon}
+                        />
+                        <Text style={styles.interactionText}>{likes}</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity style={styles.interactionButton}>
+                        <Image
+                            source={require('../img/Coment.png')}
+                            style={styles.interactionIcon}
+                        />
+                        <Text style={styles.interactionText}>{commentcount}</Text>
+                    </TouchableOpacity>
+                </View>
 
                 {/* 댓글 목록 */}
                 <View style={styles.commentsContainer}>
@@ -116,14 +149,13 @@ const PostDetail = () => {
             </View>
         </View>
     );
-
-  
 };
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
+        paddingTop: 30,
     },
     contentContainer: {
         flex: 1,
@@ -134,16 +166,10 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 8,
     },
-    profileImage: {
-        width: 40,
-        height: 40,
-        backgroundColor: '#ccc',
-        borderRadius: 20,
-        marginRight: 8,
-    },
     profileName: {
         fontSize: 16,
         fontWeight: 'bold',
+        marginLeft: 10,  // 이미지와 텍스트 사이에 공간 추가
     },
     content: {
         fontSize: 16,
@@ -184,17 +210,18 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         marginBottom: 16,
     },
-    likes: {
+    interactionButton: {
+        flexDirection: 'row',
+        alignItems: 'center',
+    },
+    interactionIcon: {
+        width: 24,
+        height: 24,
+        marginRight: 8,
+    },
+    interactionText: {
         fontSize: 14,
         color: '#333',
-    },
-    commentsCount: {
-        fontSize: 14,
-        color: '#333',
-    },
-    timestamp: {
-        fontSize: 12,
-        color: '#999',
     },
     commentsContainer: {
         borderTopWidth: 1,
@@ -203,23 +230,6 @@ const styles = StyleSheet.create({
     },
     comment: {
         marginBottom: 16,
-    },
-    commentUser: {
-        fontSize: 14,
-        fontWeight: 'bold',
-        marginBottom: 4,
-    },
-    commentText: {
-        fontSize: 14,
-        marginBottom: 4,
-    },
-    commentTimestamp: {
-        fontSize: 12,
-        color: '#999',
-    },
-    noComments: {
-        fontSize: 14,
-        color: '#999',
     },
     commentInputContainer: {
         flexDirection: 'row',
@@ -237,25 +247,21 @@ const styles = StyleSheet.create({
         borderColor: '#ddd',
         marginRight: 8,
     },
-    interactionContainer: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    interactionButton: {
-        flexDirection: 'row',
-        alignItems: 'center',
-        marginRight: 16,
-    },
-    interactionIcon: {
-        width: 24,
-        height: 24,
-        marginRight: 8,
-    },
-    interactionText: {
-        fontSize: 14,
-        color: '#333',
-    },
+    nullprofile: {
+        width: 40,
+        height: 40,
+        backgroundColor: '#D9D9D9',
+        borderRadius: 12,
+        marginBottom: 10,
+        marginRight: 10,
+      },
+      profile: {
+        width: 40,
+        height: 40,
+        borderRadius: 12,
+        marginBottom: 10,
+        marginRight: 10,
+      },
 });
 
 export default PostDetail;

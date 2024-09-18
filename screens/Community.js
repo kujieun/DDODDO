@@ -171,9 +171,9 @@ const renderItem = ({ item }) => {
             {/* 좋아요, 댓글 수 표시 */}
             <View style={styles.detailContainer}>
                 <Image source={require('../img/Like.png')} style={styles.likeContainer} />
-                <Text style={styles.number}>10</Text>
+                <Text style={styles.number}>{item.likes}</Text>
                 <Image source={require('../img/Coment.png')} style={styles.comentContainer} />
-                <Text style={styles.number}>01</Text>
+                <Text style={styles.number}>{item.commentcount}</Text>
                 <Text style={styles.time}>{timeDisplay}</Text>
             </View>
     

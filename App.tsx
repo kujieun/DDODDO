@@ -9,6 +9,8 @@ import gangneungmap from './scripts/gangneungmap';
 import RestaurantHome from './scripts/RestaurantHome';
 import Community from './screens/Community';
 
+import CommunityDetail from './screens/CommunityDetail';
+
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -24,6 +26,9 @@ const App = () => {
         <Stack.Screen name="gangneungmap" component={gangneungmap} />
         <Stack.Screen name="RestaurantHome" component={RestaurantHome} />
         <Stack.Screen name="Community" component={Community} />
+
+        <Stack.Screen name="CommunityDetail" component={CommunityDetail} />
+
       </Stack.Navigator>
     </NavigationContainer>
   );

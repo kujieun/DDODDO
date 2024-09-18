@@ -2,6 +2,7 @@ import * as React from "react";
 import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
+
 import { useNavigation } from '@react-navigation/native';
 
 // 화면 너비 가져오기
@@ -20,10 +21,8 @@ const menuImages = {
 };
 
 
-const MainHome = ({ route, navigation }) => {
-/*지수꺼 포함!!*/
-const { userInfo } = route.params;
 
+const MainHome = ({ route, navigation }) => {
 
     const [daysLeft, setDaysLeft] = useState(0);
 
@@ -33,8 +32,12 @@ const { userInfo } = route.params;
         windSpeed: '0.3m/s',
     });
 
+    // const navigation = useNavigation();
+    const { userInfo } = route.params;
+
     //하단 바 선택 메뉴
     const [selectedMenu, setSelectedMenu] = useState(null);
+
 
 const handleBarMenu = (menu) => {
     setSelectedMenu(menu);
@@ -51,6 +54,7 @@ const handleBarMenu = (menu) => {
             break;
     }
 };
+
 
     //ar 메뉴
     const [isCharacterPressed, setIsCharacterPressed] = useState(false); // 상태 관리
@@ -212,7 +216,7 @@ const handleBarMenu = (menu) => {
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => handleBarMenu('community')}>
+                    <TouchableOpacity onPress={() => {handleBarMenu('community'); gotoCommunity();}}>
                         <Image
                             source={selectedMenu === 'community'
                                 ? require('../image/mainhome/barmenu/select/community.png')

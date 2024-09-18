@@ -2,19 +2,20 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput, Modal, Pressable } from 'react-native';
 import { launchImageLibrary } from 'react-native-image-picker';
 import { useNavigation } from '@react-navigation/native';
+import storage from '@react-native-firebase/storage';
 
-const SignupScreen = () => {
-  const navigation = useNavigation();
+const SignupScreen = ( {route}) => {
   const [nickname, setNickname] = useState('');
   const [isValid, setIsValid] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
-  const [isButtonEnabled, setIsButtonEnabled] = useState(false);
 
-const handleDuplicateCheck = () => {
-    // 여기에 Firebase 또는 API 호출 로직 추가
+  const navigation = useNavigation();
+  const { userInfo } = route.params;
+
+  const handleDuplicateCheck = () => {
     setModalVisible(true);
-    setIsButtonEnabled(true); // 닉네임 확인 후 '다음' 버튼 활성화
+    // TODO: Firebase에 닉네임 연결, 중복될 때의 알림창도 구현
   };
 
   const handleModalClose = () => {
@@ -27,22 +28,50 @@ const handleDuplicateCheck = () => {
     setNickname(text);
   };
 
-   const handleNextButtonPress = () => {
-      if (isButtonEnabled) {
-        navigation.navigate('MainHome'); // MainHome으로 이동
-      }
-    };
-
+  const uploadImageToFirebase = async (uri) => {
+    try {
+      const filename = uri.substring(uri.lastIndexOf('/') + 1);
+      const reference = storage().ref(`profileImages/${filename}`);
+      
+      // 파일 업로드
+      await reference.putFile(uri);
+      
+      // 업로드된 파일의 URL 가져오기
+      const downloadUrl = await reference.getDownloadURL();
+      
+      return downloadUrl;
+    } catch (error) {
+      console.error('이미지 업로드 실패: ', error);
+      return null;
+    }
+  };
 
   const handleProfileImagePick = () => {
     launchImageLibrary({}, (response) => {
       if (response.errorCode) {
-        console.log(response.errorCode); // Handle error
-      } else if (!response.didCancel) {
-        setProfileImage(response.assets[0].uri); // Note the updated path
+        console.log(response.errorCode); // 에러 처리
+      } else if (!response.didCancel && response.assets.length > 0) {
+        const uri = response.assets[0].uri;
+        setProfileImage(uri); // 이미지를 선택하고, 나중에 업로드할 URI 저장
       }
     });
   };
+
+  const handleSaveAndNext = async() => {
+    let imageUrl = profileImage;
+
+    // 선택한 프로필 이미지가 있으면 Firebase에 업로드
+    if (profileImage) {
+      imageUrl = await uploadImageToFirebase(profileImage);
+    }
+  
+    // nickname과 profileImage를 userInfo에 저장
+    const updatedUserInfo = { ...userInfo, name: nickname, profileImage: imageUrl };
+  
+    // 다음 화면으로 이동, userInfo 전달
+    navigation.navigate('MainHome', { userInfo: updatedUserInfo });
+  };
+
 
   return (
     <View style={styles.container}>
@@ -96,18 +125,9 @@ const handleDuplicateCheck = () => {
         <Text style={styles.nameCheckText}>중복확인</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.submitButton, { backgroundColor: '#B3B6BD' }]}>
+      <TouchableOpacity style={[styles.submitButton, { backgroundColor: '#B3B6BD' }]} onPress={handleSaveAndNext}>
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>
-
-            {/* '다음' 버튼 */}
-            <TouchableOpacity
-              style={[styles.submitButton,  { backgroundColor: '#B3B6BD' }, isButtonEnabled ? styles.buttonEnabled : styles.buttonDisabled]}
-              onPress={handleNextButtonPress}
-              disabled={!isButtonEnabled}
-            >
-              <Text style={styles.submitButtonText}>다음</Text>
-            </TouchableOpacity>
 
       <Modal transparent={true} visible={modalVisible} animationType="fade" onRequestClose={handleModalClose}>
         <View style={styles.modalOverlay}>
