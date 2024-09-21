@@ -25,16 +25,18 @@ import testtest from './scripts/testtest'; // 강릉 지도 테스트 버전
 import gangneungmap from './scripts/gangneungmap'; // 강릉 지도
 import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집
 import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
-import ARScreen from './scripts/ARScreen'; // 추천 여행지
+
+/*------------AR ------------------------------------------------*/
+import ARScreen from './scripts/ARScreen';
+import Location from './scripts/Location';
 
 /*================완전 테스트테스트 ==========*/
-import TestNavigation from './TestNavigation';
+import TestNavigation from './TestNavigation'; // 추천 여행지 --> Detail
 
 
 import Detail from './scripts/Detail';
-import JisooTest from './scripts/JisooTest';
 
-import ViroCustomText from './scripts/ViroCustomText';
+//import ViroCustomText from './scripts/ViroCustomText';
 
 /* ---------------------------------------------------------------------------- */
 

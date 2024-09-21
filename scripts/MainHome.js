@@ -21,7 +21,6 @@ const menuImages = {
 };
 
 
-
 const MainHome = ({ route, navigation }) => {
 
     const [daysLeft, setDaysLeft] = useState(0);

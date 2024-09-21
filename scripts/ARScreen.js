@@ -1,69 +1,100 @@
-import React, { useState, useEffect } from 'react';
-import { View, Button, StyleSheet, Text } from 'react-native';
-import { ViroARScene, ViroARSceneNavigator, ViroText, ViroTrackingStateConstants } from '@reactvision/react-viro';
+import React, { useState, useEffect } from "react";
+import {
+  ViroARScene,
+  ViroARSceneNavigator,
+  ViroText,
+} from "@reactvision/react-viro";
+import { View, Text, StyleSheet, StatusBar, TouchableOpacity, Image } from "react-native";
 import Geolocation from 'react-native-geolocation-service';
-import axios from 'axios';
+import locations from './Location';
 
-const HelloWorldSceneAR = ({ category }) => {
-  const [places, setPlaces] = useState([]);
+const alarmImage = require('../image/ar/alarm.png');
+const noPlacesImage = require('../image/ar/alarm2.png'); // 추가된 이미지
+const backtohomeImage = require('../image/ar/backtohome.png');
+
+const FrameComponent = ({ onFilterChange, showAlarm, showNoPlaces }) => {
+  const handlePress = (category) => {
+    onFilterChange(category);
+  };
+
+  const handleBackToHomePress = () => {
+      console.log('버튼 눌렀습니다');
+    };
+
+  return (
+    <View style={styles.container}>
+    {/* backtohome 버튼 추가 */}
+          <TouchableOpacity style={styles.backtohome} onPress={handleBackToHomePress}>
+            <Image source={backtohomeImage} style={styles.backtohomeImage} />
+          </TouchableOpacity>
+      <TouchableOpacity style={[styles.frame, styles.frame240]} onPress={() => handlePress('관광지')}>
+        <Text style={styles.textSmall}>관광지</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.frame, styles.frame241]} onPress={() => handlePress('식당')}>
+        <Text style={styles.textSmall}>식당</Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity style={[styles.frame, styles.frame242]} onPress={() => handlePress('카페')}>
+        <Text style={styles.textSmall}>카페</Text>
+      </TouchableOpacity>
+
+      {showAlarm && (
+        <Image
+          source={alarmImage}
+          style={styles.alarmImage}
+        />
+      )}
+
+      {showNoPlaces && (
+        <Image
+          source={noPlacesImage}
+          style={styles.alarmImage}
+          onLoad={() => console.log("No Places Image Loaded")}
+          onError={() => console.log("No Places Image Error")}
+        />
+      )}
+    </View>
+  );
+};
+
+const HelloWorldSceneAR = (props) => {
+  const { userLocation, places } = props.sceneProps || {};
+  const [text, setText] = useState("  ");
+
+  function onInitialized(state, reason) {
+    console.log("AR initialized", state, reason);
+  }
+
+  return (
+    <ViroARScene onTrackingUpdated={onInitialized}>
+      <ViroText
+        text={text}
+        scale={[0.5, 0.5, 0.5]}
+        position={[0, 0, -1]}
+        style={styles.helloWorldTextStyle}
+      />
+      {places && places.map((place, index) => (
+        <ViroImage
+          key={index}
+          source={place.image}
+          position={getPosition(userLocation, place, calculateDistance)}
+          scale={[3.04, 0.92, 0.92]}
+        />
+      ))}
+    </ViroARScene>
+  );
+};
+
+const ARSceneWithLocation = () => {
   const [userLocation, setUserLocation] = useState(null);
-
-  useEffect(() => {
-    if (!category) return; // 카테고리가 설정되지 않은 경우 데이터 가져오지 않음
-
-    function onLocationSuccess(position) {
-      const { latitude, longitude } = position.coords;
-      setUserLocation({ latitude, longitude });
-      fetchNearbyPlaces(latitude, longitude, category).then(places => {
-        console.log('============================');
-        console.log('사용자의 현재 위치:');
-        console.log(`위도: ${latitude}, 경도: ${longitude}`);
-        console.log('============================');
-        console.log('근처 장소 목록:');
-        places.forEach((place, index) => {
-          console.log(`장소 ${index + 1}:`);
-          console.log(`이름: ${place.name}`);
-          console.log(`별점: ${place.rating || '정보 없음'}`);
-          console.log(`영업 상태: ${place.opening_hours ? (place.opening_hours.open_now ? '영업 중' : '영업 종료') : '알 수 없음'}`);
-          console.log('----------------------------');
-        });
-        console.log('============================');
-        setPlaces(places);
-      });
-    }
-
-    function onLocationError(error) {
-      console.error('위치 정보 가져오기 오류:', error);
-    }
-
-    Geolocation.getCurrentPosition(onLocationSuccess, onLocationError, {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 10000,
-    });
-  }, [category]);
-
-  async function fetchNearbyPlaces(lat, lon, type) {
-    const apiKey = 'AIzaSyBi7dTSWOJEE6JepCHm-ABWDjt2Yne_3cw';
-    const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${lat},${lon}&radius=1000&type=${type}&key=${apiKey}`;
-    try {
-      const response = await axios.get(url);
-      // 상위 7개 장소만 반환
-      return response.data.results.slice(0, 7);
-    } catch (error) {
-      console.error('API error:', error);
-      return [];
-    }
-  }
-
-  function onInitialized(state) {
-    if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      // 정상적으로 추적됨
-    }
-  }
+  const [places, setPlaces] = useState([]);
+  const [selectedCategory, setSelectedCategory] = useState(null);
+  const [showAlarm, setShowAlarm] = useState(false);
+  const [showNoPlaces, setShowNoPlaces] = useState(false);
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371e3; // 지구 반지름 (미터 단위)
+    const R = 6371e3;
     const φ1 = lat1 * (Math.PI / 180);
     const φ2 = lat2 * (Math.PI / 180);
     const Δφ = (lat2 - lat1) * (Math.PI / 180);
@@ -74,103 +105,149 @@ const HelloWorldSceneAR = ({ category }) => {
       Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 
-    return R * c; // 거리 (미터)
+    return R * c;
   }
 
-  function getPosition(place) {
-    if (!userLocation) return [0, 0, -1];
+  useEffect(() => {
+    Geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ latitude, longitude });
+        console.log(`사용자의 현재 위치: 위도: ${latitude}, 경도: ${longitude}`);
 
-    const { latitude: userLat, longitude: userLon } = userLocation;
-    const { lat: placeLat, lng: placeLon } = place.geometry.location;
+        // 초기 알람 이미지 표시
+        setShowAlarm(true);
+        setTimeout(() => setShowAlarm(false), 5000);
 
-    const distance = calculateDistance(userLat, userLon, placeLat, placeLon) / 100;
-    const angle = Math.atan2(placeLon - userLon, placeLat - userLat);
+        const allPlaces = locations.flatMap(location => location.places);
+        const filteredPlaces = allPlaces.filter(place => {
+          const distance = calculateDistance(latitude, longitude, place.coordinates.latitude, place.coordinates.longitude);
+          return distance <= 1000;
+        });
+        setPlaces(filteredPlaces);
+        console.log("Filtered Places:", filteredPlaces);
+        console.log("Nearby Places Length:", filteredPlaces.length);
 
-    const xPos = distance * Math.cos(angle);
-    const zPos = distance * Math.sin(angle);
+        if (filteredPlaces.length === 0) {
+          console.log("No places found, setting showNoPlaces to true.");
+          setTimeout(() => {
+            setShowNoPlaces(false);
+          }, 2000);
+        } else {
+          setShowNoPlaces(false);
+        }
+      },
+      (error) => {
+        console.error("위치 정보 가져오기 오류:", error);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+    );
+  }, []);
 
-    return [xPos, 0, zPos];
-  }
+  const handleFilterChange = (category) => {
+    setSelectedCategory(category);
+    if (userLocation) {
+      const filteredPlaces = locations.find(location => location.category === category)?.places || [];
+      const nearbyPlaces = filteredPlaces.filter(place => {
+        const distance = calculateDistance(userLocation.latitude, userLocation.longitude,-1);
+        return distance <= 1000;
+      });
+
+      setPlaces(nearbyPlaces);
+      console.log("Filtered Places by Category:", nearbyPlaces);
+
+      if (nearbyPlaces.length === 0) {
+        setShowNoPlaces(true);
+        console.log("No places found, setting showNoPlaces to true.");
+        setTimeout(() => {
+          setShowNoPlaces(false);
+        }, 2000);
+      } else {
+        setShowNoPlaces(false);
+      }
+    }
+  };
 
   return (
-    <ViroARScene onTrackingUpdated={onInitialized}>
-      {places.length === 0 && category && (
-        <ViroText
-
-          text={`주변에 ${category} 정보가 없습니다.`}
-          scale={[0.5, 0.5, 0.5]}
-          position={[0, 0, -1]}
-          style={styles.helloWorldTextStyle}
-        />
-      )}
-      {places.map((place, index) => (
-        <ViroText
-          key={index}
-          text={`${place.name}\n별점: ${place.rating || '정보 없음'}\n영업 상태: ${place.opening_hours ? (place.opening_hours.open_now ? '영업 중' : '영업 종료') : '알 수 없음'}`}
-          scale={[0.5, 0.5, 0.5]}
-          position={getPosition(place)}
-           style={{
-              fontFamily: 'NotoSansKR-Bold', // 폰트 이름 설정
-              fontSize: 20,
-              color: '#ffffff',
-              textAlign: 'center'
-            }}
-        />
-      ))}
-    </ViroARScene>
-  );
-};
-
-const App = () => {
-  const [category, setCategory] = useState(null); // 기본 값은 null로 설정
-
-  return (
-    <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <Button title="관광 명소" onPress={() => setCategory('tourist_attraction')} />
-        <Button title="식당" onPress={() => setCategory('restaurant')} />
-        <Button title="카페" onPress={() => setCategory('cafe')} />
-      </View>
-      {!category && <Text style={styles.text}>카테고리를 선택해주세요.</Text>}
-      {category && (
+    <View style={styles.f1}>
+      <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
+      {userLocation ? (
         <ViroARSceneNavigator
           autofocus={true}
-          initialScene={{
-            scene: () => <HelloWorldSceneAR category={category} />,
-          }}
-          style={styles.f1}
+          initialScene={{ scene: HelloWorldSceneAR }}
+          sceneProps={{ userLocation, places }}
+          style={styles.arScene}
         />
+      ) : (
+        <Text>Loading...</Text>
       )}
+      <FrameComponent onFilterChange={handleFilterChange} showAlarm={showAlarm} showNoPlaces={showNoPlaces} />
     </View>
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  buttonContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    margin: 10,
-  },
-  f1: { flex: 1 },
-  helloWorldTextStyle: {
-    fontFamily: 'NotoSansCJK',
-    fontSize: 20,
-    color: '#ffffff',
-    textAlignVertical: 'center',
-    textAlign: 'center',
-  },
-  text: {
-    textAlign: 'center',
-    fontSize: 18,
-    margin: 20,
-    fontFamily: 'NotoSansKR-Bold',
-  },
-  buttonText: {
-    fontFamily: 'NotoSansKR-Bold',
-  }
-});
+export default ARSceneWithLocation;
 
-export default App;
+const styles = StyleSheet.create({
+  f1: { flex: 1 },
+  arScene: { flex: 1 },
+  container: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  frame: {
+    position: 'absolute',
+    height: 30,
+    backgroundColor: '#FFFFFF',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 2,
+    paddingHorizontal: 34,
+    gap: 8,
+    shadowColor: 'rgba(100, 149, 237, 0.1)',
+    borderRadius: 12,
+  },
+backtohome: {
+  position: 'absolute',
+  top: 42,
+  left: 21,
+  width: 6, // 반으로 줄임
+  height: 1, // 반으로 줄임
+  resizeMode: 'cover', // 크기에 맞게 조정
+},
+
+  frame240: { left: '5.56%', top: 76, elevation: 10 },
+  frame241: { left: '35.83%', top: 76, elevation: 10 },
+  frame242: { left: '66.39%', top: 76, elevation: 10 },
+  textSmall: {
+    width: 24,
+    height: 22,
+    fontFamily: 'Pretendard',
+    fontWeight: '400',
+    fontSize: 14,
+    lineHeight: 22,
+    letterSpacing: -0.025,
+    color: '#646C79',
+  },
+  helloWorldTextStyle: {
+    fontFamily: "Arial",
+    fontSize: 30,
+    color: "#ffffff",
+    textAlignVertical: "center",
+    textAlign: "center",
+  },
+  alarmImage: {
+    position: 'absolute',
+    width: 320,
+    height: 100,
+    alignSelf: 'center',
+    top: '50%',
+    transform: [{ translateY: -50 }],
+  },
+});
