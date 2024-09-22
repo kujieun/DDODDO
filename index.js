@@ -26,6 +26,15 @@ import gangneungmap from './scripts/gangneungmap'; // 강릉 지도
 import RestaurantHome from './scripts/RestaurantHome'; // 추천 맛집
 import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
 
+/*----------------------일정 정하기-------------------------------*/
+import home from './scripts/MakeSchedule/home'; // 일정정하기 홈
+import setdate from './scripts/MakeSchedule/setdate'; // 일정정하기 - 날짜
+import setdate1 from './scripts/MakeSchedule/setdate1'; // 일정정하기 - 날짜1
+import courseyn from './scripts/MakeSchedule/courseyn'; // 일정정하기 - 날짜1
+
+/*---------------------추천코스-------------------------------*/
+import coursehome from './scripts/Course/coursehome'; // 일정정하기 - 날짜1
+
 /*------------AR ------------------------------------------------*/
 import ARScreen from './scripts/ARScreen';
 import Location from './scripts/Location';
@@ -47,4 +56,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => ARScreen);
+AppRegistry.registerComponent(appName, () => coursehome);
