@@ -33,6 +33,9 @@ import TestNavigation from './TestNavigation';
 
 import Detail from './scripts/Detail';
 
+import CameraMenu from './screens/CameraMenu';
+import CameraFilter from './screens/CameraFilter'
+
 /* ---------------------------------------------------------------------------- */
 
 import Community from './screens/Community';

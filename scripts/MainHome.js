@@ -59,6 +59,10 @@ const MainHome = ({ route, navigation }) => {
         navigation.navigate('Community',  { userInfo });
     }
 
+    const gotoCamera = () => {
+        navigation.navigate('CameraFilter');
+    }
+
 
     //ar 메뉴
     const [isCharacterPressed, setIsCharacterPressed] = useState(false); // 상태 관리
@@ -200,7 +204,7 @@ const MainHome = ({ route, navigation }) => {
                         </Animated.View>
 
                         <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={gotoCamera}>
                                 <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
                             </TouchableOpacity>
                         </Animated.View>
