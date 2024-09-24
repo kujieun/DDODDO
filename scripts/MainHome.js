@@ -59,9 +59,9 @@ const MainHome = ({ route, navigation }) => {
         navigation.navigate('Community',  { userInfo });
     }
 
-    const gotoCamera = () => {
-        navigation.navigate('CameraFilter');
-    }
+    // const gotoCamera = () => {
+    //     navigation.navigate('CameraMenu');
+    // }
 
 
     //ar 메뉴
@@ -119,6 +119,10 @@ const MainHome = ({ route, navigation }) => {
         if (menuIndex === 8) {
             navigation.navigate('gangneungmap'); // Test2로 이동
         }
+        if (menuIndex === 4) {
+            navigation.navigate('CameraMenu'); 
+        }
+
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
 
@@ -204,7 +208,7 @@ const MainHome = ({ route, navigation }) => {
                         </Animated.View>
 
                         <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                            <TouchableOpacity onPress={gotoCamera}>
+                            <TouchableOpacity>
                                 <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
                             </TouchableOpacity>
                         </Animated.View>

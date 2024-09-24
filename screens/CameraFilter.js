@@ -1,28 +1,27 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Modal } from 'react-native';
 import { Camera, useCameraDevice } from 'react-native-vision-camera';
 import * as ImagePicker from 'react-native-image-picker';
-import axios from 'axios';
-import {CameraRoll} from '@react-native-camera-roll/camera-roll';
-// import PhotoEditor from 'react-native-photo-editor';
+import { CameraRoll } from '@react-native-camera-roll/camera-roll';
 import RNPhotoManipulator from 'react-native-photo-manipulator';
-// import RNFS from 'react-native-fs';
-// import { ImageEditor } from 'react-native';
+import axios from 'axios';
 
-const API_KEY = 'QAiNzAD7GEQAnT9LrZEGtVNi';
-
-const CameraScreen = () => {
+const CameraFilter = ({ route, navigation }) => {
+  const { filterId, filterImageUri, locationId } = route.params;
   const [hasPermission, setHasPermission] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [loading, setLoading] = useState(false);
   const [isFilterActive, setIsFilterActive] = useState(true);
-  const [check, setCheck] = useState(false);
   const [cameraPosition, setCameraPosition] = useState('back');
+  const [isMenuVisible, setIsMenuVisible] = useState(false);
+  const [isWarning1Visible, setIsWarning1Visible] = useState(false);
+  const [isWarning2Visible, setIsWarning2Visible] = useState(false);
   const device = useCameraDevice(cameraPosition);
   const [isCameraReady, setIsCameraReady] = useState(false); 
   const camera = useRef(null);
-  
+  const [check, setCheck] = useState(false);
 
+  const API_KEY = 'QAiNzAD7GEQAnT9LrZEGtVNi';
 
   useEffect(() => {
     const getPermissions = async () => {
@@ -32,39 +31,38 @@ const CameraScreen = () => {
     getPermissions();
   }, []);
 
+  useEffect(() => {
+    if (filterId) {
+      setIsMenuVisible(true);
+    }
+  }, [filterId]);
+
   const toggleCamera = () => {
     setCameraPosition((prevPosition) => (prevPosition === 'back' ? 'front' : 'back'));
   };
 
   const resetFilters = () => {
-    setIsFilterActive(true);  // 필터 선택 화면 활성화
-    setSelectedImage(null);  // 선택된 이미지 초기화
+    setIsFilterActive(true);
+    setSelectedImage(null);
   };
 
   const capturePhoto = async () => {
     try {
       if (isCameraReady && camera.current != null) {
-        // 사진을 찍음
         const photo = await camera.current.takePhoto();
-    
-        // photo 객체의 구조를 확인
-        console.log('Captured photo object:', photo);
-  
-        // path 값이 문자열인지 확인
         let photoUri;
         if (photo && typeof photo.path === 'string') {
           photoUri = `file://${photo.path}`;
         } else if (photo && photo.path instanceof ReadableNativeMap) {
-          // ReadableNativeMap에서 값 추출
           photoUri = `file://${photo.path.getString('path')}`;
         } else {
           throw new Error('Photo object or path is invalid');
         }
-  
-        console.log("Captured photo path:", photoUri);
-    
-        // 오버레이 이미지를 합침
-        overlayImageOnPhoto(photoUri);  
+        if (filterId === 'filter1') {
+            overlayImageOnPhoto(photoUri); 
+        } else if (filterId === 'filter2') {
+            overlayImageOnPhoto(photoUri); 
+        }
       } else {
         console.error('Camera is not ready or reference is null');
       }
@@ -72,9 +70,6 @@ const CameraScreen = () => {
       console.error('Error capturing photo:', error);
     }
   };
-
-
-  const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
   
   const overlayImageOnPhoto = async (photoUri) => {
     try {
@@ -155,31 +150,6 @@ const CameraScreen = () => {
       console.error('Error merging or saving photo:', error);
     }
   }; 
-  
-  
-  
-  
-
-  const selectImage = (mode) => {
-    ImagePicker.launchImageLibrary({ mediaType: 'photo' }, (response) => {
-      if (response.assets && response.assets.length > 0) {
-        const selectedUri = response.assets[0].uri;
-        setIsFilterActive(false);  // 버튼을 누르면 비활성화
-        if (mode === 'remove-bg') {
-          removeBackground(selectedUri);
-          setCheck(true);
-        } 
-      }
-    });
-  };
-
-  const onCameraFilter1Press = () => {
-    setIsFilterActive(false);
-    const filterImageUri = 'https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2Flocation1%2Fcharacter.png?alt=media&token=c546ab8b-ef32-400f-8c32-f56d67d98ffa';
-    // https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2Flocation2%2Fcharacter.png?alt=media&token=b2e99438-1eb8-413f-b7df-6849437deb7c
-    setSelectedImage(filterImageUri);
-  };
-  
 
   const removeBackground = async (imageUri) => {
     setLoading(true);
@@ -205,7 +175,6 @@ const CameraScreen = () => {
 
       if (response.status === 200) {
         const blob = response.data;
-
         const reader = new FileReader();
         reader.onloadend = () => {
           const base64data = reader.result;
@@ -216,7 +185,37 @@ const CameraScreen = () => {
     } catch (error) {
       console.error('Error during the request:', error.message);
     }
-    setLoading(false)
+    setLoading(false);
+  };
+
+  const handleMenuNext = () => {
+    setIsMenuVisible(false);
+    if (filterId === 'filter2') {
+      setIsWarning1Visible(true);
+    }else if (filterId === 'filter1') {
+        setSelectedImage(filterImageUri)
+    }
+  };
+
+  const handleWarning1Next = () => {
+    setIsWarning1Visible(false);
+    setIsWarning2Visible(true);
+  };
+
+  const handleWarning2Ok = () => {
+    setIsWarning2Visible(false);
+    selectImage('remove-bg');
+  };
+
+  const selectImage = (mode) => {
+    ImagePicker.launchImageLibrary({ mediaType: 'photo' }, (response) => {
+      if (response.assets && response.assets.length > 0) {
+        const selectedUri = response.assets[0].uri;
+        setSelectedImage(selectedUri);
+        setCheck(true);
+        removeBackground(selectedUri);
+      }
+    });
   };
 
   if (device == null) return <Text>Loading...</Text>;
@@ -226,63 +225,77 @@ const CameraScreen = () => {
     <View style={styles.container}>
       <Camera
         style={StyleSheet.absoluteFill}
-        ref={camera}  // Camera 컴포넌트에 카메라 참조 연결
+        ref={camera}
         device={device}
         isActive={true}
-        photo={true}  // 촬영 기능 활성화
-        onInitialized={() => setIsCameraReady(true)}  // 카메라 준비 완료되면 상태 업데이트
+        photo={true}
+        onInitialized={() => setIsCameraReady(true)}
       />
-
       {selectedImage && (
         <Image
           source={{ uri: selectedImage }}
-          style={check ? styles.overlayImage : styles.characterImage}
+          style={styles.characterImage}
           resizeMode="cover"
         />
       )}
-      
-
       {loading && <Text style={styles.loadingText}>Removing background...</Text>}
 
-      {isFilterActive && (
-        <>
-            {/* 로케이션 장소 */}
-            <Image source={require('../img/location1.png')} style={styles.locationImage} />
-
-            {/* 필터 버튼들 */}
-            <View style={styles.filterContainer}>
-            <TouchableOpacity onPress={() => selectImage('remove-bg')}>
-                <Image source={require('../img/camerafilter2.png')} style={styles.filterImage} />
+      <View style={styles.cameraBarContainer}>
+        <Image source={require('../img/camerabar.png')} style={styles.cameraBar} />
+        <TouchableOpacity style={styles.cameraButton} onPress={resetFilters}>
+          <Image source={require('../img/cameraback.png')} style={styles.cameraButtonImage} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.cameraButton} onPress={capturePhoto}>
+          <Image source={require('../img/capture.png')} style={styles.cameraButtonImage} />
+        </TouchableOpacity>
+        <TouchableOpacity style={styles.cameraButton} onPress={toggleCamera}>
+          <Image source={require('../img/change.png')} style={styles.cameraButtonImage} />
+        </TouchableOpacity>
+      </View>
+      {/* Menu Modal */}
+        <Modal
+        visible={isMenuVisible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsMenuVisible(false)}
+        >
+        <View style={styles.modalContainer}>
+            <Image source={require('../img/camera/menu.png')} style={styles.modalImage} />
+            <TouchableOpacity style={styles.nextButtonMenu} onPress={handleMenuNext}>
+            <Image source={require('../img/camera/next.png')} style={styles.modalButtonImage} />
             </TouchableOpacity>
+        </View>
+        </Modal>
 
-            <TouchableOpacity onPress={onCameraFilter1Press}>
-                <Image source={require('../img/camerafilter1.png')} style={styles.filterImage} />
+        {/* Warning1 Modal */}
+        <Modal
+        visible={isWarning1Visible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsWarning1Visible(false)}
+        >
+        <View style={styles.modalContainer}>
+            <Image source={require('../img/camera/warning1.png')} style={styles.modalImage} />
+            <TouchableOpacity style={styles.nextButtonWarning1} onPress={handleWarning1Next}>
+            <Image source={require('../img/camera/next.png')} style={styles.modalButtonImage} />
             </TouchableOpacity>
-            </View>
-        </>
-        )}
+        </View>
+        </Modal>
 
-
-            <View style={styles.cameraBarContainer}>
-            {/* 카메라 바 배경 이미지 */}
-            <Image source={require('../img/camerabar.png')} style={styles.cameraBar} />
-
-            {/* 카메라 백 버튼 */}
-            <TouchableOpacity style={styles.cameraButton} onPress={resetFilters}>
-                <Image source={require('../img/cameraback.png')} style={styles.cameraButtonImage} />
+        {/* Warning2 Modal */}
+        <Modal
+        visible={isWarning2Visible}
+        transparent={true}
+        animationType="slide"
+        onRequestClose={() => setIsWarning2Visible(false)}
+        >
+        <View style={styles.modalContainer}>
+            <Image source={require('../img/camera/warning2.png')} style={styles.modalImage} />
+            <TouchableOpacity style={styles.okButton} onPress={handleWarning2Ok}>
+            <Image source={require('../img/camera/ok.png')} style={styles.modalButtonImage} />
             </TouchableOpacity>
-
-            {/* 캡처 버튼 */}
-            <TouchableOpacity style={styles.cameraButton} onPress={capturePhoto}>
-                <Image source={require('../img/capture.png')} style={styles.cameraButtonImage} />
-            </TouchableOpacity>
-
-            {/* 카메라 전환 버튼 */}
-            <TouchableOpacity style={styles.cameraButton} onPress={toggleCamera}>
-                <Image source={require('../img/change.png')} style={styles.cameraButtonImage} />
-            </TouchableOpacity>
-            </View>
-
+        </View>
+        </Modal>
     </View>
   );
 };
@@ -292,57 +305,27 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
-  overlayImage: {
-    position: 'absolute',
-    width: '100%',
-    height: '100%',
-  },
   characterImage: {
     position: 'absolute',
     width: '100%',
     height: '100%',
   },
-
   filterContainer: {
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     position: 'absolute',
-    top: '50%',  // location 이미지의 아래에 겹치도록 위치
+    top: '50%',
     width: '100%',
   },
   filterImage: {
     width: 130,
     resizeMode: 'contain',
   },
-  locationImage: {
-    position: 'absolute',
-    top: '25%', // 적당한 위치에 배치
-    left: '7.5%', // 적당한 위치에 배치
-    width: 350,
-    resizeMode: 'contain',
-  },
-  captureButton: {
-    position: 'absolute',
-    bottom: 30,
-    alignSelf: 'center',
-    backgroundColor: '#fff',
-    padding: 10,
-    borderRadius: 5,
-  },
-  buttonText: {
-    color: '#000',
-  },
-  loadingText: {
-    position: 'absolute',
-    top: 200,
-    alignSelf: 'center',
-    color: '#f00',
-  },
   cameraBarContainer: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    height: '15%', // camerabar 높이에 맞춤
+    height: '15%',
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
@@ -362,7 +345,39 @@ const styles = StyleSheet.create({
     width: '65%',
     resizeMode: 'contain',
   },
-  
+  loadingText: {
+    position: 'absolute',
+    top: 200,
+    alignSelf: 'center',
+    color: '#f00',
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalImage: {
+    width: '80%',
+    height: '60%',
+    resizeMode: 'contain',
+  },
+  nextButtonMenu: {
+    width: '70%',
+    top: '-29%',
+  },
+  nextButtonWarning1: {
+    width: '70%',
+    top: '-27%',
+  },
+  okButton: {
+    width: '70%', 
+    top: '-25%',
+  },
+  modalButtonImage: {
+    width: '100%',
+    resizeMode: 'contain',
+  },
 });
 
-export default CameraScreen;
+export default CameraFilter;

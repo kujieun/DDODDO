@@ -12,6 +12,7 @@ import Community from './screens/Community';
 import CommunityDetail from './screens/CommunityDetail';
 import WritePost from './screens/WritePost';
 import CameraFilter from './screens/CameraFilter'
+import CameraMenu from './screens/CameraMenu'
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,7 @@ const App = () => {
         <Stack.Screen name="CommunityDetail" component={CommunityDetail} />
         <Stack.Screen name="WritePost" component={WritePost} />
         <Stack.Screen name="CameraFilter" component={CameraFilter} />
+        <Stack.Screen name="CameraMenu" component={CameraMenu} />
 
       </Stack.Navigator>
     </NavigationContainer>
