@@ -33,7 +33,8 @@ import setdate1 from './scripts/MakeSchedule/setdate1'; // 일정정하기 - 날
 import courseyn from './scripts/MakeSchedule/courseyn'; // 일정정하기 - 날짜1
 
 /*---------------------추천코스-------------------------------*/
-import coursehome from './scripts/Course/Coursehome'; // 일정정하기 - 날짜1
+import Coursehome from './scripts/Course/Coursehome';
+
 
 /*------------AR ------------------------------------------------*/
 import ARScreen from './scripts/ARScreen';
@@ -49,6 +50,10 @@ import coursedetail from './scripts/Course/coursedetail';
 
 //import ViroCustomText from './scripts/ViroCustomText';
 
+
+/*------------게임 -------------------------*/
+import Tutorial from './scripts/Game/Tutorial'; // 게임 튜토리얼
+
 /* ---------------------------------------------------------------------------- */
 
 import Community from './screens/Community';
@@ -58,4 +63,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TestNavigation_course);
+AppRegistry.registerComponent(appName, () => Tutorial);
