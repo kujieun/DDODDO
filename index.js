@@ -43,6 +43,7 @@ import Location from './scripts/Location';
 /*================완전 테스트테스트 ==========*/
 import TestNavigation from './TestNavigation'; // 추천 여행지 --> Detail
 import TestNavigation_course from './TestNavigation_course'; // 추천 코스 --> Detail
+import TestNavigation_now from './TestNavigation_now'; // 추천 나우 --> Detail
 
 
 import Detail from './scripts/Detail';
@@ -63,4 +64,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TestNavigation);
+AppRegistry.registerComponent(appName, () => TestNavigation_now);
