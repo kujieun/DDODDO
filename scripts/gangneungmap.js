@@ -174,12 +174,13 @@ const TopSection = () => {
   const pan = useRef(new Animated.ValueXY({ x: 0, y: height })).current;
 
 
-    const handleLikePress = (restaurantId) => {
-      setLikedItems({
-        ...likedItems,
-        [restaurantId]: !likedItems[restaurantId],
-      });
-    };
+const handleLikePress = (placeId) => {
+  setLikedItems((prevLikedItems) => ({
+    ...prevLikedItems,
+    [placeId]: !prevLikedItems[placeId],  // placeId를 키로 사용
+  }));
+};
+
 
 
   // 웹뷰 url
@@ -494,14 +495,19 @@ const handleMarkerPress = useCallback(async (marker) => {
             )}
 
             <TouchableOpacity
-              onPress={() => handleLikePress(selectedPlace.contentid)}
+              onPress={() => handleLikePress(selectedPlace.placeId)}  // placeId 사용
               style={styles.actionButton}
             >
               <Image
-                source={likedItems[selectedPlace.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+                source={
+                  likedItems[selectedPlace.placeId]  // placeId로 상태를 확인
+                    ? require('../image/restaurant/like.png')  // 좋아요 상태일 때
+                    : require('../image/restaurant/unlike.png')  // 좋아요 상태가 아닐 때
+                }
                 style={styles.actionIcon}
               />
             </TouchableOpacity>
+
             <TouchableOpacity
               style={styles.directionsButton}
               onPress={() => handleWebViewOpen(`https://map.kakao.com/link/to/${selectedPlace.name},${selectedPlace.geometry.location.lat},${selectedPlace.geometry.location.lng}`)}
