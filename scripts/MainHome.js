@@ -2,11 +2,24 @@ import * as React from "react";
 import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 import { useNavigation } from '@react-navigation/native';
 
 // 화면 너비 가져오기
 const { width: screenWidth } = Dimensions.get('window');
+
+// 날씨 API
+const API_KEY = "9fd5c9fdde5b224d48ca942a3984d6c8";
+// 강릉 경도와 위도(openweathermap)
+const LATITUDE = 37.7514;
+const LONGITUDE = 128.8760;
+//날씨 이미지 
+const Cloud = require('../img/Cloud.png');
+const Clear = require('../img/Clear.png');
+const Rain = require('../img/Rain.png');
+const Snow = require('../img/Snow.png');
+const Else = require('../img/11.png');
 
 // 이미지 리소스 정의
 const menuImages = {
@@ -38,6 +51,54 @@ const MainHome = ({ route, navigation }) => {
     //하단 바 선택 메뉴
     const [selectedMenu, setSelectedMenu] = useState(null);
 
+        state = {
+            isLoading: true,
+            currentWeather: {},
+        };
+    
+      // 날씨 상태를 분류하는 함수
+      classifyCondition = (id) => {
+        if (id >= 200 && id <= 599) {
+          return Rain;
+        } else if (id >= 600 && id <= 699) {
+          return Snow;
+        } else if (id >= 700 && id <= 799) {
+          return Cloud;
+        } else if (id === 800) {
+          return Clear;
+        }
+        return Else;
+      };
+    
+      // 현재 날씨 정보 가져오기
+      getWeather = async (latitude, longitude) => {
+        try {
+          const {
+            data: {
+              main: { temp },
+              weather,
+              wind: { speed },
+            },
+          } = await axios.get(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`  
+        );
+    
+          const { id } = weather[0];
+          const condition = this.classifyCondition(id);
+        
+          // 상태 업데이트
+        setWeather({
+            icon: condition,
+            temperature: `${temp}°`,
+            windSpeed: `${speed}m/s`,
+        });
+
+
+        } catch (error) {
+          Alert.alert("Error", "Could not fetch weather data");
+        }
+      };
+
 
     const handleBarMenu = (menu) => {
         setSelectedMenu(menu);
@@ -57,6 +118,10 @@ const MainHome = ({ route, navigation }) => {
 
     const gotoCommunity = () => {
         navigation.navigate('Community',  { userInfo });
+    }
+
+    const gotoMyPage = () => {
+        navigation.navigate('MyPage',  { userInfo });
     }
 
     // const gotoCamera = () => {
@@ -103,6 +168,9 @@ const MainHome = ({ route, navigation }) => {
 
 
     useEffect(() => {
+          // 날씨 정보 가져오기
+          getWeather(LATITUDE, LONGITUDE);
+
         const targetDate = new Date("2024-10-13"); // 목표 날짜
         const today = new Date();
         const diffTime = targetDate - today;
@@ -117,11 +185,12 @@ const MainHome = ({ route, navigation }) => {
                     navigation.navigate('RestaurantHome'); // Test2로 이동
                 }
         if (menuIndex === 8) {
-            navigation.navigate('gangneungmap'); // Test2로 이동
+            navigation.navigate('gangneungmap', { userInfo }); // Test2로 이동
         }
         if (menuIndex === 4) {
             navigation.navigate('CameraMenu'); 
         }
+        
 
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
@@ -237,7 +306,7 @@ const MainHome = ({ route, navigation }) => {
                         />
                     </TouchableOpacity>
 
-                    <TouchableOpacity onPress={() => handleBarMenu('my')}>
+                    <TouchableOpacity onPress={() => {handleBarMenu('my'); gotoMyPage();}}>
                         <Image
                             source={selectedMenu === 'my'
                                 ? require('../image/mainhome/barmenu/select/my.png')
