@@ -11,7 +11,7 @@ const SignupScreen = () => {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}  // 이 부분은 문자열 없이 확실히 주석 처리
+            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}
             style={styles.backButtonContainer}
           >
             <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />

@@ -11,7 +11,7 @@ import {
   FlatList,
 } from 'react-native';
 import axios from 'axios';
-import { useNavigation } from '@react-navigation/native'; // Import useNavigation
+import { useNavigation, useRoute  } from '@react-navigation/native';
 
 const Coursehome = () => {
   const [tripstylePanelVisible, setTripstylePanelVisible] = useState(false);
@@ -23,6 +23,8 @@ const Coursehome = () => {
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1000);
   const navigation = useNavigation();
+  const route = useRoute(); // route 가져오기
+  const { tripName, startDate, endDate } = route.params;
 
   const cat3Mapping = {
     '가족': 'C01120001',
@@ -182,49 +184,45 @@ const Coursehome = () => {
         </View>
       )}
 
-      <View style={styles.flatListContainer}>
-        <FlatList
-          contentContainerStyle={styles.cardsContainer}
-          data={tourData}
-          keyExtractor={(item) => item.contentid.toString()}
-          onEndReached={loadMoreData}
-          onEndReachedThreshold={0.5}
-          renderItem={({ item }) => {
-            const isLiked = likedStates[item.contentid] || false;
-            return (
-              <TouchableOpacity
-                onPress={() => navigation.navigate('coursedetail', { contentid: item.contentid })}
-                style={styles.card}
-              >
-                {item.image ? (
-                  <Image source={{ uri: item.image }} style={styles.cardImage} />
-                ) : (
-                  <View style={styles.placeholderImage}>
-                    <Text style={{ textAlign: 'center', justifyContent: 'center' }}>이미지 준비중입니다</Text>
-                  </View>
-                )}
-                <View style={styles.cardTitleContainer}>
-                  <Text style={styles.cardTitle}>{item.title}</Text>
-                  <TouchableOpacity onPress={() => {
-                    setLikedStates((prev) => ({
-                      ...prev,
-                      [item.contentid]: !isLiked,
-                    }));
-                  }}>
-                    <Image
-                      source={isLiked ? require('../../image/course/likeicon.png') : require('../../image/course/unlikeicon.png')}
-                      style={styles.likeIcon}
-                    />
-                  </TouchableOpacity>
-                </View>
-                <Text style={styles.cat3Text}>{getCategoryLabel(item.cat3)}</Text>
-              </TouchableOpacity>
+<View style={styles.flatListContainer}>
+  <FlatList
+    contentContainerStyle={styles.cardsContainer}
+    data={tourData}
+    keyExtractor={(item) => item.contentid.toString()}
+    onEndReached={loadMoreData}
+    onEndReachedThreshold={0.5}
+    renderItem={({ item }) => {
+      return (
+        <TouchableOpacity
+          onPress={() => navigation.navigate('coursedetail', { contentid: item.contentid })}
+          style={styles.card}
+        >
+          {item.image ? (
+            <Image source={{ uri: item.image }} style={styles.cardImage} />
+          ) : (
+            <View style={styles.placeholderImage}>
+              <Text style={{ textAlign: 'center', justifyContent: 'center' }}>이미지 준비중입니다</Text>
+            </View>
+          )}
+          <View style={styles.cardTitleContainer}>
+            <Text style={styles.cardTitle}>{item.title}</Text>
+            <TouchableOpacity
+              onPress={() => {navigation.navigate('addcourseone', {tripName, startDate, endDate, contentid: item.contentid });
+              }}
+            >
+              <Image
+                source={require('../../image/makeschedule/add.png')}
+                style={styles.likeIcon}
+              />
+            </TouchableOpacity>
+          </View>
+          <Text style={styles.cat3Text}>{getCategoryLabel(item.cat3)}</Text>
+        </TouchableOpacity>
+      );
+    }}
+  />
+</View>
 
-            );
-          }}
-
-        />
-      </View>
     </View>
   );
 };

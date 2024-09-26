@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
@@ -7,6 +7,7 @@ const navigation = useNavigation();
   const handleBackButton = () => {
     navigation.goBack(); // 이전 화면으로 돌아가는 함수
   };
+  const [tripName, setTripName] = useState('');
 
   return (
     <View style={styles.container}>
@@ -34,6 +35,8 @@ const navigation = useNavigation();
         <TextInput
           style={styles.inputField}
           placeholder="여행 이름 입력"
+          value={tripName}
+          onChangeText={setTripName}
         />
         <Image source={require('../../image/makeschedule/character.png')} style={styles.character} />
       </View>
@@ -41,7 +44,7 @@ const navigation = useNavigation();
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() =>  navigation.navigate('setdate1')}
+        onPress={() =>  navigation.navigate('setdate1', {tripName})}
       >
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>

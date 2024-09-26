@@ -7,6 +7,9 @@ import setdate from './scripts/MakeSchedule/setdate';
 import setdate1 from './scripts/MakeSchedule/setdate1';
 import courseyn from './scripts/MakeSchedule/courseyn';
 import getcourse from './scripts/MakeSchedule/getcourse';
+import coursedetail from './scripts/Course/coursedetail';
+import addcourseone from './scripts/MakeSchedule/addcourseone';
+import scheduledetail from './scripts/MakeSchedule/scheduledetail';
 
 const Stack = createStackNavigator();
 
@@ -19,6 +22,9 @@ const TestNavigation = () => {
         <Stack.Screen name="setdate1" component={setdate1} />
         <Stack.Screen name="courseyn" component={courseyn} />
         <Stack.Screen name="getcourse" component={getcourse} />
+        <Stack.Screen name="coursedetail" component={coursedetail} />
+        <Stack.Screen name="addcourseone" component={addcourseone} />
+        <Stack.Screen name="scheduledetail" component={scheduledetail} />
       </Stack.Navigator>
     </NavigationContainer>
   );
