@@ -109,6 +109,15 @@ const cleanURL = (url) => {
     if (periodIndex === -1) return text; // 문장이 없으면 원본 반환
     return text.substring(0, periodIndex + 1); // 첫 문장만 반환
   };
+  /*===============기본정보 조회==================*/
+
+
+
+
+
+
+
+
 
   return (
     <View style={styles.container}>
@@ -148,7 +157,9 @@ const cleanURL = (url) => {
 
 
     <View style={styles.placeTitleReviewContainer}>
-      <Text style={styles.placeTitle}>{placeName}   </Text>
+      <Text style={[styles.placeTitle, { fontSize: 20 }]}>
+              {placeName}
+          </Text>
       <View style={styles.review}>
         <Image source={require('../image/detail/yellowstar.png')} style={styles.star} />
         <Text style={styles.description}>0.0 (0)</Text>
@@ -257,14 +268,11 @@ const cleanURL = (url) => {
         </TouchableOpacity>
       </View>
 
-      <View style={styles.line3} />
+<View style={styles.line3} />
 
-        <Text style={styles.placeTitle}>기본 정보</Text>
-
-
-
-       </View>
-     </ScrollView>
+          <Text style={styles.placeTitle}>기본 정보</Text>
+        </View>
+      </ScrollView>
     </View>
   );
 };
@@ -337,9 +345,8 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 placeTitle: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
-    fontSize: 20,
+    fontFamily: 'Pretendard-SemiBold',
+    fontSize: 16,
     color: '#111111',
 
     flexShrink: 1,  // 제목이 길어질 경우 줄 바꿈을 허용
@@ -411,9 +418,9 @@ placeTitle: {
     marginBottom: 0,
   },
   frameContainer2: {
-    position: 'relative', // 부모 컨테이너의 위치를 기준으로 자식 요소 배치
-      height: 60, // 적절한 높이 설정
-      width: '100%', // 부모 컨테이너의 너비
+    position: 'relative',
+      height: 60,
+      width: '100%',
       marginTop: 0,
    },
     frame211: {
@@ -496,6 +503,12 @@ placeTitle: {
       color: '#333333',
     },
     */
+     spotDetailContainer: {
+        marginVertical: 5,
+      },
+      spotDetail: {
+        fontSize: 14,
+      },
 });
 
 export default TourPlaceHome;

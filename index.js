@@ -63,4 +63,4 @@ import WritePost from './screens/WritePost'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => Tutorial);
+AppRegistry.registerComponent(appName, () => TestNavigation);

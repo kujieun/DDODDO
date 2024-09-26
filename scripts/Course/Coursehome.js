@@ -29,8 +29,6 @@ const Coursehome = () => {
     '나': 'C01130001',
     '힐링코스': 'C01140001',
     '도보코스': 'C01150001',
-    '캠핑코스': 'C01160001',
-    '맛코스': 'C01170001',
   };
 
   const getCategoryLabel = (cat3) => {
@@ -164,14 +162,6 @@ const Coursehome = () => {
 
     <TouchableOpacity onPress={() => { filterTourData('도보코스'); setWithwhoPanelVisible(false); }}>
       <Text style={styles.panelItem}>도보코스</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={() => { filterTourData('캠핑코스'); setWithwhoPanelVisible(false); }}>
-      <Text style={styles.panelItem}>캠핑코스</Text>
-    </TouchableOpacity>
-
-    <TouchableOpacity onPress={() => { filterTourData('맛코스'); setWithwhoPanelVisible(false); }}>
-      <Text style={styles.panelItem}>맛코스</Text>
     </TouchableOpacity>
   </View>
 )}

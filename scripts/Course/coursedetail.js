@@ -16,6 +16,7 @@ const TourPlaceHome = ({ route }) => {
   const [overview, setOverview] = useState(''); // overview 상태 추가
   const [mapx, setMapx] = useState(null);
   const [mapy, setMapy] = useState(null);
+  const [courseDetails, setCourseDetails] = useState([]);
 
   const fetchItemDetails = async () => {
     try {
@@ -46,8 +47,8 @@ const TourPlaceHome = ({ route }) => {
           overview: item.overview || "No Overview",
           firstimage: item.firstimage || '',
           addr1: item.addr1 || "No Address",
-          tel: item.tel || "No Phone Number",
-          homepage: item.homepage || "No Website",
+         // tel: item.tel || "No Phone Number",
+         // homepage: item.homepage || "No Website",
           mapx: item.mapx || null,
           mapy: item.mapy || null,
         }));
@@ -109,6 +110,44 @@ const cleanURL = (url) => {
     return text.substring(0, periodIndex + 1); // 첫 문장만 반환
   };
 
+
+const fetchCourseDetails = async () => {
+  try {
+    const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
+      params: {
+        numOfRows: 10,
+        pageNo: 1,
+        MobileOS: 'AND',
+        MobileApp: '또, 강릉',
+        serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==', // 여기에 본인의 서비스 키를 입력하세요
+        _type: 'json',
+        contentId: contentid,
+        contentTypeId: 25, // 관광 타입 ID
+      },
+    });
+
+    // API 호출 결과에서 코스 세부 정보 추출
+    if (response.data && response.data.response) {
+      const courseData = response.data.response.body.items.item;
+      setCourseDetails(courseData);
+      console.log('Course Details:', courseData); // 코스 세부정보를 콘솔에 출력
+    }
+  } catch (error) {
+    console.error('Error fetching course details:', error);
+  }
+};
+
+useEffect(() => {
+  fetchItemDetails();
+  fetchCourseDetails(); // 코스 세부정보를 가져오는 함수 호출
+}, []);
+
+
+
+
+
+
+
   return (
     <View style={styles.container}>
       <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
@@ -146,9 +185,12 @@ const cleanURL = (url) => {
       </View>
 
 
-    <View style={styles.placeTitleReviewContainer}>
-      <Text style={styles.placeTitle}>{placeName}   </Text>
-    </View>
+<View style={styles.placeTitleReviewContainer}>
+    <Text style={[styles.placeTitle, { fontSize: 20 }]}>
+        {placeName}
+    </Text>
+</View>
+
 
 
       {/* 관광지 설명 */}
@@ -217,46 +259,17 @@ const cleanURL = (url) => {
 
       <Text style={styles.placeTitle}>기본 정보</Text>
 
- <View style={styles.mapContainer}>
-            {!loading && !error && tourData.length > 0 && (
-              <MapView
-                style={styles.map}
-                initialRegion={{
-                  latitude: mapy ? parseFloat(mapy) : 37.5665, // 기본 위치
-                  longitude: mapx ? parseFloat(mapx) : 126.978, // 기본 위치
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
-                }}
-              >
-                {mapx && mapy && (
-                  <Marker
-                    coordinate={{
-                      latitude: parseFloat(mapy),
-                      longitude: parseFloat(mapx),
-                    }}
-                    title={placeName}
-                    description={overview}
-                  />
-                )}
-              </MapView>
-            )}
-          </View>
-
- <View>
-        <Text style={styles.description}>
-          주소: {tourData[0]?.addr1}{"\n"}
-          전화번호: {tourData[0]?.tel}
-        </Text>
-        <TouchableOpacity onPress={handlePress}>
-           <Text style={[styles.description, { marginBottom: 15 }]}>홈페이지: {displayURL}</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.line3} />
-
-        <Text style={styles.placeTitle}>기본 정보</Text>
-
-
+<ScrollView contentContainerStyle={styles.scrollContainer}>
+      {courseDetails.map((course, index) => (
+        <View key={index} style={styles.courseDetailContainer}>
+          <Text style={styles.courseName}>
+                                  <Text style={{ color: '#6495ED' }}>{index + 1}. </Text>
+                                  {course.subname}
+                              </Text>
+          <Text style={styles.courseOverview}>{course.subdetailoverview}</Text>
+        </View>
+      ))}
+    </ScrollView>
 
        </View>
      </ScrollView>
@@ -331,8 +344,7 @@ const styles = StyleSheet.create({
     marginLeft: 20,
   },
 placeTitle: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 20,
     color: '#111111',
 
@@ -354,8 +366,7 @@ placeTitle: {
   },
   */
   description: {
-    fontFamily: 'Pretendard',
-    fontWeight: '400',
+    fontFamily: 'Pretendard-Regular',
     fontSize: 14,
     color: '#333333',
   },
@@ -448,7 +459,7 @@ placeTitle: {
     marginTop: 10,
   },
   placeTitle: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontWeight: '600',
     fontSize: 16,
     color: '#111111',
@@ -478,14 +489,22 @@ placeTitle: {
     marginTop: 10,
     marginBottom: 10,
   },
-/*
-   infotext: {
-      fontFamily: 'Pretendard',
-      fontWeight: '400',
-      fontSize: 14,
-      color: '#333333',
-    },
-    */
+
+      courseDetailContainer: {
+        marginBottom: 20,
+      },
+      courseName: {
+        fontSize: 20,
+        fontFamily: 'Pretendard-SemiBold',
+        color:'#111111',
+        marginTop: 10,
+      },
+      courseOverview: {
+        fontSize: 16,
+        fontFamily: 'Pretendard-Regular',
+        marginTop: 5,
+      },
+
 });
 
 export default TourPlaceHome;
