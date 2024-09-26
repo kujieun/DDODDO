@@ -1,7 +1,9 @@
 import React from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const SignupScreen = () => {
+  const navigation = useNavigation();
   return (
 <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -25,7 +27,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+        onPress={() =>  navigation.navigate('setdate')}
       >
         <Text style={styles.submitButtonText}>새로운 일정 만들기</Text>
       </TouchableOpacity>
