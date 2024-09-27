@@ -429,7 +429,7 @@ return (
   </View>
 )}
 
-// {isItem2BoxVisible && (
+
 
 
 {isItem2BoxVisible && (
@@ -882,6 +882,7 @@ modalContainer: {
           fontFamily: 'Pretendard-Medium',
           fontSize: 14,
           lineHeight: 20,
+          color: '#111111',
           color: '#111111',
           flex: 1,
       },

@@ -11,6 +11,7 @@ import locations from './Location';
 const alarmImage = require('../image/ar/alarm.png');
 const noPlacesImage = require('../image/ar/alarm2.png'); // 추가된 이미지
 const backtohomeImage = require('../image/ar/backtohome.png');
+const foundcoinpaper = require('../image/ar/foundcoin/foundcoinpaper.png');
 
 const FrameComponent = ({ onFilterChange, showAlarm, showNoPlaces }) => {
   const handlePress = (category) => {
@@ -59,7 +60,7 @@ const FrameComponent = ({ onFilterChange, showAlarm, showNoPlaces }) => {
 };
 
 const HelloWorldSceneAR = (props) => {
-  const { userLocation, places } = props.sceneProps || {};
+  const { userLocation, places, showFoundCoinPaper  } = props.sceneProps || {};
   const [text, setText] = useState("  ");
 
   function onInitialized(state, reason) {
@@ -82,6 +83,15 @@ const HelloWorldSceneAR = (props) => {
           scale={[3.04, 0.92, 0.92]}
         />
       ))}
+
+      {showFoundCoinPaper && (
+              <ViroImage
+                source={foundcoinpaper}
+                position={[0, 0, -1]} // Adjust the position as needed
+                scale={[0.5, 0.5, 0.5]} // Adjust the scale as needed
+              />
+            )}
+
     </ViroARScene>
   );
 };
@@ -92,6 +102,11 @@ const ARSceneWithLocation = () => {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [showAlarm, setShowAlarm] = useState(false);
   const [showNoPlaces, setShowNoPlaces] = useState(false);
+  const [showFoundCoinPaper, setShowFoundCoinPaper] = useState(false); // New state
+
+const station = {
+    coordinates: { latitude: 37.7550, longitude: 128.8767 },
+  };
 
   function calculateDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
@@ -114,6 +129,13 @@ const ARSceneWithLocation = () => {
         const { latitude, longitude } = position.coords;
         setUserLocation({ latitude, longitude });
         console.log(`사용자의 현재 위치: 위도: ${latitude}, 경도: ${longitude}`);
+
+        const distanceToStation = calculateDistance(latitude, longitude, station.coordinates.latitude, station.coordinates.longitude);
+                if (distanceToStation <= 500) {
+                  setShowFoundCoinPaper(true);
+                } else {
+                  setShowFoundCoinPaper(false);
+                }
 
         // 초기 알람 이미지 표시
         setShowAlarm(true);
@@ -175,11 +197,11 @@ const ARSceneWithLocation = () => {
         <ViroARSceneNavigator
           autofocus={true}
           initialScene={{ scene: HelloWorldSceneAR }}
-          sceneProps={{ userLocation, places }}
+          sceneProps={{ userLocation, places, showFoundCoinPaper  }}
           style={styles.arScene}
         />
       ) : (
-        <Text>Loading...</Text>
+        <Text> </Text>
       )}
       <FrameComponent onFilterChange={handleFilterChange} showAlarm={showAlarm} showNoPlaces={showNoPlaces} />
     </View>
