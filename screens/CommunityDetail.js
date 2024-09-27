@@ -66,6 +66,14 @@ const PostDetail = ({route}) => {
 
     return (
         <View style={styles.container}>
+            <View style={styles.heaaderContainer}>
+                <TouchableOpacity onPress={() => navigation.goBack()}>
+                    <Image source={require('../img/communityback.png')} 
+                    style={styles.Back} />
+                </TouchableOpacity>
+                <Image source={require('../img/community.png')} 
+                        style={styles.header} />
+            </View> 
             <ScrollView style={styles.contentContainer}>
                 {/* 사용자 프로필 */}
                 <View style={styles.profileContainer}>
@@ -155,7 +163,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: '#fff',
-        paddingTop: 30,
     },
     contentContainer: {
         flex: 1,
@@ -254,14 +261,32 @@ const styles = StyleSheet.create({
         borderRadius: 12,
         marginBottom: 10,
         marginRight: 10,
+    },
+    profile: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    marginBottom: 10,
+    marginRight: 10,
+    },
+    header: {
+        width: '86%',
+        resizeMode: 'contain',
+        marginTop: '-7%',
+        marginLeft: '7%',
       },
-      profile: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        marginBottom: 10,
-        marginRight: 10,
+      Back: {
+        width: 50, // Back 이미지 크기
+        height: 50, // 높이 설정
+        resizeMode: 'contain',
+        position: 'absolute', // 위치 고정
+        top: '25%',
       },
+      heaaderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+      }
+      
 });
 
 export default PostDetail;

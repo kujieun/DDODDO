@@ -8,9 +8,11 @@
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.CAMERA" />
+    <!-- optionally, if you want to record audio: -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <!-- You may need these if doing any screen recording from within the app -->
-    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <!-- <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/> -->
+    <!-- <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/> -->
     <!-- Other camera related features -->
     <uses-feature android:name="android.hardware.camera" />
     <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" tools:replace="required"/>
@@ -19,6 +21,17 @@
     <!-- Usage of accelerometer and gyroscope -->
     <uses-feature android:name="android.hardware.sensor.accelerometer" android:required="false" tools:replace="required" />
     <uses-feature android:name="android.hardware.sensor.gyroscope" android:required="false" tools:replace="required" />
+
+    <!-- cameraroll 권한 -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+
+    
+
+
 
 
     <application
