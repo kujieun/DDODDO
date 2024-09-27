@@ -19,6 +19,9 @@ const textImages = [
   require('../../image/game/tutorialtext/text5.png'),
 ];
 
+
+
+
 const images = {
   'store_sea': require('../../image/game/store/store_sea.png'),
   'store_vintage': require('../../image/game/store/store_vintage.png'),
@@ -212,6 +215,53 @@ const handleCategoryPress = (category) => {
         // 아이템 구매 로직 추가
         setModalVisible(false);
       };
+
+      /*==============미션 가져오기==============*/
+
+      // 미션 데이터 배열
+      const missions = [
+          { index: 1, text: '회원 가입하기', silvercoin: 5 },
+          { index: 2, text: '여행 계획 세우기', silvercoin: 3 },
+          { index: 3, text: '카카오톡 공유하기', silvercoin: 3 },
+          { index: 4, text: '카카오톡 공유하기(0/5)', silvercoin: 6 },
+          { index: 5, text: '커뮤니티 좋아요 누르기 (0/10)', silvercoin: 4 },
+          { index: 6, text: '커뮤니티 좋아요 누르기 (0/20)', silvercoin: 5 },
+          { index: 7, text: '커뮤니티 좋아요 누르기 (0/30)', silvercoin: 6 },
+      ];
+
+        const TaskItem = ({ index, text, silvercoin }) => (
+            <View style={styles.taskContainer}>
+                <Text style={styles.taskText}>
+                    {text} {'\n'}보상:
+                    <Image
+                        source={require('../../image/game/missioncontent/silvercoin.png')}
+                        style={styles.rewardIcon}
+                    />
+                    +{silvercoin}
+                </Text>
+
+{/* 버튼 추가 */}
+        <TouchableOpacity
+            style={styles.yetbutton}
+            onPress={() => alert(`Task ${index + 1} 버튼 클릭!`)}
+        >
+            <Text style={styles.buttonText}>받기</Text>
+        </TouchableOpacity>
+
+        <View style={styles.line} />
+
+                <View style={styles.line} />
+            </View>
+        );
+
+        // 메인 컴포넌트
+        const TaskList = ({ tasks }) => (
+            <ScrollView style={styles.scrollContainer}>
+                {tasks.map((task, index) => (
+                    <TaskItem key={index} index={index} text={task.text} silvercoin={task.silvercoin} />
+                ))}
+            </ScrollView>
+        );
 
 return (
   <View style={styles.container}>
@@ -413,12 +463,27 @@ return (
 
 
 {missionVisible && (
+    <View style={styles.missionContainer}>
         <Image
-          source={require('../../image/game/mission.png')}
-          style={styles.missionpaper} // 스타일을 styles.image로 관리
-          resizeMode="contain" // 이미지 크기 조정 방법
+            source={require('../../image/game/missioncontent/mission.png')}
+            style={styles.missionpaper} // 스타일을 styles.image로 관리
+            resizeMode="contain" // 이미지 크기 조정 방법
         />
-      )}
+
+        <ScrollView style={styles.taskList}>
+            {missions.map((mission) => (
+                <TaskItem
+                    key={mission.index}
+                    //index={mission.index}
+                    text={mission.text}
+                    silvercoin={mission.silvercoin}
+                />
+            ))}
+        </ScrollView>
+    </View>
+)}
+
+
 
 
         </View>
@@ -525,8 +590,8 @@ const styles = StyleSheet.create({
     height: 38,
   },
   videocontainer:{
-top: screenHeight / 2 - 300, // 동영상 위치 조정 (높이의 절반에서 동영상 높이의 절반을 뺀 값)
-          left: screenWidth / 2 - 180, // 동영상 가로의 절반
+    top: screenHeight / 2 - 300, // 동영상 위치 조정 (높이의 절반에서 동영상 높이의 절반을 뺀 값)
+    left: screenWidth / 2 - 180, // 동영상 가로의 절반
   },
   gif:{
       width:360,
@@ -653,6 +718,17 @@ modalContainer: {
     backgroundColor: '#FFE483',
     borderRadius: 5,
   },
+  yetbutton: {
+          flexDirection: 'row',
+          justifyContent: 'center',
+          alignItems: 'center',
+          position: 'absolute',
+          width: 70,
+          height: 30,
+          right:20,
+          backgroundColor: '#DDDEE0', // 배경 색상
+          borderRadius: 10, // 테두리 반경
+      },
   buttonText: {
     fontFamily: 'Pretendard-Medium',
     fontSize: 12,
@@ -660,11 +736,79 @@ modalContainer: {
     textAlign: 'center',
     color: '#000000',
   },
-missionpaper: {
-    position:'absolute',
-    width:320,
-    height:424,
-  },
+  missionContainer: {
+        position: 'absolute',
+        justifyContent: 'center', // 수직 중앙 정렬
+        alignItems: 'center', // 수평 중앙 정렬
+        height: 'auto', // Allowing auto height to accommodate the scrollable content
+      },
+      missionpaper: {
+          position: 'absolute',
+          width: 320,
+          height: 424,
+      },
+      taskList: {
+      top:20,
+          padding:0,
+          marginTop: 0, // 이미지와 태스크 리스트 사이에 간격 추가
+          marginLeft:15,
+          maxHeight: 350,
+      },
+       scrollContainer: {
+              flex: 1,
+          },
+      taskContainer: {
+          width: 304,
+          height: 70,
+          padding: 5,
+          alignItems: 'center',
+          flexDirection: 'row',
+          position: 'relative',
+          marginBottom: 10,
+          zIndex: 10,
+
+      },
+      taskText: {
+          fontFamily: 'Pretendard-Medium',
+          fontSize: 14,
+          lineHeight: 20,
+          color: '#111111',
+          flex: 1,
+      },
+      rewardContainer: {
+          flexDirection: 'column',
+          marginTop: 5, // 미션 내용과 간격 추가
+      },
+      rewardAmount: {
+          fontFamily: 'Pretendard',
+          fontWeight: '400',
+          fontSize: 12,
+          lineHeight: 17,
+          color: '#646C79',
+          marginLeft: 5, // silvercoin과 간격 추가
+      },
+
+      rewardText: {
+          fontFamily: 'Pretendard',
+          fontWeight: '400',
+          fontSize: 12,
+          lineHeight: 17,
+          color: '#646C79',
+      },
+      rewardIcon: {
+          width: 17,
+          height: 17,
+          marginLeft: 10,
+      },
+      line: {
+          position: 'absolute',
+          width: 284,
+          height: 1,
+          left: 10,
+          top: 69.5,
+          borderBottomWidth: 1,
+          borderBottomColor: 'rgba(184, 182, 195, 0.5)',
+      },
 });
 
 export default FrameComponent;
