@@ -19,9 +19,6 @@ const textImages = [
   require('../../image/game/tutorialtext/text5.png'),
 ];
 
-
-
-
 const images = {
   'store_sea': require('../../image/game/store/store_sea.png'),
   'store_vintage': require('../../image/game/store/store_vintage.png'),
@@ -118,6 +115,8 @@ const FrameComponent = () => {
   const [goldCoinCount, setGoldCoinCount] = useState(0); // 예시 값
   const [silverCoinCount, setSilverCoinCount] = useState(5); // 예시 값
   const [isItemBoxVisible, setIsItemBoxVisible] = useState(false); // 새 상태 추가
+  const [isItem1BoxVisible, setIsItem1BoxVisible] = useState(false); // 새 상태 추가
+  const [isItem2BoxVisible, setIsItem2BoxVisible] = useState(false); // 새 상태 추가
     const [isItemTextOn, setIsItemTextOn] = useState(true);
     const [isPresentTextOn, setIsPresentTextOn] = useState(false);
     const [activeCategory, setActiveCategory] = useState("전체");
@@ -138,19 +137,37 @@ const FrameComponent = () => {
     }, 2000); // 1초 동안 angry gif를 보여줍니다.
   };
 
-  const handleBarMenu = (menu) => {
-      setSelectedMenu(menu);
-            if (menu === 'menu2') {
-                setIsItemBoxVisible((prev) => !prev); // menu2 클릭 시 item box 토글
-                setMissionVisible(false); // menu2 클릭 시 미션 창 닫기
-              } else if (menu === 'menu5') {
-                setMissionVisible(true); // menu5 클릭 시 미션 창 열기
-                setIsItemBoxVisible(false); // 다른 메뉴 클릭 시 item box 닫기
-              } else {
-                setIsItemBoxVisible(false); // 다른 메뉴 클릭 시 item box 닫기
-                setMissionVisible(false); // 다른 메뉴 클릭 시 미션 창 닫기
-              }
-    };
+const handleBarMenu = (menu) => {
+    setSelectedMenu(menu);
+
+    if (menu === 'menu2') {
+        setIsItemBoxVisible((prev) => !prev); // itemBox를 토글
+        setMissionVisible(false);
+        setIsItem2BoxVisible(false); // item2Box는 닫음
+        setIsItem1BoxVisible(false); // item2Box는 닫음
+    } else if (menu === 'menu3') {
+            setIsItem1BoxVisible((prev) => !prev); // item2Box를 토글
+            setIsItemBoxVisible(false); // itemBox는 닫음
+            setIsItem2BoxVisible(false);
+            setMissionVisible(false);
+    } else if (menu === 'menu4') {
+        setIsItem2BoxVisible((prev) => !prev); // item2Box를 토글
+        setIsItemBoxVisible(false); // itemBox는 닫음
+        setIsItem1BoxVisible(false); // item2Box는 닫음
+        setMissionVisible(false);
+    } else if (menu === 'menu5') {
+        setMissionVisible(true); // mission 화면을 보임
+        setIsItemBoxVisible(false);
+        setIsItem1BoxVisible(false); // item2Box는 닫음
+        setIsItem2BoxVisible(false);
+
+    } else {
+        setIsItemBoxVisible(false);
+        setMissionVisible(false);
+        setIsItem2BoxVisible(false);
+    }
+};
+
 
    const closeItemBox = () => {
        setIsItemBoxVisible(false); // item box 닫기
@@ -412,6 +429,43 @@ return (
   </View>
 )}
 
+// {isItem2BoxVisible && (
+
+
+{isItem2BoxVisible && (
+    <View style={styles.itemboxContainer}>
+        <View style={styles.itemBox2}>
+            <View style={styles.presentimageContainer}>
+                {/* gift1 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift1.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
+                {/* gift2 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift2.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
+                {/* gift3 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift3.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
+            </View>
+        </View>
+    </View>
+)}
+
+
 
 
           <View style={styles.bottombarContainer}>
@@ -482,6 +536,7 @@ return (
         </ScrollView>
     </View>
 )}
+
 
 
 
@@ -599,12 +654,14 @@ const styles = StyleSheet.create({
   },
 
 
-
+      /*==========상점-========*/
     itemboxContainer: {
         position: 'absolute',
         bottom: 0, // 필요에 따라 위치 조정
         width: screenWidth, // 핸드폰 가로 너비
       },
+
+
   itemBox: {
     height: 349,
     backgroundColor: 'rgba(255, 255, 255, 0.8)', // 흰색, 불투명도 80%
@@ -718,6 +775,58 @@ modalContainer: {
     backgroundColor: '#FFE483',
     borderRadius: 5,
   },
+
+    /*===========선물(menu4)===============*/
+
+        itemBox1: {
+        width:screenWidth,
+        height: 145,
+        backgroundColor: 'rgba(255, 255, 255, 0.8)', // 흰색, 불투명도 80%
+        borderTopLeftRadius: 20, // 왼쪽 위 모서리
+        borderTopRightRadius: 20, // 오른쪽 위 모서리
+        alignItems: 'center', // Center content horizontally
+      },
+
+
+
+  /*===========선물(menu4)===============*/
+
+      itemBox2: {
+      width:screenWidth,
+      height: 145,
+      backgroundColor: 'rgba(255, 255, 255, 0.8)', // 흰색, 불투명도 80%
+      borderTopLeftRadius: 20, // 왼쪽 위 모서리
+      borderTopRightRadius: 20, // 오른쪽 위 모서리
+      alignItems: 'center', // Center content horizontally
+    },
+
+       presentimageContainer: {
+               width:screenWidth,
+               flexDirection: 'row', // Align images in a row
+               justifyContent: 'space-around', // Space them evenly
+              alignItems: 'center', // Center items horizontally
+              bottom:15,
+       },
+       imageWrapper: {
+               width: 100, // Adjust this to match image width
+               height: 100, // Adjust this to match image height
+               justifyContent: 'center', // Center items vertically
+               alignItems: 'center', // Center items horizontally
+           },
+       presentimage: {
+            resizeMode:'contain',
+            height:70,
+            width:190,
+       },
+
+    textOverlay: {
+            position: 'absolute', // Overlay text on the image
+            color: 'black', // Text color
+            fontSize: 16, // Text size
+            fontWeight: 'bold', // Text style
+            right:30,
+        },
+
   yetbutton: {
           flexDirection: 'row',
           justifyContent: 'center',
@@ -736,6 +845,7 @@ modalContainer: {
     textAlign: 'center',
     color: '#000000',
   },
+
   missionContainer: {
         position: 'absolute',
         justifyContent: 'center', // 수직 중앙 정렬
