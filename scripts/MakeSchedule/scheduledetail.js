@@ -106,15 +106,19 @@ useEffect(() => {
                     ))}
                 </View>
 
-                <View>
-                    {pressedDay === selectedDayIndex ? (
-                        courseDetails.map((course, index) => (
-                            <Text key={index}>{course.subname}</Text>
-                        ))
-                    ) : (
-                        <Text>{`${pressedDay}일차 내용`}</Text>
-                    )}
-                </View>
+            <View>
+              {pressedDay === selectedDayIndex ? (
+                courseDetails.map((course, index) => (
+                  <View key={index} style={styles.cardContainer}>
+                    <Text style={styles.subnameText}>{course.subname}</Text>
+                  </View>
+                ))
+              ) : (
+                <Text style={styles.defaultText}>{`${pressedDay}일차 내용`}</Text>
+              )}
+            </View>
+
+
             </ScrollView>
 
             {/* 일정추가 버튼 */}
@@ -254,6 +258,33 @@ const styles = StyleSheet.create({
         fontWeight: '500',
         color: '#FFFFFF',
     },
+    cardContainer: {
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'flex-start',
+        padding: 9,
+        gap: 8,
+        position: 'absolute',
+        left: '16.67%',
+        right: '5.56%',
+        top: '19.33%',
+        bottom: '14.29%',
+        backgroundColor: '#DCEFFF',
+        boxShadow: '0px 4px 4px rgba(100, 149, 237, 0.1)',
+        borderRadius: 12,
+      },
+    subnameText: {
+        fontFamily: 'Pretendard-Medium',
+        fontSize: 16,
+        color: '#111111',
+        // 필요한 다른 스타일 속성 추가
+      },
+      defaultText: {
+        fontFamily: 'Pretendard-Medium',
+        fontSize: 14,
+        color: '#646C79',
+        // 필요한 다른 스타일 속성 추가
+      },
 });
 
 export default TourPlaceHome;
