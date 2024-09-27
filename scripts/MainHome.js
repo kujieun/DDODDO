@@ -137,10 +137,6 @@ const MainHome = ({ route, navigation }) => {
         navigation.navigate('MyPage',  { userInfo });
     }
 
-    // const gotoCamera = () => {
-    //     navigation.navigate('CameraMenu');
-    // }
-
 
     //ar 메뉴
     const [isCharacterPressed, setIsCharacterPressed] = useState(false); // 상태 관리
@@ -212,172 +208,180 @@ const MainHome = ({ route, navigation }) => {
         if (menuIndex === 1) {
             navigation.navigate('Tip'); 
         }
+         if (menuIndex === 5) {
+            navigation.navigate('gangneungnow');
+        }
         
 
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
 
-    return (
-        <View style={styles.container}>
-            <StatusBar
-                translucent
-                backgroundColor="transparent"
-                barStyle="dark-content"
-            />
-            <LinearGradient
-                style={styles.lineargradient}
-                locations={[0, 0.1, 0.4]}
-                colors={['#fafdff', '#dcefff', '#a0c2f6']}
-                useAngle={true}
-                angle={178.86}
-            />
+return (
+    <View style={styles.container}>
+        <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="dark-content"
+        />
+        <LinearGradient
+            style={styles.lineargradient}
+            locations={[0, 0.1, 0.4]}
+            colors={['#fafdff', '#dcefff', '#a0c2f6']}
+            useAngle={true}
+            angle={178.86}
+        />
+        <Image
+            source={require('../image/mainhome/logo.png')}
+            style={styles.logo}
+        />
+        <View style={styles.alarmcontainer}>
             <Image
-                source={require('../image/mainhome/logo.png')}
-                style={styles.logo}
+                source={require('../image/mainhome/alarm.png')}
+                style={styles.alarm}
             />
-            <View style={styles.alarmcontainer}>
-                <Image
-                    source={require('../image/mainhome/alarm.png')}
-                    style={styles.alarm}
-                />
-                <View style={styles.alarmWarning} />
-            </View>
-            <Text style={styles.nickname}>
-                {userInfo.name}님,{'\n'}
-                강릉 여행까지{' '}
-                <Text style={styles.daysText}>D-{daysLeft}</Text>
-                {' '}남았습니다!
-            </Text>
-
-            <View style={styles.checkschedule}>
-                <Image
-                    source={require('../image/mainhome/checkschedule.png')}
-                    style={styles.checkscheduleImage}
-                />
-            </View>
-
-            <View style={styles.weathercontainer}>
-                <Frame weather={weather} />
-            </View>
-            {/* 새 흰색 직사각형 추가 */}
-            <View style={styles.fullScreenWhiteBackground}></View>
-
-            {/* 메뉴 추가 */}
-            <View style={styles.menuContainer1}>
-                {[1, 2, 3, 4].map(index => (
-                    <Pressable key={index} style={styles.menuItem} onPress={() => handleMenuPress(index)}>
-                        <Image source={menuImages[index]} style={styles.menuIcon} />
-                    </Pressable>
-                ))}
-            </View>
-
-            {/* 메뉴 추가 */}
-            <View style={styles.menuContainer2}>
-                {[5, 6, 7, 8].map(index => (
-                    <Pressable key={index} style={styles.menuItem} onPress={() => handleMenuPress(index)}>
-                        <Image source={menuImages[index]} style={styles.menuIcon} />
-                    </Pressable>
-                ))}
-            </View>
-
-
-
-            <></>
-
-
-             {/* ScrollView로 컨텐츠 감싸기 */}
-             <ScrollView
-                    horizontal
-                    contentContainerStyle={styles.scrollViewContent}
-                    showsHorizontalScrollIndicator={false} // 가로 스크롤 바 숨기기 (선택사항)
-                    >
-                    <TouchableOpacity style={styles.contentContainer}
-                    onPress={() => handleNavigate('ocean')}>
-                    <Image source={images.ocean} style={styles.contentImage} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.contentContainer}
-                    onPress={() => handleNavigate('museum')}>
-                    <Image source={images.museum} style={styles.contentImage} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity style={styles.contentContainer}
-                        onPress={() => handleNavigate('rain')}>
-                    <Image source={images.rain} style={styles.contentImage} />
-                    </TouchableOpacity>
-                </ScrollView>
-
-            
-
-            {/* 하단 네비게이션 바 추가 */}
-            <View style={styles.bottombarContainer}>
-                <TouchableOpacity onPress={handleCharacterPress} style={styles.characterConatiner}>
-                    <Image
-                        source={require('../image/mainhome/barmenu/character.png')}
-                        style={styles.bottombarEllipse}
-                    />
-                </TouchableOpacity>
-
-
-                {isCharacterPressed && (
-                    <>
-                        <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
-                            <TouchableOpacity>
-                                <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
-                            </TouchableOpacity>
-                        </Animated.View>
-
-                        <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                            <TouchableOpacity>
-                                <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
-                            </TouchableOpacity>
-                        </Animated.View>
-                    </>
-                )}
-
-
-                <View style={styles.bottombarRectangle}></View>
-
-
-                    <TouchableOpacity onPress={() => handleBarMenu('home')}>
-                        <Image
-                            source={selectedMenu === 'home'
-                                ? require('../image/mainhome/barmenu/select/home.png')
-                                : require('../image/mainhome/barmenu/home.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {handleBarMenu('community'); gotoCommunity();}}>
-                        <Image
-                            source={selectedMenu === 'community'
-                                ? require('../image/mainhome/barmenu/select/community.png')
-                                : require('../image/mainhome/barmenu/community.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {handleBarMenu('my'); gotoMyPage();}}>
-                        <Image
-                            source={selectedMenu === 'my'
-                                ? require('../image/mainhome/barmenu/select/my.png')
-                                : require('../image/mainhome/barmenu/my.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => handleBarMenu('more')}>
-                        <Image
-                            source={selectedMenu === 'more'
-                                ? require('../image/mainhome/barmenu/select/more.png')
-                                : require('../image/mainhome/barmenu/more.png')}
-                            style={styles.bottombarMore}
-                        />
-                    </TouchableOpacity>
-
-                </View>
+            <View style={styles.alarmWarning} />
         </View>
-    );
+        <Text style={styles.nickname}>
+            {userInfo.name}님,{'\n'}
+            강릉 여행까지{' '}
+            <Text style={styles.daysText}>D-{daysLeft}</Text>
+            {' '}남았습니다!
+        </Text>
+
+        <View style={styles.checkschedule}>
+            <Image
+                source={require('../image/mainhome/checkschedule.png')}
+                style={styles.checkscheduleImage}
+            />
+        </View>
+
+        <View style={styles.weathercontainer}>
+            <Frame weather={weather} />
+        </View>
+
+        {/* 새 흰색 직사각형 추가 */}
+        <View style={styles.fullScreenWhiteBackground} />
+
+        {/* 메뉴 추가 */}
+        <View style={styles.menuContainer1}>
+            {[1, 2, 3, 4].map(index => (
+                <Pressable
+                    key={index}
+                    style={styles.menuItem}
+                    onPress={() => handleMenuPress(index)}
+                >
+                    <Image source={menuImages[index]} style={styles.menuIcon} />
+                </Pressable>
+            ))}
+        </View>
+
+        {/* 메뉴 추가 */}
+        <View style={styles.menuContainer2}>
+            {[5, 6, 7, 8].map(index => (
+                <Pressable
+                    key={index}
+                    style={styles.menuItem}
+                    onPress={() => handleMenuPress(index)}
+                >
+                    <Image source={menuImages[index]} style={styles.menuIcon} />
+                </Pressable>
+            ))}
+        </View>
+
+        {/* ScrollView로 컨텐츠 감싸기 */}
+        <ScrollView
+            horizontal
+            contentContainerStyle={styles.scrollViewContent}
+            showsHorizontalScrollIndicator={false} // 가로 스크롤 바 숨기기 (선택사항)
+        >
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('ocean')}
+            >
+                <Image source={images.ocean} style={styles.contentImage} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('museum')}
+            >
+                <Image source={images.museum} style={styles.contentImage} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('rain')}
+            >
+                <Image source={images.rain} style={styles.contentImage} />
+            </TouchableOpacity>
+        </ScrollView>
+
+        {/* 하단 네비게이션 바 추가 */}
+        <View style={styles.bottombarContainer}>
+            <TouchableOpacity onPress={handleCharacterPress} style={styles.characterConatiner}>
+                <Image
+                    source={require('../image/mainhome/barmenu/character.png')}
+                    style={styles.bottombarEllipse}
+                />
+            </TouchableOpacity>
+
+            {isCharacterPressed && (
+                <>
+                    <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
+                        <TouchableOpacity onPress={() => handleNavigate('Tutorial')}>
+                            <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
+                        </TouchableOpacity>
+                    </Animated.View>
+
+                    <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
+                        <TouchableOpacity onPress={() => handleNavigate('ARScreen')}>
+                            <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
+                        </TouchableOpacity>
+                    </Animated.View>
+                </>
+            )}
+
+            <View style={styles.bottombarRectangle} />
+
+            <TouchableOpacity onPress={() => handleBarMenu('home')}>
+                <Image
+                    source={selectedMenu === 'home'
+                        ? require('../image/mainhome/barmenu/select/home.png')
+                        : require('../image/mainhome/barmenu/home.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => { handleBarMenu('community'); gotoCommunity(); }}>
+                <Image
+                    source={selectedMenu === 'community'
+                        ? require('../image/mainhome/barmenu/select/community.png')
+                        : require('../image/mainhome/barmenu/community.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => { handleBarMenu('my'); gotoMyPage(); }}>
+                <Image
+                    source={selectedMenu === 'my'
+                        ? require('../image/mainhome/barmenu/select/my.png')
+                        : require('../image/mainhome/barmenu/my.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleBarMenu('more')}>
+                <Image
+                    source={selectedMenu === 'more'
+                        ? require('../image/mainhome/barmenu/select/more.png')
+                        : require('../image/mainhome/barmenu/more.png')}
+                    style={styles.bottombarMore}
+                />
+            </TouchableOpacity>
+        </View>
+    </View>
+);
+
 };
 
 // Frame 컴포넌트
@@ -414,6 +418,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     lineargradient: {
+       position:'absolute',
         flex: 1,
         width: "100%",
         height: 403,
@@ -515,6 +520,7 @@ const styles = StyleSheet.create({
     },
     value: {
         fontFamily: 'Pretendard-SemiBold',
+        width:100,
         fontSize: 14,
         lineHeight: 17,
         textAlign: 'center',
@@ -545,6 +551,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        zIndex:5,
     },
     menuContainer2: {
         top:429,
@@ -557,6 +564,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        zIndex:5,
     },
     menuItem: {
         width: 65,
@@ -628,24 +636,20 @@ const styles = StyleSheet.create({
         left: (screenWidth / 2) - 30, // 중앙에 위치
         bottom: 110,
     },
-    contentImage: {
-        width: screenWidth * 0.55, // 화면 너비의 80%
-        // height: screenHeight * 0.3, // 화면 높이의 30%
-        resizeMode: 'contain',
-      },
-      contentContainer: {
-        alignItems: 'center',
-        justifyContent: 'center',
-        marginTop: '-70%',
-        marginBottom: '-70%',
-        marginRight: '5%',
-      },
       scrollViewContent: {
-        // paddingHorizontal: 100, // 스크롤뷰의 좌우 여백 추가
-        paddingRight: 100,
+        paddingRight: 20,
         paddingLeft: 30,
         paddingBottom: 20, // 스크롤뷰의 마지막 부분 여백 추가
       },
+    contentImage: {
+        width: 200,
+        resizeMode: 'contain',
+        marginRight:10,
+      },
+      contentContainer: {
+       top:270,
+      },
+
 });
 
 export default MainHome;
