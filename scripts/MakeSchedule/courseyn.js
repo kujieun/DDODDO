@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
+import { useNavigation, useRoute  } from '@react-navigation/native';
 
 const SignupScreen = () => {
+    const navigation = useNavigation();
+      const handleBackButton = () => {
+        navigation.goBack(); // 이전 화면으로 돌아가는 함수
+      };
+
+    const route = useRoute(); // route 가져오기
+    const { tripName, startDate, endDate } = route.params;
+
   return (
 <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -9,7 +18,7 @@ const SignupScreen = () => {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}  // 이 부분은 문자열 없이 확실히 주석 처리
+            onPress={handleBackButton}  // 이 부분은 문자열 없이 확실히 주석 처리
             style={styles.backButtonContainer}
           >
             <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
@@ -25,7 +34,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.yesButton}
-        onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+        onPress={() =>  navigation.navigate('getcourse', {tripName, startDate, endDate })}
       >
         <Text style={styles.yesButtonText}>네, 추천해주세요!</Text>
       </TouchableOpacity>

@@ -31,6 +31,8 @@ import home from './scripts/MakeSchedule/home'; // 일정정하기 홈
 import setdate from './scripts/MakeSchedule/setdate'; // 일정정하기 - 날짜
 import setdate1 from './scripts/MakeSchedule/setdate1'; // 일정정하기 - 날짜1
 import courseyn from './scripts/MakeSchedule/courseyn'; // 일정정하기 - 날짜1
+import getcourse from './scripts/MakeSchedule/getcourse'; // 일정정하기 - 날짜1
+import scheduledetail from './scripts/MakeSchedule/scheduledetail'; // 일정정하기 - 날짜1
 
 /*---------------------추천코스-------------------------------*/
 import Coursehome from './scripts/Course/Coursehome';
@@ -43,6 +45,9 @@ import Location from './scripts/Location';
 /*================완전 테스트테스트 ==========*/
 import TestNavigation from './TestNavigation'; // 추천 여행지 --> Detail
 import TestNavigation_course from './TestNavigation_course'; // 추천 코스 --> Detail
+import TestNavigation_now from './TestNavigation_now'; // 추천 나우 --> Detail
+import TestNavigation_makeschedule from './TestNavigation_makeschedule'; // 일정 정하기
+import TestNavigation_restaurant from './TestNavigation_restaurant'; // 추천 맛집 --> Detail
 
 
 import Detail from './scripts/Detail';

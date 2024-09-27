@@ -54,8 +54,8 @@ const locations = [
         name: 'eateryg',
         image: eateryg,
         coordinates: {
-          latitude: 37.7215947,
-          longitude: 128.8817995,
+          latitude: 37.7183532,
+          longitude: 128.8808296,
         },
       },
     ],

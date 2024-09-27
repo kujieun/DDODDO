@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { Calendar } from 'react-native-calendars';
+import { useNavigation, useRoute  } from '@react-navigation/native';
 
 const SignupScreen = () => {
   const [selectedDays, setSelectedDays] = useState([]);
@@ -8,6 +9,13 @@ const SignupScreen = () => {
   const [endDate, setEndDate] = useState('0000.00.00');
   const [calendarHeight, setCalendarHeight] = useState(390); // 초기 높이 설정
   const [dateChanged, setDateChanged] = useState(false); // 날짜 변경 상태 추가
+  const navigation = useNavigation();
+  const route = useRoute(); // route 가져오기
+  const { tripName } = route.params;
+
+      const handleBackButton = () => {
+        navigation.goBack(); // 이전 화면으로 돌아가는 함수
+      };
 
 const onDayPress = (day) => {
   const dayString = day.dateString;
@@ -82,7 +90,7 @@ if (newSelectedDays.length > 0) {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}
+            onPress={handleBackButton}
             style={styles.backButtonContainer}
           >
             <Image source={require('../../image/makeschedule/backbutton.png')} style={styles.backButton} />
@@ -128,7 +136,7 @@ if (newSelectedDays.length > 0) {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+        onPress={() =>  navigation.navigate('courseyn', {tripName, startDate, endDate })}
       >
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>

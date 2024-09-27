@@ -1,7 +1,14 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput } from 'react-native';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const SignupScreen = () => {
+const navigation = useNavigation();
+  const handleBackButton = () => {
+    navigation.goBack(); // 이전 화면으로 돌아가는 함수
+  };
+  const [tripName, setTripName] = useState('');
+
   return (
     <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -9,7 +16,7 @@ const SignupScreen = () => {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}
+            onPress={handleBackButton}
             style={styles.backButtonContainer}
           >
             <Image source={require('../../image/makeschedule/backbutton.png')} style={styles.backButton} />
@@ -28,6 +35,8 @@ const SignupScreen = () => {
         <TextInput
           style={styles.inputField}
           placeholder="여행 이름 입력"
+          value={tripName}
+          onChangeText={setTripName}
         />
         <Image source={require('../../image/makeschedule/character.png')} style={styles.character} />
       </View>
@@ -35,7 +44,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+        onPress={() =>  navigation.navigate('setdate1', {tripName})}
       >
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>

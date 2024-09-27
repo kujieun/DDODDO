@@ -208,6 +208,9 @@ const MainHome = ({ route, navigation }) => {
         if (menuIndex === 1) {
             navigation.navigate('Tip'); 
         }
+         if (menuIndex === 5) {
+            navigation.navigate('gangneungnow');
+        }
         
 
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
@@ -325,13 +328,13 @@ return (
             {isCharacterPressed && (
                 <>
                     <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleNavigate('Tutorial')}>
                             <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
                     </Animated.View>
 
                     <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                        <TouchableOpacity>
+                        <TouchableOpacity onPress={() => handleNavigate('ARScreen')}>
                             <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
                     </Animated.View>
@@ -517,12 +520,12 @@ const styles = StyleSheet.create({
     },
     value: {
         fontFamily: 'Pretendard-SemiBold',
+        width:100,
         fontSize: 14,
         lineHeight: 17,
         textAlign: 'center',
         letterSpacing: -0.025,
         color: "#000000",
-        width: 100,
     },
     weatherIcon: {
         width: 27.7,
