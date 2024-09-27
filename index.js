@@ -41,6 +41,7 @@ import CameraFilter from './screens/CameraFilter'
 import Community from './screens/Community';
 import Weather from './screens/Weather'
 import WritePost from './screens/WritePost'
+import Tip from './screens/Tip'
 
 
 import {name as appName} from './app.json';

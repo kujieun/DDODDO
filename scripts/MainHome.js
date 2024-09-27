@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated } from "react-native";
+import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated, ScrollView } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
@@ -33,6 +33,14 @@ const menuImages = {
     8: require('../image/mainhome/menu/menu8.png'),
 };
 
+// 이미지 경로
+const images = {
+    ocean: require('../img/tip/ocean.png'),
+    museum: require('../img/tip/museum.png'),
+    rain: require('../img/tip/rain.png'),
+  };
+  
+
 
 
 const MainHome = ({ route, navigation }) => {
@@ -44,6 +52,12 @@ const MainHome = ({ route, navigation }) => {
         temperature: '22.6°',
         windSpeed: '0.3m/s',
     });
+
+    // 각 버튼 클릭 시 TipDetail 페이지로 이동하며 선택한 이미지명을 전달
+    const handleNavigate = (imageName) => {
+   
+    navigation.navigate('TipDetail', { selectedImage: imageName });
+    };
 
     // const navigation = useNavigation();
     const { userInfo } = route.params;
@@ -104,7 +118,7 @@ const MainHome = ({ route, navigation }) => {
         setSelectedMenu(menu);
         switch(menu) {
             case 'home':
-                navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
+                // navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
                 break;
             case 'community':
                 navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
@@ -185,10 +199,19 @@ const MainHome = ({ route, navigation }) => {
                     navigation.navigate('RestaurantHome'); // Test2로 이동
                 }
         if (menuIndex === 8) {
-            navigation.navigate('gangneungmap', { userInfo }); // Test2로 이동
+            navigation.navigate('gangneungmap'); // Test2로 이동
         }
         if (menuIndex === 4) {
             navigation.navigate('CameraMenu'); 
+        }
+        if (menuIndex === 2) {
+            navigation.navigate('Coursehome',  { userInfo }); 
+        }
+        if (menuIndex === 6) {
+            navigation.navigate('TourPlaceHome',  { userInfo }); 
+        }
+        if (menuIndex === 1) {
+            navigation.navigate('Tip'); 
         }
         
 
@@ -221,7 +244,7 @@ const MainHome = ({ route, navigation }) => {
                 <View style={styles.alarmWarning} />
             </View>
             <Text style={styles.nickname}>
-                닉네임님,{'\n'}
+                {userInfo.name}님,{'\n'}
                 강릉 여행까지{' '}
                 <Text style={styles.daysText}>D-{daysLeft}</Text>
                 {' '}남았습니다!
@@ -257,6 +280,35 @@ const MainHome = ({ route, navigation }) => {
                     </Pressable>
                 ))}
             </View>
+
+
+
+            <></>
+
+
+             {/* ScrollView로 컨텐츠 감싸기 */}
+             <ScrollView
+                    horizontal
+                    contentContainerStyle={styles.scrollViewContent}
+                    showsHorizontalScrollIndicator={false} // 가로 스크롤 바 숨기기 (선택사항)
+                    >
+                    <TouchableOpacity style={styles.contentContainer}
+                    onPress={() => handleNavigate('ocean')}>
+                    <Image source={images.ocean} style={styles.contentImage} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.contentContainer}
+                    onPress={() => handleNavigate('museum')}>
+                    <Image source={images.museum} style={styles.contentImage} />
+                    </TouchableOpacity>
+
+                    <TouchableOpacity style={styles.contentContainer}
+                        onPress={() => handleNavigate('rain')}>
+                    <Image source={images.rain} style={styles.contentImage} />
+                    </TouchableOpacity>
+                </ScrollView>
+
+            
 
             {/* 하단 네비게이션 바 추가 */}
             <View style={styles.bottombarContainer}>
@@ -518,7 +570,7 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
     },
- bottombarContainer: {
+    bottombarContainer: {
         position: 'absolute',
         height: 83,
         width: screenWidth,
@@ -576,7 +628,25 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: (screenWidth / 2) - 30, // 중앙에 위치
         bottom: 110,
-    }
+    },
+    contentImage: {
+        width: screenWidth * 0.55, // 화면 너비의 80%
+        // height: screenHeight * 0.3, // 화면 높이의 30%
+        resizeMode: 'contain',
+      },
+      contentContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        marginTop: '-70%',
+        marginBottom: '-70%',
+        marginRight: '5%',
+      },
+      scrollViewContent: {
+        // paddingHorizontal: 100, // 스크롤뷰의 좌우 여백 추가
+        paddingRight: 100,
+        paddingLeft: 30,
+        paddingBottom: 20, // 스크롤뷰의 마지막 부분 여백 추가
+      },
 });
 
 export default MainHome;

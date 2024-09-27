@@ -16,6 +16,7 @@ const TourPlaceHome = ({ route }) => {
   const [overview, setOverview] = useState(''); // overview 상태 추가
   const [mapx, setMapx] = useState(null);
   const [mapy, setMapy] = useState(null);
+  const [courseDetails, setCourseDetails] = useState([]);
 
   const fetchItemDetails = async () => {
     try {
@@ -33,7 +34,6 @@ const TourPlaceHome = ({ route }) => {
           overviewYN: 'Y',
           addrinfoYN: 'Y',
           mapinfoYN: 'Y',
-
         },
       });
 
@@ -47,8 +47,8 @@ const TourPlaceHome = ({ route }) => {
           overview: item.overview || "No Overview",
           firstimage: item.firstimage || '',
           addr1: item.addr1 || "No Address",
-          tel: item.tel || "No Phone Number",
-          homepage: item.homepage || "No Website",
+         // tel: item.tel || "No Phone Number",
+         // homepage: item.homepage || "No Website",
           mapx: item.mapx || null,
           mapy: item.mapy || null,
         }));
@@ -109,9 +109,38 @@ const cleanURL = (url) => {
     if (periodIndex === -1) return text; // 문장이 없으면 원본 반환
     return text.substring(0, periodIndex + 1); // 첫 문장만 반환
   };
-  /*===============기본정보 조회==================*/
 
 
+const fetchCourseDetails = async () => {
+  try {
+    const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
+      params: {
+        numOfRows: 10,
+        pageNo: 1,
+        MobileOS: 'AND',
+        MobileApp: '또, 강릉',
+        serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==', // 여기에 본인의 서비스 키를 입력하세요
+        _type: 'json',
+        contentId: contentid,
+        contentTypeId: 25, // 관광 타입 ID
+      },
+    });
+
+    // API 호출 결과에서 코스 세부 정보 추출
+    if (response.data && response.data.response) {
+      const courseData = response.data.response.body.items.item;
+      setCourseDetails(courseData);
+      console.log('Course Details:', courseData); // 코스 세부정보를 콘솔에 출력
+    }
+  } catch (error) {
+    console.error('Error fetching course details:', error);
+  }
+};
+
+useEffect(() => {
+  fetchItemDetails();
+  fetchCourseDetails(); // 코스 세부정보를 가져오는 함수 호출
+}, []);
 
 
 
@@ -130,7 +159,7 @@ const cleanURL = (url) => {
         >
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>{placeName}</Text>
+        <Text style={styles.headerText}>추천코스</Text>
         <TouchableOpacity
           onPress={handleActionPress}
           style={styles.actionButtonContainer}
@@ -156,15 +185,12 @@ const cleanURL = (url) => {
       </View>
 
 
-    <View style={styles.placeTitleReviewContainer}>
-      <Text style={[styles.placeTitle, { fontSize: 20 }]}>
-              {placeName}
-          </Text>
-      <View style={styles.review}>
-        <Image source={require('../image/detail/yellowstar.png')} style={styles.star} />
-        <Text style={styles.description}>0.0 (0)</Text>
-      </View>
-    </View>
+<View style={styles.placeTitleReviewContainer}>
+    <Text style={[styles.placeTitle, { fontSize: 20 }]}>
+        {placeName}
+    </Text>
+</View>
+
 
 
       {/* 관광지 설명 */}
@@ -233,46 +259,20 @@ const cleanURL = (url) => {
 
       <Text style={styles.placeTitle}>기본 정보</Text>
 
- <View style={styles.mapContainer}>
-            {!loading && !error && tourData.length > 0 && (
-              <MapView
-                style={styles.map}
-                initialRegion={{
-                  latitude: mapy ? parseFloat(mapy) : 37.5665, // 기본 위치
-                  longitude: mapx ? parseFloat(mapx) : 126.978, // 기본 위치
-                  latitudeDelta: 0.0922,
-                  longitudeDelta: 0.0421,
-                }}
-              >
-                {mapx && mapy && (
-                  <Marker
-                    coordinate={{
-                      latitude: parseFloat(mapy),
-                      longitude: parseFloat(mapx),
-                    }}
-                    title={placeName}
-                    description={overview}
-                  />
-                )}
-              </MapView>
-            )}
-          </View>
-
- <View>
-        <Text style={styles.description}>
-          주소: {tourData[0]?.addr1}{"\n"}
-          전화번호: {tourData[0]?.tel}
-        </Text>
-        <TouchableOpacity onPress={handlePress}>
-           <Text style={[styles.description, { marginBottom: 15 }]}>홈페이지: {displayURL}</Text>
-        </TouchableOpacity>
-      </View>
-
-<View style={styles.line3} />
-
-          <Text style={styles.placeTitle}>기본 정보</Text>
+<ScrollView contentContainerStyle={styles.scrollContainer}>
+      {courseDetails.map((course, index) => (
+        <View key={index} style={styles.courseDetailContainer}>
+          <Text style={styles.courseName}>
+                                  <Text style={{ color: '#6495ED' }}>{index + 1}. </Text>
+                                  {course.subname}
+                              </Text>
+          <Text style={styles.courseOverview}>{course.subdetailoverview}</Text>
         </View>
-      </ScrollView>
+      ))}
+    </ScrollView>
+
+       </View>
+     </ScrollView>
     </View>
   );
 };
@@ -297,8 +297,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
   },
   headerText: {
-    fontFamily: 'Pretendard',
-    fontWeight: '600',
+    fontFamily: 'Pretendard-SemiBold',
     fontSize: 16,
     color: '#000000',
   },
@@ -346,16 +345,12 @@ const styles = StyleSheet.create({
   },
 placeTitle: {
     fontFamily: 'Pretendard-SemiBold',
-    fontSize: 16,
+    fontSize: 20,
     color: '#111111',
 
     flexShrink: 1,  // 제목이 길어질 경우 줄 바꿈을 허용
   },
-  review: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 5,  // 제목과 리뷰 사이의 간격 조정
-  },
+
 
   star: {
     width: 15,
@@ -371,8 +366,7 @@ placeTitle: {
   },
   */
   description: {
-    fontFamily: 'Pretendard',
-    fontWeight: '400',
+    fontFamily: 'Pretendard-Regular',
     fontSize: 14,
     color: '#333333',
   },
@@ -418,9 +412,9 @@ placeTitle: {
     marginBottom: 0,
   },
   frameContainer2: {
-    position: 'relative',
-      height: 60,
-      width: '100%',
+    position: 'relative', // 부모 컨테이너의 위치를 기준으로 자식 요소 배치
+      height: 60, // 적절한 높이 설정
+      width: '100%', // 부모 컨테이너의 너비
       marginTop: 0,
    },
     frame211: {
@@ -465,7 +459,7 @@ placeTitle: {
     marginTop: 10,
   },
   placeTitle: {
-    fontFamily: 'Pretendard',
+    fontFamily: 'Pretendard-SemiBold',
     fontWeight: '600',
     fontSize: 16,
     color: '#111111',
@@ -495,20 +489,22 @@ placeTitle: {
     marginTop: 10,
     marginBottom: 10,
   },
-/*
-   infotext: {
-      fontFamily: 'Pretendard',
-      fontWeight: '400',
-      fontSize: 14,
-      color: '#333333',
-    },
-    */
-     spotDetailContainer: {
-        marginVertical: 5,
+
+      courseDetailContainer: {
+        marginBottom: 20,
       },
-      spotDetail: {
-        fontSize: 14,
+      courseName: {
+        fontSize: 20,
+        fontFamily: 'Pretendard-SemiBold',
+        color:'#111111',
+        marginTop: 10,
       },
+      courseOverview: {
+        fontSize: 16,
+        fontFamily: 'Pretendard-Regular',
+        marginTop: 5,
+      },
+
 });
 
 export default TourPlaceHome;

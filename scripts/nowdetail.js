@@ -116,9 +116,6 @@ const cleanURL = (url) => {
 
 
 
-
-
-
   return (
     <View style={styles.container}>
       <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
@@ -128,7 +125,7 @@ const cleanURL = (url) => {
           onPress={handleBackButton}
           style={styles.backButtonContainer}
         >
-          <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
+          <Image source={require('../../image/now/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>{placeName}</Text>
         <TouchableOpacity
@@ -136,7 +133,7 @@ const cleanURL = (url) => {
           style={styles.actionButtonContainer}
         >
           <Image
-            source={isLiked ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+            source={isLiked ? require('../../image/restaurant/like.png') : require('../../image/restaurant/unlike.png')}
             style={styles.actionIcon}
           />
         </TouchableOpacity>
@@ -156,15 +153,25 @@ const cleanURL = (url) => {
       </View>
 
 
-    <View style={styles.placeTitleReviewContainer}>
-      <Text style={[styles.placeTitle, { fontSize: 20 }]}>
-              {placeName}
+<View style={styles.placeTitleReviewContainer}>
+          <Text style={[styles.placeTitle, { fontSize: 20 }]}>
+            {placeName}
           </Text>
-      <View style={styles.review}>
-        <Image source={require('../image/detail/yellowstar.png')} style={styles.star} />
-        <Text style={styles.description}>0.0 (0)</Text>
-      </View>
-    </View>
+          {/* Conditionally render review based on title length */}
+          {placeName.length > 20 ? (
+            <View style={styles.reviewContainer}>
+              <View style={styles.review}>
+                <Image source={require('../../image/detail/yellowstar.png')} style={styles.star} />
+                <Text style={styles.description}>0.0 (0)</Text>
+              </View>
+            </View>
+          ) : (
+            <View style={styles.review}>
+              <Image source={require('../../image/detail/yellowstar.png')} style={styles.star} />
+              <Text style={styles.description}>0.0 (0)</Text>
+            </View>
+          )}
+        </View>
 
 
       {/* 관광지 설명 */}
@@ -190,7 +197,7 @@ const cleanURL = (url) => {
         onPress={handleSaveToggle}
       >
         <Image
-          source={isSaved ? require('../image/detail/save.png') : require('../image/detail/unsave.png')}
+          source={isSaved ? require('../../image/detail/save.png') : require('../../image/detail/unsave.png')}
           style={styles.iconImage}
         />
       </TouchableOpacity>
@@ -201,7 +208,7 @@ const cleanURL = (url) => {
         onPress={() => {/* Handle add to schedule action */}}
       >
         <Image
-          source={require('../image/detail/addtoschedule.png')}
+          source={require('../../image/detail/addtoschedule.png')}
           style={styles.iconImage}
         />
       </TouchableOpacity>
@@ -212,7 +219,7 @@ const cleanURL = (url) => {
         onPress={() => {/* Handle share action */}}
       >
         <Image
-          source={require('../image/detail/share.png')}
+          source={require('../../image/detail/share.png')}
           style={styles.iconImage}
         />
       </TouchableOpacity>
@@ -339,8 +346,8 @@ const styles = StyleSheet.create({
     height: '100%',
   },
   placeTitleReviewContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: 'column',
+   // alignItems: 'center',
     marginTop: 0,
     marginLeft: 20,
   },

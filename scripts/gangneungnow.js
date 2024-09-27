@@ -1,29 +1,32 @@
 import React, { useState, useEffect ,useMemo} from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
+import {Dimensions,  StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
-import { useCurrentLocation } from './MyLocation';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const categories = [
   { id: 1, label: '전체', code: null },
-  { id: 2, label: '한식', code: 'A05020100' },
-  { id: 3, label: '서양식', code: 'A05020200' },
-  { id: 4, label: '일식', code: 'A05020300' },
-  { id: 5, label: '중식', code: 'A05020400' },
-  { id: 6, label: '이색음식', code: 'A05020700' },
-  { id: 7, label: '카페', code: 'A05020900' },
+  { id: 2, label: '축제', code: 'A02070200' },
+  { id: 3, label: '연극', code: 'A02080200' },
+  { id: 4, label: '클래식', code: 'A02080900' },
 ];
 
-const SignupScreen = () => {
+// 화면 너비 가져오기
+const { width: screenWidth } = Dimensions.get('window');
+
+const TourPlaceHome = () => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
-  const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+  const navigation = useNavigation();
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
+
+    // 장소 검색 'searchText' 상태 추가
+    const [searchText, setSearchText] = useState('');
 
   const handleCategoryPress = (id) => {
     setSelectedCategory(id);
@@ -36,19 +39,26 @@ const SignupScreen = () => {
       setSearchVisible(!searchVisible);
     };
 
-    // 장소 검색 'searchText' 상태 추가
-    const [searchText, setSearchText] = useState('');
+
 
     //tourData 필터링
 const filteredData = useMemo(() => {
-  return tourData.filter(item =>
-    item.title.toLowerCase().includes(searchText.toLowerCase())
-  );
-}, [searchText, tourData]);
+  const filteredByCategory =
+    selectedCategory === 1
+      ? tourData // 전체 선택 시 API 데이터만 사용
+      : tourData.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase()));
+  return filteredByCategory;
+}, [searchText, tourData, selectedCategory]);
+
+
 
 const fetchTourData = async () => {
   try {
+    // 선택된 카테고리 코드 가져오기
     const selectedCategoryCode = categories.find(category => category.id === selectedCategory)?.code;
+
+    // 카테고리 코드가 null이 아닌 경우에만 길이 확인
+    const cat3 = selectedCategoryCode && selectedCategoryCode.length === 9 ? selectedCategoryCode : ''; // 9글자면 소분류
 
     const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/areaBasedList1', {
       params: {
@@ -58,12 +68,12 @@ const fetchTourData = async () => {
         MobileOS: 'AND',
         MobileApp: '또,강릉',
         _type: 'json',
-        contentTypeId: 39,
+        contentTypeId: 15,
         areaCode: 32,
         sigunguCode: 1,
         listYN: 'Y',
         arrange: 'Q',
-        cat3: selectedCategoryCode,
+        cat3: cat3, // 소분류
       },
     });
 
@@ -73,7 +83,7 @@ const fetchTourData = async () => {
       if (Array.isArray(items)) {
         const formattedData = items.map(item => ({
           title: item.title || "No Title",
-          overview: item.overview || "No Overview",
+          address: item.addr1 || "No Address",
           image: item.firstimage || '',
           tel: item.tel || "",
           contentid: item.contentid,
@@ -117,32 +127,27 @@ const fetchTourData = async () => {
     }
   };
 
-  const calculateDistance = (item) => {
-    if (currentLocation && item.mapx && item.mapy) {
-      const destination = { latitude: parseFloat(item.mapy), longitude: parseFloat(item.mapx) };
-      const distance = getDistanceBetweenCoordinates(currentLocation, destination);
-      return `${(distance * 1000).toFixed(0)}m`; // 거리 결과를 미터 단위로 변환
-    }
-    return '정보 없음';
-  };
 
   const renderItem = ({ item }) => (
- <View style={styles.restaurantItem}>
+    // TourPlaceHome.js
+    <TouchableOpacity
+      style={styles.restaurantItem}
+      onPress={() => navigation.navigate('nowdetail', { contentid: item.contentid })} // Pass contentId
+    >
+
     <Image
-      source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+      source={item.image ? { uri: item.image } : require('../../image/restaurant/emptythumbnail.png')}
       style={styles.restaurantImage}
     />
       <View style={styles.restaurantInfo}>
         <Text style={styles.restaurantName}>{item.title}</Text>
-        <Text style={styles.restaurantDescription}>{item.overview}</Text>
+        <Text style={styles.restaurantDescription}>
+              {item.address.replace('강원특별자치도 강릉시', '').trim()}
+            </Text>
         <View style={styles.ratingRow}>
           <View style={styles.starRating}>
-            <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
+            <Image source={require('../../image/restaurant/yellowstar.png')} style={styles.star} />
             <Text style={styles.ratingText}>0.0 (0)</Text>
-          </View>
-          <View style={styles.distanceRow}>
-            <View style={styles.dot} />
-            <Text style={styles.distanceText}>{calculateDistance(item)}</Text>
           </View>
         </View>
       </View>
@@ -151,11 +156,11 @@ const fetchTourData = async () => {
         style={styles.actionButton}
       >
         <Image
-          source={likedItems[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+          source={likedItems[item.contentid] ? require('../../image/restaurant/like.png') : require('../../image/restaurant/unlike.png')}
           style={styles.actionIcon}
         />
       </TouchableOpacity>
-    </View>
+     </TouchableOpacity>
   );
 
   const renderFooter = () => {
@@ -172,21 +177,21 @@ const fetchTourData = async () => {
           onPress={() => { /* 뒤로가기 기능 */ }}
           style={styles.backButtonContainer}
         >
-          <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
+          <Image source={require('../../image/now/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
-        <Text style={styles.headerText}>추천 맛집</Text>
+        <Text style={styles.headerText}>추천 여행지</Text>
         <TouchableOpacity
           onPress={handleSearchPress}
           style={styles.searchButtonContainer}
         >
-          <Image source={require('../image/restaurant/searchicon.png')} style={styles.searchIcon} />
+          <Image source={require('../../image/restaurant/searchicon.png')} style={styles.searchIcon} />
         </TouchableOpacity>
       </View>
 
       {/* searchbox 표시 */}
             {searchVisible && (
               <View style={styles.searchBoxContainer}>
-                <Image source={require('../image/restaurant/searchbox.png')} style={styles.searchBox} />
+                <Image source={require('../../image/restaurant/searchbox.png')} style={styles.searchBox} />
                 <TextInput
                   style={styles.searchInput}
                   placeholder="장소 이름 검색"
@@ -243,7 +248,7 @@ const fetchTourData = async () => {
       <View style={styles.frame222}>
         <Text style={styles.sortOptionText}>평점 높은 순</Text>
         <TouchableOpacity onPress={() => { /* 여기에 필터 버튼 클릭 시 동작을 추가 */ }}>
-          <Image source={require('../image/restaurant/filtertype.png')} style={styles.filterType} />
+          <Image source={require('../../image/restaurant/filtertype.png')} style={styles.filterType} />
         </TouchableOpacity>
       </View>
 
@@ -251,14 +256,14 @@ const fetchTourData = async () => {
         onPress={() => { /* 여기에 버튼 클릭 시 동작을 추가 */ }}
         style={styles.FilterIconButtonContainer}
       >
-        <Image source={require('../image/restaurant/filtericon.png')} style={styles.filterIcon} />
+        <Image source={require('../../image/restaurant/filtericon.png')} style={styles.filterIcon} />
       </TouchableOpacity>
 
       <FlatList
         style={styles.restaurantList}
         data={filteredData}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item.contentid.toString() + index.toString()}  // 고유한 키 생성
+        keyExtractor={(item, index) => (item.contentid || index).toString()}
         onEndReached={loadMoreData}
         onEndReachedThreshold={0.5}
         ListFooterComponent={renderFooter}
@@ -345,11 +350,12 @@ const styles = StyleSheet.create({
   categoryWrapper: {
     flexDirection: 'row',
     alignItems: 'center',
+    width: screenWidth,
     height: 33,
   },
   categoryContainer: {
     alignItems: 'center',
-    width: 60,
+    width: '25%',
     position: 'relative',
   },
   categoryText: {
@@ -372,7 +378,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#DDDEE0',
   },
   line: {
-    width: 60,
+    width: '25%',
     height: 2,
   },
   activeLine: {
@@ -445,12 +451,12 @@ const styles = StyleSheet.create({
   restaurantItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    height: 93,
-    marginBottom: 14,
+    height: 140,
+    marginBottom: 0,
   },
   restaurantImage: {
     width: 93,
-    height: 93,
+    height: 120,
     backgroundColor: '#D9D9D9',
     borderRadius: 12,
   },
@@ -461,12 +467,13 @@ const styles = StyleSheet.create({
   },
   restaurantName: {
     fontSize: 15,
-    fontWeight: '500',
+    fontFamily:'Pretenard-Medium',
     lineHeight: 21,
     color: '#111111',
   },
   restaurantDescription: {
     fontSize: 12,
+    fontFamily:'Pretenard-Regular',
     lineHeight: 17,
     color: '#646C79',
     marginTop: 4,
@@ -520,4 +527,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default TourPlaceHome;

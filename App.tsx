@@ -13,6 +13,13 @@ import CommunityDetail from './screens/CommunityDetail';
 import WritePost from './screens/WritePost';
 import CameraFilter from './screens/CameraFilter'
 import CameraMenu from './screens/CameraMenu'
+import MyPage from  './screens/MyPage'
+import Coursehome from  './scripts/Coursehome'
+import coursedetail from  './scripts/coursedetail'
+import TourPlaceHome from  './scripts/TourPlaceHome'
+import Tip from  './screens/Tip'
+import Detail from  './scripts/Detail'
+import TipDetail from  './screens/TipDetail'
 
 const Stack = createStackNavigator();
 
@@ -34,6 +41,12 @@ const App = () => {
         <Stack.Screen name="WritePost" component={WritePost} />
         <Stack.Screen name="CameraFilter" component={CameraFilter} />
         <Stack.Screen name="CameraMenu" component={CameraMenu} />
+        <Stack.Screen name="MyPage" component={MyPage} />
+        <Stack.Screen name="Coursehome" component={Coursehome} />
+        <Stack.Screen name="TourPlaceHome" component={TourPlaceHome} />
+        <Stack.Screen name="Tip" component={Tip} />
+        <Stack.Screen name="Detail" component={Detail} />
+        <Stack.Screen name="TipDetail" component={TipDetail} />
 
       </Stack.Navigator>
     </NavigationContainer>
