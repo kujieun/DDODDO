@@ -34,6 +34,14 @@ const SignUpHome = () => {
         }
       };
 
+      const signInWithoutLogin = async () => {
+        const name = '';
+        const email = 'test@email.com';
+        const profileImage = '';
+        navigation.navigate('SignupTerm', { userInfo: { name, email, profileImage } });
+
+      };
+
   // 핸들러 함수 예제
   const handlePrivacyPolicyPress = () => {
     console.log('개인정보 처리방침 클릭됨');
@@ -64,11 +72,11 @@ const SignUpHome = () => {
         </View>
       </TouchableOpacity>
 
-      <TouchableOpacity style={styles.googleButton}>
+      <TouchableOpacity style={styles.googleButton} onPress={signInWithoutLogin}>
         <View style={styles.iconAndText}>
           <Image
             source={require('../image/signup/LoginWithGoogle.png')}
-            style={{ width: 100, height: 100, resizeMode: 'contain' }} // 여기서 크기 조정
+            style={{ width: 90, height: 90, resizeMode: 'contain' }} // 여기서 크기 조정
           />
         </View>
       </TouchableOpacity>

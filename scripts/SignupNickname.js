@@ -9,12 +9,14 @@ const SignupScreen = ( {route}) => {
   const [isValid, setIsValid] = useState(true);
   const [modalVisible, setModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
+  const [buttonColor, setButtonColor] = useState('#B3B6BD');
 
   const navigation = useNavigation();
   const { userInfo } = route.params;
 
   const handleDuplicateCheck = () => {
     setModalVisible(true);
+    setButtonColor('#4A90E2'); // 버튼 색상 변경
     // TODO: Firebase에 닉네임 연결, 중복될 때의 알림창도 구현
   };
 
@@ -32,7 +34,7 @@ const SignupScreen = ( {route}) => {
     try {
       const filename = uri.substring(uri.lastIndexOf('/') + 1);
       const reference = storage().ref(`profileImages/${filename}`);
-      
+
       // 파일 업로드
       await reference.putFile(uri);
       
@@ -125,7 +127,7 @@ const SignupScreen = ( {route}) => {
         <Text style={styles.nameCheckText}>중복확인</Text>
       </TouchableOpacity>
 
-      <TouchableOpacity style={[styles.submitButton, { backgroundColor: '#B3B6BD' }]} onPress={handleSaveAndNext}>
+      <TouchableOpacity style={[styles.submitButton, { backgroundColor: buttonColor  }]} onPress={handleSaveAndNext}>
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>
 

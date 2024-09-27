@@ -54,13 +54,17 @@ import coursedetail from './scripts/Course/coursedetail';
 /*------------게임 -------------------------*/
 import Tutorial from './scripts/Game/Tutorial'; // 게임 튜토리얼
 
+import CameraMenu from './screens/CameraMenu';
+import CameraFilter from './screens/CameraFilter'
+
 /* ---------------------------------------------------------------------------- */
 
 import Community from './screens/Community';
 import Weather from './screens/Weather'
 import WritePost from './screens/WritePost'
+import Tip from './screens/Tip'
 
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TestNavigation);
+AppRegistry.registerComponent(appName, () => App);

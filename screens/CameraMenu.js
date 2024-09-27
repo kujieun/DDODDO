@@ -1,0 +1,180 @@
+import React, { useState } from 'react';
+import { View, Image, TouchableOpacity, StyleSheet, Dimensions, FlatList } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get('window');
+
+const CameraMenu = () => {
+  const navigation = useNavigation();  
+  const [selectedButton, setSelectedButton] = useState('all'); // 초기 선택 버튼
+
+  // 이미지 경로
+  const images = {
+    header: require('../img/home/header.png'),
+    all: require('../img/home/all.png'),
+    selectAll: require('../img/home/selectall.png'),
+    drama: require('../img/home/drama.png'),
+    selectDrama: require('../img/home/selectdrama.png'),
+    movie: require('../img/home/movie.png'),
+    selectMovie: require('../img/home/selectmovie.png'),
+    musicVideo: require('../img/home/musicvideo.png'),
+    selectMusicVideo: require('../img/home/selectmusicvideo.png'),
+  };
+
+  const imageData = [
+    {
+      id: '1',
+      locationImage: require('../img/home/location1.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+    {
+      id: '2',
+      locationImage: require('../img/home/location2.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+  ];
+
+  // 버튼 클릭 시 호출되는 함수
+  const handlePress = (buttonName) => {
+    setSelectedButton(buttonName);
+  };
+
+  // 필터링된 이미지 데이터
+  const filteredImageData = imageData.filter(item => {
+    if (selectedButton === 'all') return true; // 모든 항목 표시
+    if (selectedButton === 'drama') return item.id === '1'; // location1만 표시
+    if (selectedButton === 'musicVideo') return item.id === '2'; // location2만 표시
+    return false;
+  });
+
+  const handleFilterPress = (locationId, filterId) => {
+    let filterImageUri = '';
+    
+    if (locationId === '1') {
+      filterImageUri = filterId === 'filter1' 
+        ? 'https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2Flocation1%2Fcharacter.png?alt=media&token=c546ab8b-ef32-400f-8c32-f56d67d98ffa'  // filter1의 이미지 URL
+        : ''; // filter2는 백그라운드 제거
+    } else if (locationId === '2') {
+      filterImageUri = filterId === 'filter1' 
+        ? 'https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2Flocation2%2Fcharacter.png?alt=media&token=b2e99438-1eb8-413f-b7df-6849437deb7c'  // filter2의 이미지 URL
+        : ''; // filter2는 백그라운드 제거
+    }
+  
+    const screenParams = {
+        filterId,
+        filterImageUri,
+        locationId,
+    };
+    navigation.navigate('CameraFilter', screenParams); // 화면 이동
+  };
+  
+  const renderItem = ({ item }) => (
+    <View>
+      <Image source={item.locationImage} style={styles.locationImage} />
+      <View style={styles.filterContainer}>
+        {item.filters.map((filter) => (
+          <TouchableOpacity
+            key={filter.id}
+            onPress={() => handleFilterPress(item.id, filter.id)}
+          >
+            <Image source={filter.image} style={styles.filterImage} />
+          </TouchableOpacity>
+        ))}
+      </View>
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* 상단 헤더 이미지 */}
+      <Image source={images.header} style={styles.headerImage} />
+
+      {/* 버튼 섹션 */}
+      <View style={styles.buttonContainer}>
+        <TouchableOpacity onPress={() => handlePress('all')}>
+          <Image
+            source={selectedButton === 'all' ? images.selectAll : images.all}
+            style={styles.buttonImage}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => handlePress('drama')}>
+          <Image
+            source={selectedButton === 'drama' ? images.selectDrama : images.drama}
+            style={styles.buttonImage}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => handlePress('movie')}>
+          <Image
+            source={selectedButton === 'movie' ? images.selectMovie : images.movie}
+            style={styles.buttonImage}
+          />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={() => handlePress('musicVideo')}>
+          <Image
+            source={selectedButton === 'musicVideo' ? images.selectMusicVideo : images.musicVideo}
+            style={styles.buttonImage}
+          />
+        </TouchableOpacity>
+      </View>
+
+      {/* 이미지와 필터가 들어있는 리스트 */}
+      <FlatList
+        data={filteredImageData}
+        renderItem={renderItem}
+        keyExtractor={(item) => item.id}
+      />
+    </View>
+  );
+};
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  headerImage: {
+    width: '100%', // 화면 너비에 맞게 조정
+    height: screenHeight * 0.1, // 화면 높이의 10%로 설정
+    resizeMode: 'cover',
+  },
+  buttonContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+    paddingHorizontal: screenWidth * 0.06,
+  },
+  buttonImage: {
+    width: screenWidth * 0.2, // 화면 너비의 20% 크기
+    height: screenHeight * 0.08, // 화면 높이의 8% 크기
+    resizeMode: 'contain',
+  },
+  locationImage: {
+    width: screenWidth * 0.9,
+    height: screenHeight * 0.5, 
+    resizeMode: 'contain', 
+    marginTop: '-10%',
+  },
+  filterContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-evenly',
+    width: '100%',
+    top: '-35%',
+    marginBottom: '-20%',
+  },
+  filterImage: {
+    width: 130,
+    resizeMode: 'contain',
+  },
+});
+
+export default CameraMenu;

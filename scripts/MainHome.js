@@ -1,12 +1,25 @@
 import * as React from "react";
-import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated } from "react-native";
+import { StatusBar, StyleSheet, View, Image, Text, Dimensions, Pressable, TouchableOpacity, Animated, ScrollView } from "react-native";
 import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
+import axios from "axios";
 
 import { useNavigation } from '@react-navigation/native';
 
 // 화면 너비 가져오기
 const { width: screenWidth } = Dimensions.get('window');
+
+// 날씨 API
+const API_KEY = "9fd5c9fdde5b224d48ca942a3984d6c8";
+// 강릉 경도와 위도(openweathermap)
+const LATITUDE = 37.7514;
+const LONGITUDE = 128.8760;
+//날씨 이미지 
+const Cloud = require('../img/Cloud.png');
+const Clear = require('../img/Clear.png');
+const Rain = require('../img/Rain.png');
+const Snow = require('../img/Snow.png');
+const Else = require('../img/11.png');
 
 // 이미지 리소스 정의
 const menuImages = {
@@ -20,6 +33,14 @@ const menuImages = {
     8: require('../image/mainhome/menu/menu8.png'),
 };
 
+// 이미지 경로
+const images = {
+    ocean: require('../img/tip/ocean.png'),
+    museum: require('../img/tip/museum.png'),
+    rain: require('../img/tip/rain.png'),
+  };
+  
+
 
 const MainHome = ({ route, navigation }) => {
 
@@ -31,18 +52,72 @@ const MainHome = ({ route, navigation }) => {
         windSpeed: '0.3m/s',
     });
 
+    // 각 버튼 클릭 시 TipDetail 페이지로 이동하며 선택한 이미지명을 전달
+    const handleNavigate = (imageName) => {
+   
+    navigation.navigate('TipDetail', { selectedImage: imageName });
+    };
+
     // const navigation = useNavigation();
     const { userInfo } = route.params;
 
     //하단 바 선택 메뉴
     const [selectedMenu, setSelectedMenu] = useState(null);
 
+        state = {
+            isLoading: true,
+            currentWeather: {},
+        };
+    
+      // 날씨 상태를 분류하는 함수
+      classifyCondition = (id) => {
+        if (id >= 200 && id <= 599) {
+          return Rain;
+        } else if (id >= 600 && id <= 699) {
+          return Snow;
+        } else if (id >= 700 && id <= 799) {
+          return Cloud;
+        } else if (id === 800) {
+          return Clear;
+        }
+        return Else;
+      };
+    
+      // 현재 날씨 정보 가져오기
+      getWeather = async (latitude, longitude) => {
+        try {
+          const {
+            data: {
+              main: { temp },
+              weather,
+              wind: { speed },
+            },
+          } = await axios.get(
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`  
+        );
+    
+          const { id } = weather[0];
+          const condition = this.classifyCondition(id);
+        
+          // 상태 업데이트
+        setWeather({
+            icon: condition,
+            temperature: `${temp}°`,
+            windSpeed: `${speed}m/s`,
+        });
+
+
+        } catch (error) {
+          Alert.alert("Error", "Could not fetch weather data");
+        }
+      };
+
 
     const handleBarMenu = (menu) => {
         setSelectedMenu(menu);
         switch(menu) {
             case 'home':
-                navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
+                // navigation.navigate('MainHome'); // 예시: Home 화면으로 이동
                 break;
             case 'community':
                 navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
@@ -56,6 +131,10 @@ const MainHome = ({ route, navigation }) => {
 
     const gotoCommunity = () => {
         navigation.navigate('Community',  { userInfo });
+    }
+
+    const gotoMyPage = () => {
+        navigation.navigate('MyPage',  { userInfo });
     }
 
 
@@ -98,6 +177,9 @@ const MainHome = ({ route, navigation }) => {
 
 
     useEffect(() => {
+          // 날씨 정보 가져오기
+          getWeather(LATITUDE, LONGITUDE);
+
         const targetDate = new Date("2024-10-13"); // 목표 날짜
         const today = new Date();
         const diffTime = targetDate - today;
@@ -114,141 +196,189 @@ const MainHome = ({ route, navigation }) => {
         if (menuIndex === 8) {
             navigation.navigate('gangneungmap'); // Test2로 이동
         }
+        if (menuIndex === 4) {
+            navigation.navigate('CameraMenu'); 
+        }
+        if (menuIndex === 2) {
+            navigation.navigate('Coursehome',  { userInfo }); 
+        }
+        if (menuIndex === 6) {
+            navigation.navigate('TourPlaceHome',  { userInfo }); 
+        }
+        if (menuIndex === 1) {
+            navigation.navigate('Tip'); 
+        }
+        
+
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
 
-    return (
-        <View style={styles.container}>
-            <StatusBar
-                translucent
-                backgroundColor="transparent"
-                barStyle="dark-content"
-            />
-            <LinearGradient
-                style={styles.lineargradient}
-                locations={[0, 0.1, 0.4]}
-                colors={['#fafdff', '#dcefff', '#a0c2f6']}
-                useAngle={true}
-                angle={178.86}
-            />
+return (
+    <View style={styles.container}>
+        <StatusBar
+            translucent
+            backgroundColor="transparent"
+            barStyle="dark-content"
+        />
+        <LinearGradient
+            style={styles.lineargradient}
+            locations={[0, 0.1, 0.4]}
+            colors={['#fafdff', '#dcefff', '#a0c2f6']}
+            useAngle={true}
+            angle={178.86}
+        />
+        <Image
+            source={require('../image/mainhome/logo.png')}
+            style={styles.logo}
+        />
+        <View style={styles.alarmcontainer}>
             <Image
-                source={require('../image/mainhome/logo.png')}
-                style={styles.logo}
+                source={require('../image/mainhome/alarm.png')}
+                style={styles.alarm}
             />
-            <View style={styles.alarmcontainer}>
-                <Image
-                    source={require('../image/mainhome/alarm.png')}
-                    style={styles.alarm}
-                />
-                <View style={styles.alarmWarning} />
-            </View>
-            <Text style={styles.nickname}>
-                닉네임님,{'\n'}
-                강릉 여행까지{' '}
-                <Text style={styles.daysText}>D-{daysLeft}</Text>
-                {' '}남았습니다!
-            </Text>
-
-            <View style={styles.checkschedule}>
-                <Image
-                    source={require('../image/mainhome/checkschedule.png')}
-                    style={styles.checkscheduleImage}
-                />
-            </View>
-
-            <View style={styles.weathercontainer}>
-                <Frame weather={weather} />
-            </View>
-            {/* 새 흰색 직사각형 추가 */}
-            <View style={styles.fullScreenWhiteBackground}></View>
-
-            {/* 메뉴 추가 */}
-            <View style={styles.menuContainer1}>
-                {[1, 2, 3, 4].map(index => (
-                    <Pressable key={index} style={styles.menuItem} onPress={() => handleMenuPress(index)}>
-                        <Image source={menuImages[index]} style={styles.menuIcon} />
-                    </Pressable>
-                ))}
-            </View>
-
-            {/* 메뉴 추가 */}
-            <View style={styles.menuContainer2}>
-                {[5, 6, 7, 8].map(index => (
-                    <Pressable key={index} style={styles.menuItem} onPress={() => handleMenuPress(index)}>
-                        <Image source={menuImages[index]} style={styles.menuIcon} />
-                    </Pressable>
-                ))}
-            </View>
-
-            {/* 하단 네비게이션 바 추가 */}
-            <View style={styles.bottombarContainer}>
-                <TouchableOpacity onPress={handleCharacterPress} style={styles.characterConatiner}>
-                    <Image
-                        source={require('../image/mainhome/barmenu/character.png')}
-                        style={styles.bottombarEllipse}
-                    />
-                </TouchableOpacity>
-
-
-                {isCharacterPressed && (
-                    <>
-                        <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
-                            <TouchableOpacity>
-                                <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
-                            </TouchableOpacity>
-                        </Animated.View>
-
-                        <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                            <TouchableOpacity>
-                                <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
-                            </TouchableOpacity>
-                        </Animated.View>
-                    </>
-                )}
-
-
-                <View style={styles.bottombarRectangle}></View>
-
-
-                    <TouchableOpacity onPress={() => handleBarMenu('home')}>
-                        <Image
-                            source={selectedMenu === 'home'
-                                ? require('../image/mainhome/barmenu/select/home.png')
-                                : require('../image/mainhome/barmenu/home.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {handleBarMenu('community'); gotoCommunity();}}>
-                        <Image
-                            source={selectedMenu === 'community'
-                                ? require('../image/mainhome/barmenu/select/community.png')
-                                : require('../image/mainhome/barmenu/community.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => handleBarMenu('my')}>
-                        <Image
-                            source={selectedMenu === 'my'
-                                ? require('../image/mainhome/barmenu/select/my.png')
-                                : require('../image/mainhome/barmenu/my.png')}
-                            style={styles.bottombarImg}
-                        />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => handleBarMenu('more')}>
-                        <Image
-                            source={selectedMenu === 'more'
-                                ? require('../image/mainhome/barmenu/select/more.png')
-                                : require('../image/mainhome/barmenu/more.png')}
-                            style={styles.bottombarMore}
-                        />
-                    </TouchableOpacity>
-
-                </View>
+            <View style={styles.alarmWarning} />
         </View>
-    );
+        <Text style={styles.nickname}>
+            {userInfo.name}님,{'\n'}
+            강릉 여행까지{' '}
+            <Text style={styles.daysText}>D-{daysLeft}</Text>
+            {' '}남았습니다!
+        </Text>
+
+        <View style={styles.checkschedule}>
+            <Image
+                source={require('../image/mainhome/checkschedule.png')}
+                style={styles.checkscheduleImage}
+            />
+        </View>
+
+        <View style={styles.weathercontainer}>
+            <Frame weather={weather} />
+        </View>
+
+        {/* 새 흰색 직사각형 추가 */}
+        <View style={styles.fullScreenWhiteBackground} />
+
+        {/* 메뉴 추가 */}
+        <View style={styles.menuContainer1}>
+            {[1, 2, 3, 4].map(index => (
+                <Pressable
+                    key={index}
+                    style={styles.menuItem}
+                    onPress={() => handleMenuPress(index)}
+                >
+                    <Image source={menuImages[index]} style={styles.menuIcon} />
+                </Pressable>
+            ))}
+        </View>
+
+        {/* 메뉴 추가 */}
+        <View style={styles.menuContainer2}>
+            {[5, 6, 7, 8].map(index => (
+                <Pressable
+                    key={index}
+                    style={styles.menuItem}
+                    onPress={() => handleMenuPress(index)}
+                >
+                    <Image source={menuImages[index]} style={styles.menuIcon} />
+                </Pressable>
+            ))}
+        </View>
+
+        {/* ScrollView로 컨텐츠 감싸기 */}
+        <ScrollView
+            horizontal
+            contentContainerStyle={styles.scrollViewContent}
+            showsHorizontalScrollIndicator={false} // 가로 스크롤 바 숨기기 (선택사항)
+        >
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('ocean')}
+            >
+                <Image source={images.ocean} style={styles.contentImage} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('museum')}
+            >
+                <Image source={images.museum} style={styles.contentImage} />
+            </TouchableOpacity>
+
+            <TouchableOpacity
+                style={styles.contentContainer}
+                onPress={() => handleNavigate('rain')}
+            >
+                <Image source={images.rain} style={styles.contentImage} />
+            </TouchableOpacity>
+        </ScrollView>
+
+        {/* 하단 네비게이션 바 추가 */}
+        <View style={styles.bottombarContainer}>
+            <TouchableOpacity onPress={handleCharacterPress} style={styles.characterConatiner}>
+                <Image
+                    source={require('../image/mainhome/barmenu/character.png')}
+                    style={styles.bottombarEllipse}
+                />
+            </TouchableOpacity>
+
+            {isCharacterPressed && (
+                <>
+                    <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
+                        <TouchableOpacity>
+                            <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
+                        </TouchableOpacity>
+                    </Animated.View>
+
+                    <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
+                        <TouchableOpacity>
+                            <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
+                        </TouchableOpacity>
+                    </Animated.View>
+                </>
+            )}
+
+            <View style={styles.bottombarRectangle} />
+
+            <TouchableOpacity onPress={() => handleBarMenu('home')}>
+                <Image
+                    source={selectedMenu === 'home'
+                        ? require('../image/mainhome/barmenu/select/home.png')
+                        : require('../image/mainhome/barmenu/home.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => { handleBarMenu('community'); gotoCommunity(); }}>
+                <Image
+                    source={selectedMenu === 'community'
+                        ? require('../image/mainhome/barmenu/select/community.png')
+                        : require('../image/mainhome/barmenu/community.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => { handleBarMenu('my'); gotoMyPage(); }}>
+                <Image
+                    source={selectedMenu === 'my'
+                        ? require('../image/mainhome/barmenu/select/my.png')
+                        : require('../image/mainhome/barmenu/my.png')}
+                    style={styles.bottombarImg}
+                />
+            </TouchableOpacity>
+
+            <TouchableOpacity onPress={() => handleBarMenu('more')}>
+                <Image
+                    source={selectedMenu === 'more'
+                        ? require('../image/mainhome/barmenu/select/more.png')
+                        : require('../image/mainhome/barmenu/more.png')}
+                    style={styles.bottombarMore}
+                />
+            </TouchableOpacity>
+        </View>
+    </View>
+);
+
 };
 
 // Frame 컴포넌트
@@ -285,6 +415,7 @@ const styles = StyleSheet.create({
         flex: 1,
     },
     lineargradient: {
+       position:'absolute',
         flex: 1,
         width: "100%",
         height: 403,
@@ -391,6 +522,7 @@ const styles = StyleSheet.create({
         textAlign: 'center',
         letterSpacing: -0.025,
         color: "#000000",
+        width: 100,
     },
     weatherIcon: {
         width: 27.7,
@@ -416,6 +548,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        zIndex:5,
     },
     menuContainer2: {
         top:429,
@@ -428,6 +561,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: 'space-between',
         paddingHorizontal: 0,
+        zIndex:5,
     },
     menuItem: {
         width: 65,
@@ -440,7 +574,7 @@ const styles = StyleSheet.create({
         width: 65,
         height: 65,
     },
- bottombarContainer: {
+    bottombarContainer: {
         position: 'absolute',
         height: 83,
         width: screenWidth,
@@ -498,7 +632,21 @@ const styles = StyleSheet.create({
         position: 'absolute',
         left: (screenWidth / 2) - 30, // 중앙에 위치
         bottom: 110,
-    }
+    },
+      scrollViewContent: {
+        paddingRight: 20,
+        paddingLeft: 30,
+        paddingBottom: 20, // 스크롤뷰의 마지막 부분 여백 추가
+      },
+    contentImage: {
+        width: 200,
+        resizeMode: 'contain',
+        marginRight:10,
+      },
+      contentContainer: {
+       top:270,
+      },
+
 });
 
 export default MainHome;
