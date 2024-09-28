@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Dimensions, StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, ScrollView } from 'react-native';
+import {
+    Dimensions,
+    StyleSheet,
+    Text,
+    View,
+    TouchableOpacity,
+    StatusBar,
+    Image,
+    ScrollView
+} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
@@ -21,11 +30,11 @@ const TourPlaceHome = () => {
 
     const route = useRoute(); // route 가져오기
     const { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex } = route.params;
-useEffect(() => {
-    console.log('Route Params:', route.params); // route.params의 값을 확인
-    console.log('Selected Day Index:', selectedDayIndex);
-}, [route.params, selectedDayIndex]);
 
+    useEffect(() => {
+        console.log('Route Params:', route.params); // route.params의 값을 확인
+        console.log('Selected Day Index:', selectedDayIndex);
+    }, [route.params, selectedDayIndex]);
 
     const fetchCourseDetails = async () => {
         try {
@@ -64,16 +73,24 @@ useEffect(() => {
         fetchCourseDetails();
     }, [contentid]); // contentid 변경 시마다 데이터 fetch
 
-    const renderItem = ({ item, index, drag, isActive }) => {
-            return (
-                <TouchableOpacity
-                    style={[styles.cardContainer, isActive && styles.activeCard]}
-                    onLongPress={drag}
-                >
-                    <Text style={styles.subnameText}>{item.subname}</Text>
-                </TouchableOpacity>
-            );
-        };
+
+     // Function to handle dragging
+const renderItem = ({ item, index, drag, isActive }) => {
+ // item의 복사본 생성
+    const newItem = { ...item }; // 얕은 복사
+
+    return (
+        <TouchableOpacity
+            style={[
+                styles.cardContainer,
+                { backgroundColor: isActive ? '#ffffff' : '#DCEFFF' }
+            ]}
+            onLongPress={drag} // 롱 프레스 시 드래그 시작
+        >
+            <Text style={styles.subnameText}>{newItem.subname}</Text>
+        </TouchableOpacity>
+    );
+};
 
 
     return (
@@ -89,44 +106,47 @@ useEffect(() => {
                 </View>
             </View>
 
+            <View horizontal style={styles.imageView}>
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: 37.5665, // 서울 위도 예시
+                        longitude: 126.9780, // 서울 경도 예시
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                >
+                    <Marker
+                        coordinate={{ latitude: 37.5665, longitude: 126.9780 }} // 마커 위치
+                        title="서울"
+                        description="서울의 중심"
+                    />
+                </MapView>
+            </View>
 
-                <View horizontal style={styles.imageView}>
-                    <MapView
-                        style={styles.map}
-                        initialRegion={{
-                            latitude: 37.5665, // 서울 위도 예시
-                            longitude: 126.9780, // 서울 경도 예시
-                            latitudeDelta: 0.0922,
-                            longitudeDelta: 0.0421,
-                        }}
+            <View style={styles.dateCategoryContainer}>
+                {Array.from({ length: daysCount }, (_, index) => (
+                    <TouchableOpacity
+                        key={index + 1}
+                        onPress={() => handleDayPress(index + 1)}
+                        style={styles.group}
                     >
-                        <Marker
-                            coordinate={{ latitude: 37.5665, longitude: 126.9780 }} // 마커 위치
-                            title="서울"
-                            description="서울의 중심"
-                        />
-                    </MapView>
-                </View>
-
-                <View style={styles.dateCategoryContainer}>
-                    {Array.from({ length: daysCount }, (_, index) => (
-                        <TouchableOpacity key={index + 1} onPress={() => handleDayPress(index + 1)} style={styles.group}>
-                            <Text style={[styles.dayText, pressedDay === index + 1 && styles.activeDayText]}>
-                                {index + 1}일차
-                            </Text>
-                            <View style={[styles.line, pressedDay === index + 1 && styles.activeLine]} />
-                        </TouchableOpacity>
-                    ))}
-                </View>
-
+                        <Text style={[styles.dayText, pressedDay === index + 1 && styles.activeDayText]}>
+                            {index + 1}일차
+                        </Text>
+                        <View style={[styles.line, pressedDay === index + 1 && styles.activeLine]} />
+                    </TouchableOpacity>
+                ))}
+            </View>
 
 <DraggableFlatList
-                data={pressedDay === selectedDayIndex ? courseDetails : []}
-                renderItem={renderItem}
-                keyExtractor={(item) => item.contentId.toString()} // Ensure each item has a unique key
-                onDragEnd={({ data }) => setCourseDetails(data)} // Update the state with new order
-                contentContainerStyle={styles.scrollContainer}
-            />
+    data={pressedDay === selectedDayIndex ? courseDetails : []}
+    renderItem={renderItem}
+    keyExtractor={(item, index) => `${item.contentid}-${index}`} // contentid와 index 결합
+    onDragEnd={({ data }) => setCourseDetails([...data])} // 새로운 배열로 상태 업데이트
+    contentContainerStyle={styles.scrollContainer}
+/>
+
 
 
             {/* 일정추가 버튼 */}
@@ -148,6 +168,7 @@ useEffect(() => {
 };
 
 const styles = StyleSheet.create({
+    // Container Styles
     container: {
         flex: 1,
         backgroundColor: '#FFFFFF',
@@ -185,11 +206,8 @@ const styles = StyleSheet.create({
         height: 50,
         justifyContent: 'center',
     },
-    scrollContainer: {
-        flexGrow: 1,
-        flexDirection: 'column', // 수직 방향으로 배치
-        paddingVertical: 20,    // 카드들 간의 상하 여백 추가 (필요 시)
-    },
+
+    // Map Styles
     imageView: {
         marginTop: 70,
         width: Dimensions.get('window').width,
@@ -199,6 +217,8 @@ const styles = StyleSheet.create({
         width: '100%',
         height: '100%',
     },
+
+    // Date Category Styles
     dateCategoryContainer: {
         flexDirection: 'row',
         justifyContent: 'space-around',
@@ -226,12 +246,24 @@ const styles = StyleSheet.create({
     activeLine: {
         backgroundColor: '#6495ED',
     },
+
+    // Draggable FlatList Styles
+    scrollContainer: {
+        flexGrow: 1,
+        flexDirection: 'column', // 수직 방향으로 배치
+        paddingVertical: 20,    // 카드들 간의 상하 여백 추가 (필요 시)
+    },
+
+    // Button Styles
     buttonframeContainer: {
+        position: 'absolute',
         bottom: 15,
         flexDirection: 'row',
         justifyContent: 'space-between',
         alignItems: 'center',
-        marginHorizontal: 20,
+        paddingHorizontal: 10,
+        width: '100%',
+        gap:10,
     },
     frame234: {
         justifyContent: 'center',
@@ -241,61 +273,38 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         borderColor: '#6495ED',
         borderRadius: 12,
-        width: 98,
         height: 40,
+        flex: 1,
     },
     frame236: {
-        flexDirection: 'row',
         justifyContent: 'center',
         alignItems: 'center',
         paddingVertical: 2,
         backgroundColor: '#6495ED',
-        borderWidth: 1,
-        borderColor: '#6495ED',
         borderRadius: 12,
-        width: 98,
         height: 40,
+        flex: 1,
     },
     frameText: {
-        fontFamily: 'Pretendard',
-        fontSize: 14,
-        fontWeight: '500',
-        color: '#3E3D5D',
+        color: '#6495ED',
     },
     frameTextWhite: {
-        fontFamily: 'Pretendard',
-        fontSize: 14,
-        fontWeight: '500',
         color: '#FFFFFF',
     },
     cardContainer: {
-        flexDirection: 'column',
-        justifyContent: 'flex-start',
-        marginBottom:15,
-        padding: 9,
-        gap: 8,
-        backgroundColor: '#DCEFFF',
-        top:10,
-        borderRadius: 12,
-        alignSelf: 'flex-start',  // 텍스트 길이에 맞춰 크기 조정alignSelf: 'flex-start',  // 텍스트 길이에 맞춰 크기 조정
-        flexShrink: 1,  // 텍스트에 맞게 수축
-      },
-        activeCard: {
-          borderColor: '#6495ED',
-          borderWidth: 2,
-      },
+        padding: 10,
+        marginVertical: 5,
+        marginHorizontal: 10,
+        borderRadius: 10,
+        shadowColor: '#DCEFFF',
+        elevation: 2,
+        alignSelf: 'flex-start',
+    },
     subnameText: {
-        fontFamily: 'Pretendard-Medium',
-        fontSize: 16,
-        color: '#111111',
-        // 필요한 다른 스타일 속성 추가
-      },
-      defaultText: {
-        fontFamily: 'Pretendard-Medium',
-        fontSize: 14,
-        color: '#646C79',
-        // 필요한 다른 스타일 속성 추가
-      },
+        fontFamily: 'Pretendard',
+        fontSize: 15,
+        color: '#000000',
+    },
 });
 
 export default TourPlaceHome;
