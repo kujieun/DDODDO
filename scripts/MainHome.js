@@ -55,8 +55,16 @@ const MainHome = ({ route, navigation }) => {
     // 각 버튼 클릭 시 TipDetail 페이지로 이동하며 선택한 이미지명을 전달
     const handleNavigate = (imageName) => {
    
-    navigation.navigate('TipDetail', { selectedImage: imageName });
-    };
+       navigation.navigate('TipDetail', { selectedImage: imageName });
+        };
+
+        const gotoGame = () => {
+                navigation.navigate('Tutorial');
+            };
+
+            const gotoAR = () => {
+                navigation.navigate('ARScreen');
+            };
 
     // const navigation = useNavigation();
     const { userInfo } = route.params;
@@ -328,13 +336,13 @@ return (
             {isCharacterPressed && (
                 <>
                     <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
-                        <TouchableOpacity onPress={() => handleNavigate('Tutorial')}>
+                        <TouchableOpacity onPress={gotoGame}>
                             <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
                     </Animated.View>
 
                     <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
-                        <TouchableOpacity onPress={() => handleNavigate('ARScreen')}>
+                         <TouchableOpacity onPress={gotoAR}>
                             <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
                     </Animated.View>

@@ -3,6 +3,7 @@ import { Dimensions, StyleSheet, Text, View, TouchableOpacity, StatusBar, Image,
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
+import DraggableFlatList from 'react-native-draggable-flatlist';
 
 const TourPlaceHome = () => {
     const [pressedDay, setPressedDay] = useState(1); // 사용자가 클릭한 일자
@@ -63,6 +64,18 @@ useEffect(() => {
         fetchCourseDetails();
     }, [contentid]); // contentid 변경 시마다 데이터 fetch
 
+    const renderItem = ({ item, index, drag, isActive }) => {
+            return (
+                <TouchableOpacity
+                    style={[styles.cardContainer, isActive && styles.activeCard]}
+                    onLongPress={drag}
+                >
+                    <Text style={styles.subnameText}>{item.subname}</Text>
+                </TouchableOpacity>
+            );
+        };
+
+
     return (
         <View style={styles.container}>
             <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
@@ -71,12 +84,12 @@ useEffect(() => {
                     <TouchableOpacity onPress={handleBackButton} style={styles.backButtonContainer}>
                         <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
                     </TouchableOpacity>
-                    <Text style={styles.headerText}>추천코스</Text>
+                    <Text style={styles.headerText}>일정정하기</Text>
                     <TouchableOpacity style={styles.actionButtonContainer} />
                 </View>
             </View>
 
-            <ScrollView contentContainerStyle={styles.scrollContainer}>
+
                 <View horizontal style={styles.imageView}>
                     <MapView
                         style={styles.map}
@@ -106,20 +119,15 @@ useEffect(() => {
                     ))}
                 </View>
 
-            <View>
-              {pressedDay === selectedDayIndex ? (
-                courseDetails.map((course, index) => (
-                  <View key={index} style={styles.cardContainer}>
-                    <Text style={styles.subnameText}>{course.subname}</Text>
-                  </View>
-                ))
-              ) : (
-                <Text style={styles.defaultText}>{`${pressedDay}일차 내용`}</Text>
-              )}
-            </View>
 
+<DraggableFlatList
+                data={pressedDay === selectedDayIndex ? courseDetails : []}
+                renderItem={renderItem}
+                keyExtractor={(item) => item.contentId.toString()} // Ensure each item has a unique key
+                onDragEnd={({ data }) => setCourseDetails(data)} // Update the state with new order
+                contentContainerStyle={styles.scrollContainer}
+            />
 
-            </ScrollView>
 
             {/* 일정추가 버튼 */}
             <View style={styles.buttonframeContainer}>
@@ -179,6 +187,8 @@ const styles = StyleSheet.create({
     },
     scrollContainer: {
         flexGrow: 1,
+        flexDirection: 'column', // 수직 방향으로 배치
+        paddingVertical: 20,    // 카드들 간의 상하 여백 추가 (필요 시)
     },
     imageView: {
         marginTop: 70,
@@ -259,19 +269,20 @@ const styles = StyleSheet.create({
         color: '#FFFFFF',
     },
     cardContainer: {
-        display: 'flex',
         flexDirection: 'column',
-        alignItems: 'flex-start',
+        justifyContent: 'flex-start',
+        marginBottom:15,
         padding: 9,
         gap: 8,
-        position: 'absolute',
-        left: '16.67%',
-        right: '5.56%',
-        top: '19.33%',
-        bottom: '14.29%',
         backgroundColor: '#DCEFFF',
-        boxShadow: '0px 4px 4px rgba(100, 149, 237, 0.1)',
+        top:10,
         borderRadius: 12,
+        alignSelf: 'flex-start',  // 텍스트 길이에 맞춰 크기 조정alignSelf: 'flex-start',  // 텍스트 길이에 맞춰 크기 조정
+        flexShrink: 1,  // 텍스트에 맞게 수축
+      },
+        activeCard: {
+          borderColor: '#6495ED',
+          borderWidth: 2,
       },
     subnameText: {
         fontFamily: 'Pretendard-Medium',
