@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Button, Modal, ScrollView, Text,StatusBar, View, StyleSheet, TouchableOpacity, Image, Dimensions, TouchableWithoutFeedback  } from "react-native";
 import FastImage from 'react-native-fast-image';
 
@@ -113,7 +113,7 @@ const FrameComponent = () => {
   const [currentTextIndex, setCurrentTextIndex] = useState(0); // 텍스트 인덱스 상태
   const [isAngry, setIsAngry] = useState(false);
   const [goldCoinCount, setGoldCoinCount] = useState(0); // 예시 값
-  const [silverCoinCount, setSilverCoinCount] = useState(25); // 예시 값
+  const [silverCoinCount, setSilverCoinCount] = useState(5); // 예시 값
   const [isItemBoxVisible, setIsItemBoxVisible] = useState(false); // 새 상태 추가
   const [isItem1BoxVisible, setIsItem1BoxVisible] = useState(false); // 새 상태 추가
   const [isItem2BoxVisible, setIsItem2BoxVisible] = useState(false); // 새 상태 추가
@@ -125,7 +125,6 @@ const FrameComponent = () => {
     const [selectedItemName, setSelectedItemName] = useState("");
     const [selectedPresent, setSelectedPresent] = useState(null);
     const [missionVisible, setMissionVisible] = useState(false); // 미션 창 표시 상태
-    const [purchasedItems, setPurchasedItems] = useState([]);
 
   const handleBackToHomePress = () => {
     console.log('버튼 눌렀습니다');
@@ -231,14 +230,8 @@ const handleCategoryPress = (category) => {
       const handlePurchase = () => {
         console.log(`Item purchased: ${selectedItemId}`);
         // 아이템 구매 로직 추가
-
-        setSilverCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0));
-        // 구매한 아이템 ID를 상태에 추가
-        setPurchasedItems(prevItems => [...prevItems, selectedItemId]);
-        // console.log(purchasedItems)
         setModalVisible(false);
       };
-
 
       /*==============미션 가져오기==============*/
 
@@ -437,42 +430,6 @@ return (
 )}
 
 
-{isItem1BoxVisible && (
-    <View style={styles.itemboxContainer}>
-        <View style={styles.itemBox}>
-              <View style={{flexDirection: 'column', marginBottom: '7%',padding: 15,}}>
-                  <Image
-                  source={require('../../image/game/storage/storagemenu/menubutton.png')}
-                  style={styles.itemTitleImage}
-                  resizeMode="contain"
-                  />
-              </View>
-            <View style={styles.presentimageContainer}>
-        
-                  {/* 구매한 아이템들만 표시 */}
-                    <ScrollView style={styles.itemsContainer}>
-                      {chunkArray(
-                        getFilteredItems().filter((item) => purchasedItems.includes(item.id)), // 구매한 아이템 필터링
-                        4
-                      ).map((row, rowIndex) => (
-                        <View key={rowIndex} style={styles.rowContainer}>
-                          {row.map((item) => (
-                            <TouchableOpacity
-                              key={item.id}
-                              style={styles.itemCard}
-                              onPress={() => handleImagePress(item.id)}
-                            >
-                              <Image source={images[item.storeImage]} style={styles.itemImage} />
-                            </TouchableOpacity>
-                          ))}
-                        </View>
-                      ))}
-                    </ScrollView>
-
-            </View>
-        </View>
-    </View>
-)}
 
 
 {isItem2BoxVisible && (
