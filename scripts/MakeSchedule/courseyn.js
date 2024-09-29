@@ -2,14 +2,15 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useNavigation, useRoute  } from '@react-navigation/native';
 
-const SignupScreen = () => {
+const Courseyn = () => {
     const navigation = useNavigation();
       const handleBackButton = () => {
         navigation.goBack(); // 이전 화면으로 돌아가는 함수
       };
 
     const route = useRoute(); // route 가져오기
-    const { tripName, startDate, endDate } = route.params;
+    const { tripName, startDate, endDate, userInfo } = route.params;
+    console.log(userInfo)
 
   return (
 <View style={styles.container}>
@@ -34,7 +35,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.yesButton}
-        onPress={() =>  navigation.navigate('getcourse', {tripName, startDate, endDate })}
+        onPress={() =>  navigation.navigate('getcourse', {tripName, startDate, endDate ,  userInfo })}
       >
         <Text style={styles.yesButtonText}>네, 추천해주세요!</Text>
       </TouchableOpacity>
@@ -42,7 +43,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
             <TouchableOpacity
               style={styles.noButton}
-              onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+              onPress={() =>  navigation.navigate('scheduledetail', {tripName, startDate, endDate , userInfo })}
             >
               <Text style={styles.noButtonText}>괜찮아요, 직접 만들게요!</Text>
             </TouchableOpacity>
@@ -129,4 +130,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default Courseyn;

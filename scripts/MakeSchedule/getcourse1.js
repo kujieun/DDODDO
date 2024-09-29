@@ -13,7 +13,7 @@ import {
 import axios from 'axios';
 import { useNavigation, useRoute  } from '@react-navigation/native';
 
-const Coursehome = () => {
+const Coursehome = ({onClose, onContentIdSelected}) => {
   const [tripstylePanelVisible, setTripstylePanelVisible] = useState(false);
   const [withwhoPanelVisible, setWithwhoPanelVisible] = useState(false);
   const [tourData, setTourData] = useState([]);
@@ -24,7 +24,7 @@ const Coursehome = () => {
   const [totalCount, setTotalCount] = useState(1000);
   const navigation = useNavigation();
   const route = useRoute(); // route 가져오기
-  const { tripName, startDate, endDate, userInfo } = route.params;
+  const { tripName, startDate, endDate } = route.params;
 
   const cat3Mapping = {
     '가족': 'C01120001',
@@ -117,7 +117,7 @@ const Coursehome = () => {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => { /* 뒤로가기 기능 구현 */ }} style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={onClose} style={styles.backButtonContainer}>
           <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>추천 코스</Text>
@@ -207,7 +207,11 @@ const Coursehome = () => {
           <View style={styles.cardTitleContainer}>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <TouchableOpacity
-              onPress={() => {navigation.navigate('addcourseone', {tripName, startDate, endDate, contentid: item.contentid, userInfo });
+              onPress={() => {
+                // contentid를 넘겨주는 로직
+                navigation.navigate('scheduledetail', { contentid: item.contentid });
+                // 모달 창을 닫음
+                onClose();
               }}
             >
               <Image
@@ -215,6 +219,7 @@ const Coursehome = () => {
                 style={styles.likeIcon}
               />
             </TouchableOpacity>
+
           </View>
           <Text style={styles.cat3Text}>{getCategoryLabel(item.cat3)}</Text>
         </TouchableOpacity>

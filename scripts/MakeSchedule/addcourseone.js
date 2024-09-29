@@ -10,18 +10,22 @@ const SignupScreen = () => {
   };
 
   const route = useRoute(); // route 가져오기
-  const { tripName, startDate, endDate, contentid } = route.params;
+  const { tripName, startDate, endDate, contentid, userInfo } = route.params;
 
-  // 여행 일수 계산
-  const calculateDays = (startDate, endDate) => {
-    const start = new Date(startDate);
-    const end = new Date(endDate);
-    const diffTime = Math.abs(end - start);
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include start day
-    return diffDays;
-  };
 
-  const daysCount = calculateDays(startDate, endDate);
+      // 여행 일수 계산
+      const calculateDays = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include start day
+        return diffDays;
+      };
+
+      const daysCount = calculateDays(startDate, endDate);
+
+
+
   const daysArray = Array.from({ length: daysCount }, (_, i) => `${i + 1}일차`);
   const [selectedDayIndex, setSelectedDayIndex] = useState(null); // 선택된 일자의 인덱스
 
@@ -29,7 +33,7 @@ const SignupScreen = () => {
   useEffect(() => {
     if (selectedDayIndex !== null) {
       console.log("Selected Day Index:", selectedDayIndex);
-      navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex });
+      navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex, userInfo });
     }
   }, [selectedDayIndex])
 

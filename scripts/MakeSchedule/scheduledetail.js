@@ -7,18 +7,53 @@ import {
     TouchableOpacity,
     StatusBar,
     Image,
-    ScrollView
+    ScrollView, Modal
 } from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import axios from 'axios';
 import DraggableFlatList from 'react-native-draggable-flatlist';
+import { AdvancedMarkerElement, PinElement } from '@googlemaps/markerclusterer'; // 해당 라이브러리를 가져오세요.
+import PickPlace from './pickplace';
+import GetCourse1 from './getcourse1';
+import firestore from '@react-native-firebase/firestore';
 
-const TourPlaceHome = () => {
+
+
+const TourPlaceHome = ({route}) => {
     const [pressedDay, setPressedDay] = useState(1); // 사용자가 클릭한 일자
     const [tourData, setTourData] = useState([]); // 코스 정보 상태 추가
     const [courseDetails, setCourseDetails] = useState([]); // 코스 세부정보 상태 추가
+    const [modalVisible, setModalVisible] = useState(false); // 모달 상태 추가
+    const [pickPlaceVisible, setPickPlaceVisible] = useState(false);
     const navigation = useNavigation();
+    const [scheduleByDay, setScheduleByDay] = useState(Array.from({ length: daysCount }, () => []));
+    const postsCollection = firestore().collection('plan');
+
+    // const {userInfo} = route.params;
+     // const route = useRoute(); // route 가져오기
+     const { tripName, startDate, endDate, contentid, selectedDayIndex, userInfo } = route.params;
+     console.log(userInfo)
+
+   
+    const handleCompleteSchedule = async () => {
+        console.log(userInfo)
+        try {
+          await postsCollection.add({
+            tripName: tripName, 
+            startDate: startDate, 
+            endDate: endDate, 
+            daysCount: daysCount,
+            courseDetails: courseDetails,
+            email: userInfo.email,
+          });
+    
+           navigation.navigate('end', { userInfo });
+        } catch (error) {
+          console.log(error.message);
+        }
+      };
+
 
     const handleBackButton = () => {
         navigation.goBack(); // 이전 화면으로 돌아가는 함수
@@ -28,50 +63,120 @@ const TourPlaceHome = () => {
         setPressedDay(day); // 클릭한 일자를 pressedDay로 설정
     };
 
-    const route = useRoute(); // route 가져오기
-    const { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex } = route.params;
+   
 
-    useEffect(() => {
-        console.log('Route Params:', route.params); // route.params의 값을 확인
-        console.log('Selected Day Index:', selectedDayIndex);
-    }, [route.params, selectedDayIndex]);
+      // 여행 일수 계산
+      const calculateDays = (startDate, endDate) => {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24)) + 1; // +1 to include start day
+        return diffDays;
+      };
 
-    const fetchCourseDetails = async () => {
-        try {
-            const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
-                params: {
-                    numOfRows: 10,
-                    pageNo: 1,
-                    MobileOS: 'AND',
-                    MobileApp: '또, 강릉',
-                    serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==', // 여기에 본인의 서비스 키를 입력하세요
-                    _type: 'json',
-                    contentId: contentid,
-                    contentTypeId: 25, // 관광 타입 ID
-                },
-            });
+      const daysCount = calculateDays(startDate, endDate);
 
-            // API 호출 결과에서 코스 세부 정보 추출
-            if (response.data && response.data.response) {
-                const courseData = response.data.response.body.items.item;
 
-                // Ensure courseData is an array
-                if (Array.isArray(courseData)) {
-                    setCourseDetails(courseData);
-                } else {
-                    setCourseDetails([]); // Set to empty array if not an array
-                }
-                //console.log('Course Details:', courseData); // 코스 세부정보를 콘솔에 출력
+      
+
+
+
+   const handleAddSchedule = () => {
+           setPickPlaceVisible(true); // 일정 추가 모달 열기
+       };
+
+       const handleAddCourse = () => {
+           setModalVisible(true); // 코스 추가 모달 열기
+       };
+
+
+
+const fetchCourseDetails = async () => {
+    try {
+        const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
+            params: {
+                numOfRows: 10,
+                pageNo: 1,
+                MobileOS: 'AND',
+                MobileApp: '또, 강릉',
+                serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==',
+                _type: 'json',
+                contentId: contentid,
+                contentTypeId: 25, // 관광 타입 ID
+            },
+        });
+
+        if (response.data && response.data.response) {
+            const courseData = response.data.response.body.items.item;
+
+            if (Array.isArray(courseData)) {
+                const detailsWithMap = await Promise.all(courseData.map(async (course) => {
+                    const subcontentId = course.subcontentid; // subcontentid 가져오기
+                    const subname = course.subname; // subname 가져오기
+
+                    const itemDetails = await fetchItemDetails(subcontentId); // 아이템 세부정보 가져오기
+
+                    // 아이템 세부정보에서 mapx와 mapy 가져오기
+                    const mapx = itemDetails.mapx !== undefined ? itemDetails.mapx : null;
+                    const mapy = itemDetails.mapy !== undefined ? itemDetails.mapy : null;
+
+                    return {
+                        subcontentId,
+                        subname,
+                        mapx,
+                        mapy,
+                    };
+                }));
+
+                // courseDetails 상태 업데이트
+                setCourseDetails(detailsWithMap);
+            } else {
+                setCourseDetails([]); // courseData가 배열이 아닐 경우 빈 배열로 설정
             }
-        } catch (error) {
-            console.error('Error fetching course details:', error);
-            setCourseDetails([]); // Ensure courseDetails is an array even on error
         }
-    };
+    } catch (error) {
+        console.error('Error fetching course details:', error);
+        setCourseDetails([]); // 오류 발생 시 빈 배열로 설정
+    }
+};
 
-    useEffect(() => {
+
+
+const fetchItemDetails = async (subcontentId) => {
+    try {
+        const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/detailCommon1', {
+            params: {
+                serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==',
+                MobileOS: 'AND',
+                MobileApp: '또,강릉',
+                _type: 'json',
+                contentId: subcontentId,
+                mapinfoYN: 'Y',
+            },
+        });
+
+        if (response.status === 200 && response.data.response?.body?.items?.item) {
+            const items = response.data.response.body.items.item;
+            return {
+                mapx: items[0].mapx || null,
+                mapy: items[0].mapy || null,
+            };
+        } else {
+            //console.error('No items found for subcontentId:', subcontentId);
+            return { mapx: null, mapy: null };
+        }
+    } catch (error) {
+        console.error('Error fetching item details:', error);
+        return { mapx: null, mapy: null };
+    }
+};
+
+
+useEffect(() => {
         fetchCourseDetails();
     }, [contentid]); // contentid 변경 시마다 데이터 fetch
+
+
 
 
      // Function to handle dragging
@@ -110,59 +215,191 @@ const renderItem = ({ item, index, drag, isActive }) => {
                 <MapView
                     style={styles.map}
                     initialRegion={{
-                        latitude: 37.5665, // 서울 위도 예시
-                        longitude: 126.9780, // 서울 경도 예시
+                        latitude: 37.7550, // 서울 위도 예시
+                        longitude: 128.8767, // 서울 경도 예시
                         latitudeDelta: 0.0922,
                         longitudeDelta: 0.0421,
                     }}
                 >
-                    <Marker
-                        coordinate={{ latitude: 37.5665, longitude: 126.9780 }} // 마커 위치
-                        title="서울"
-                        description="서울의 중심"
-                    />
+
+
+            {courseDetails.map(item => {
+                const latitude = item.mapy; // 위도
+                const longitude = item.mapx; // 경도
+
+                // 유효한 위도와 경도인지 체크
+                const isValidCoordinates = latitude !== null && longitude !== null && !isNaN(latitude) && !isNaN(longitude);
+
+                if (isValidCoordinates) {
+                    return (
+                        <Marker
+                            key={item.subcontentId}
+                            coordinate={{
+                                latitude: parseFloat(latitude),  // 위도를 숫자로 변환
+                                longitude: parseFloat(longitude)  // 경도를 숫자로 변환
+                            }}
+                            title={item.subname}
+                        />
+                    );
+                }
+                return null;
+            })}
+
+
                 </MapView>
             </View>
 
-            <View style={styles.dateCategoryContainer}>
-                {Array.from({ length: daysCount }, (_, index) => (
-                    <TouchableOpacity
-                        key={index + 1}
-                        onPress={() => handleDayPress(index + 1)}
-                        style={styles.group}
-                    >
-                        <Text style={[styles.dayText, pressedDay === index + 1 && styles.activeDayText]}>
-                            {index + 1}일차
-                        </Text>
-                        <View style={[styles.line, pressedDay === index + 1 && styles.activeLine]} />
-                    </TouchableOpacity>
-                ))}
-            </View>
+<View style={styles.dateCategoryContainer}>
+    {Array.from({ length: daysCount }, (_, index) => {
+       // console.log(Rendering day ${index + 1}); // Debugging log
+        return (
+            <TouchableOpacity
+                key={index + 1}
+                onPress={() => handleDayPress(index + 1)}
+                style={styles.group}
+            >
+                <Text style={[styles.dayText, pressedDay === index + 1 && styles.activeDayText]}>
+                    {index + 1}일차
+                </Text>
+                <View style={[styles.line, pressedDay === index + 1 && styles.activeLine]} />
+            </TouchableOpacity>
+        );
+    })}
+</View>
 
-<DraggableFlatList
-    data={pressedDay === selectedDayIndex ? courseDetails : []}
-    renderItem={renderItem}
-    keyExtractor={(item, index) => `${item.contentid}-${index}`} // contentid와 index 결합
-    onDragEnd={({ data }) => setCourseDetails([...data])} // 새로운 배열로 상태 업데이트
-    contentContainerStyle={styles.scrollContainer}
-/>
+
+        <DraggableFlatList
+            data={pressedDay === selectedDayIndex ? courseDetails : []}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => `${item.subcontentId}-${index}`}
+
+
+            onDragEnd={({ data }) => setCourseDetails([...data])} // 새로운 배열로 상태 업데이트
+            contentContainerStyle={styles.scrollContainer}
+        />
 
 
 
             {/* 일정추가 버튼 */}
             <View style={styles.buttonframeContainer}>
-                <TouchableOpacity style={styles.frame234}>
-                    <Text style={styles.frameText}>일정추가</Text>
-                </TouchableOpacity>
+                 <TouchableOpacity style={styles.frame234} onPress={handleAddSchedule}>
+                     <Text style={styles.frameText}>일정추가</Text>
+                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.frame234}>
-                    <Text style={styles.frameText}>코스추가</Text>
-                </TouchableOpacity>
+                 <TouchableOpacity style={styles.frame234} onPress={handleAddCourse}>
+                     <Text style={styles.frameText}>코스추가</Text>
+                 </TouchableOpacity>
 
-                <TouchableOpacity style={styles.frame236}>
-                    <Text style={styles.frameTextWhite}>일정완료</Text>
-                </TouchableOpacity>
+                 <TouchableOpacity style={styles.frame236} onPress={handleCompleteSchedule}>
+                     <Text style={styles.frameTextWhite}>일정완료</Text>
+                 </TouchableOpacity>
+             </View>
+
+
+        {/* 코스 추가 모달 */}
+            <Modal
+               // animationType="slide"
+               // transparent={true}
+                visible={modalVisible}
+                onRequestClose={() => setModalVisible(false)} // 모달 닫기
+            >
+                <View style={styles.modalView}>
+                    <GetCourse1 onClose={() => setModalVisible(false)} />
+                </View>
+            </Modal>
+
+            {/* 일정 추가 모달 */}
+            <Modal
+                //animationType="slide"
+                //transparent={true}
+                visible={pickPlaceVisible}
+                onRequestClose={() => setPickPlaceVisible(false)} // 모달 닫기
+            >
+                <View style={styles.modalView}>
+                    <PickPlace onClose={() => setPickPlaceVisible(false)} />
+                </View>
+            </Modal>
+        </View>
+    );
+
+
+
+    return (
+        <View style={styles.container}>
+            <StatusBar translucent={true} backgroundColor="transparent" barStyle="dark-content" />
+            <View style={styles.headerContainer}>
+                <View style={styles.header}>
+                    <TouchableOpacity onPress={handleBackButton} style={styles.backButtonContainer}>
+                        <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
+                    </TouchableOpacity>
+                    <Text style={styles.headerText}>일정정하기</Text>
+                    <TouchableOpacity style={styles.actionButtonContainer} />
+                </View>
             </View>
+
+            <View horizontal style={styles.imageView}>
+                <MapView
+                    style={styles.map}
+                    initialRegion={{
+                        latitude: 37.7550, // 서울 위도 예시
+                        longitude: 128.8767, // 서울 경도 예시
+                        latitudeDelta: 0.0922,
+                        longitudeDelta: 0.0421,
+                    }}
+                >
+                    {dailyCourseDetails[pressedDay - 1]?.map(item => {
+                        const latitude = item.mapy;
+                        const longitude = item.mapx;
+
+                        if (latitude && longitude) {
+                            return (
+                                <Marker
+                                    key={item.subcontentId}
+                                    coordinate={{
+                                        latitude: parseFloat(latitude),
+                                        longitude: parseFloat(longitude),
+                                    }}
+                                    title={item.subname}
+                                />
+                            );
+                        }
+                        return null;
+                    })}
+                </MapView>
+
+            </View>
+
+<View style={styles.dateCategoryContainer}>
+    {Array.from({ length: daysCount }, (_, index) => {
+       // console.log(Rendering day ${index + 1}); // Debugging log
+        return (
+            <TouchableOpacity
+                key={index + 1}
+                onPress={() => handleDayPress(index + 1)}
+                style={styles.group}
+            >
+                <Text style={[styles.dayText, pressedDay === index + 1 && styles.activeDayText]}>
+                    {index + 1}일차
+                </Text>
+                <View style={[styles.line, pressedDay === index + 1 && styles.activeLine]} />
+            </TouchableOpacity>
+        );
+    })}
+</View>
+
+
+<DraggableFlatList
+    data={dailyCourseDetails[pressedDay - 1] || []} // pressedDay에 맞는 데이터 표시
+    renderItem={renderItem}
+    keyExtractor={(item, index) => `${item.subcontentId}-${index}`}
+
+    onDragEnd={({ data }) => {
+        const updatedDailyDetails = [...dailyCourseDetails];
+        updatedDailyDetails[pressedDay - 1] = data;
+        setDailyCourseDetails(updatedDailyDetails); // 변경된 데이터 업데이트
+    }}
+    contentContainerStyle={styles.scrollContainer}
+/>
         </View>
     );
 };
@@ -305,6 +542,10 @@ const styles = StyleSheet.create({
         fontSize: 15,
         color: '#000000',
     },
+     modalView: {
+            flex: 1,
+
+        },
 });
 
 export default TourPlaceHome;
