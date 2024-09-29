@@ -16,11 +16,9 @@ import DraggableFlatList from 'react-native-draggable-flatlist';
 import { AdvancedMarkerElement, PinElement } from '@googlemaps/markerclusterer'; // 해당 라이브러리를 가져오세요.
 import PickPlace from './pickplace';
 import GetCourse1 from './getcourse1';
-import firestore from '@react-native-firebase/firestore';
 
 
-
-const TourPlaceHome = ({route}) => {
+const TourPlaceHome = () => {
     const [pressedDay, setPressedDay] = useState(1); // 사용자가 클릭한 일자
     const [tourData, setTourData] = useState([]); // 코스 정보 상태 추가
     const [courseDetails, setCourseDetails] = useState([]); // 코스 세부정보 상태 추가
@@ -28,31 +26,8 @@ const TourPlaceHome = ({route}) => {
     const [pickPlaceVisible, setPickPlaceVisible] = useState(false);
     const navigation = useNavigation();
     const [scheduleByDay, setScheduleByDay] = useState(Array.from({ length: daysCount }, () => []));
-    const postsCollection = firestore().collection('plan');
+    const [daysArray, setDaysArray] = useState({ 1: [], 2: [], 3: [] }); // push오류 해결 // 초기배열 (이거 해도 getcourse1 모달창 갔다ㅇ면 지워짐)
 
-    // const {userInfo} = route.params;
-     // const route = useRoute(); // route 가져오기
-     const { tripName, startDate, endDate, contentid, selectedDayIndex, userInfo } = route.params;
-     console.log(userInfo)
-
-   
-    const handleCompleteSchedule = async () => {
-        console.log(userInfo)
-        try {
-          await postsCollection.add({
-            tripName: tripName, 
-            startDate: startDate, 
-            endDate: endDate, 
-            daysCount: daysCount,
-            courseDetails: courseDetails,
-            email: userInfo.email,
-          });
-    
-           navigation.navigate('end', { userInfo });
-        } catch (error) {
-          console.log(error.message);
-        }
-      };
 
 
     const handleBackButton = () => {
@@ -63,7 +38,9 @@ const TourPlaceHome = ({route}) => {
         setPressedDay(day); // 클릭한 일자를 pressedDay로 설정
     };
 
-   
+    const route = useRoute(); // route 가져오기
+    const { tripName, startDate, endDate, contentid, selectedDayIndex } = route.params;
+
 
       // 여행 일수 계산
       const calculateDays = (startDate, endDate) => {
@@ -77,7 +54,6 @@ const TourPlaceHome = ({route}) => {
       const daysCount = calculateDays(startDate, endDate);
 
 
-      
 
 
 
@@ -89,56 +65,58 @@ const TourPlaceHome = ({route}) => {
            setModalVisible(true); // 코스 추가 모달 열기
        };
 
+        // 일정완료 버튼 클릭 시 호출되는 함수
+        const handleCompleteSchedule = () => {
+            Alert.alert('일정완료 버튼이 클릭되었습니다!');
+            // 일정 완료 로직을 여기에 추가
+        };
 
 
 const fetchCourseDetails = async () => {
-    try {
-        const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
-            params: {
-                numOfRows: 10,
-                pageNo: 1,
-                MobileOS: 'AND',
-                MobileApp: '또, 강릉',
-                serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==',
-                _type: 'json',
-                contentId: contentid,
-                contentTypeId: 25, // 관광 타입 ID
-            },
+  try {
+    const response = await axios.get('http://apis.data.go.kr/B551011/KorService1/detailInfo1', {
+      params: {
+        numOfRows: 10,
+        pageNo: 1,
+        MobileOS: 'AND',
+        MobileApp: '또, 강릉',
+        serviceKey: 'FQpciKW/JvtOmZVINTmwg2cOAZ2XZqKAZAluhDuoWqQXqDBoJFK48P+uEyIcNqIYPYT6HJzKxdYXuwD9nOX+CA==',
+        _type: 'json',
+        contentId: contentid,
+        contentTypeId: 25,
+      },
+    });
+
+    if (response.data && response.data.response) {
+      const courseData = response.data.response.body.items.item;
+
+      if (Array.isArray(courseData)) {
+        const detailsWithMap = await Promise.all(courseData.map(async (course) => {
+          const subcontentId = course.subcontentid;
+          const subname = course.subname;
+          const itemDetails = await fetchItemDetails(subcontentId);
+          const mapx = itemDetails.mapx || null;
+          const mapy = itemDetails.mapy || null;
+
+          return { subcontentId, subname, mapx, mapy };
+        }));
+
+        // 날짜별로 데이터를 저장
+        setScheduleByDay(prevState => {
+          const updatedState = [...prevState];
+          updatedState[pressedDay - 1].push(...detailsWithMap);
+          return updatedState;
         });
 
-        if (response.data && response.data.response) {
-            const courseData = response.data.response.body.items.item;
-
-            if (Array.isArray(courseData)) {
-                const detailsWithMap = await Promise.all(courseData.map(async (course) => {
-                    const subcontentId = course.subcontentid; // subcontentid 가져오기
-                    const subname = course.subname; // subname 가져오기
-
-                    const itemDetails = await fetchItemDetails(subcontentId); // 아이템 세부정보 가져오기
-
-                    // 아이템 세부정보에서 mapx와 mapy 가져오기
-                    const mapx = itemDetails.mapx !== undefined ? itemDetails.mapx : null;
-                    const mapy = itemDetails.mapy !== undefined ? itemDetails.mapy : null;
-
-                    return {
-                        subcontentId,
-                        subname,
-                        mapx,
-                        mapy,
-                    };
-                }));
-
-                // courseDetails 상태 업데이트
-                setCourseDetails(detailsWithMap);
-            } else {
-                setCourseDetails([]); // courseData가 배열이 아닐 경우 빈 배열로 설정
-            }
-        }
-    } catch (error) {
-        console.error('Error fetching course details:', error);
-        setCourseDetails([]); // 오류 발생 시 빈 배열로 설정
+        // 배열 내용 콘솔에 출력
+        console.log(scheduleByDay);
+      }
     }
+  } catch (error) {
+    console.error('Error fetching course details:', error);
+  }
 };
+
 
 
 
@@ -173,13 +151,11 @@ const fetchItemDetails = async (subcontentId) => {
 
 
 useEffect(() => {
-        fetchCourseDetails();
-    }, [contentid]); // contentid 변경 시마다 데이터 fetch
+  fetchCourseDetails();
+}, [pressedDay]);
 
 
-
-
-     // Function to handle dragging
+// Function to handle dragging
 const renderItem = ({ item, index, drag, isActive }) => {
  // item의 복사본 생성
     const newItem = { ...item }; // 얕은 복사

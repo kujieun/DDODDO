@@ -44,16 +44,6 @@ import TipDetail from './screens/TipDetail';
 import ARScreen from './scripts/ARScreen';
 import Tutorial from './scripts/Game/Tutorial';
 
-//일정
-import home from './scripts/MakeSchedule/home';
-import setdate from './scripts/MakeSchedule/setdate';
-import setdate1 from './scripts/MakeSchedule/setdate1';
-import courseyn from './scripts/MakeSchedule/courseyn';
-import getcourse from './scripts/MakeSchedule/getcourse';
-import addcourseone from './scripts/MakeSchedule/addcourseone';
-import scheduledetail from './scripts/MakeSchedule/scheduledetail';
-import end from './scripts/MakeSchedule/end';
-
 const Stack = createStackNavigator();
 
 const App = () => {
@@ -106,16 +96,6 @@ const App = () => {
         {/* AR, 게임 */}
         <Stack.Screen name="ARScreen" component={ARScreen} />
         <Stack.Screen name="Tutorial" component={Tutorial} />
-
-        {/* 일정 */}
-        <Stack.Screen name="home" component={home} />
-        <Stack.Screen name="setdate" component={setdate} />
-        <Stack.Screen name="setdate1" component={setdate1} />
-        <Stack.Screen name="courseyn" component={courseyn} />
-        <Stack.Screen name="getcourse" component={getcourse} />
-        <Stack.Screen name="addcourseone" component={addcourseone} />
-        <Stack.Screen name="scheduledetail" component={scheduledetail} />
-        <Stack.Screen name="end" component={end} />
 
       </Stack.Navigator>
     </NavigationContainer>

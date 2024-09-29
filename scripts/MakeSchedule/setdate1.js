@@ -11,8 +11,7 @@ const SignupScreen = () => {
   const [dateChanged, setDateChanged] = useState(false); // 날짜 변경 상태 추가
   const navigation = useNavigation();
   const route = useRoute(); // route 가져오기
-  const { tripName, userInfo } = route.params;
-  console.log(userInfo)
+  const { tripName } = route.params;
 
       const handleBackButton = () => {
         navigation.goBack(); // 이전 화면으로 돌아가는 함수
@@ -137,7 +136,7 @@ if (newSelectedDays.length > 0) {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() =>  navigation.navigate('courseyn', {tripName, startDate, endDate ,userInfo})}
+        onPress={() =>  navigation.navigate('courseyn', {tripName, startDate, endDate })}
       >
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>
