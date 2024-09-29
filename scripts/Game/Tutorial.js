@@ -229,13 +229,39 @@ const handleCategoryPress = (category) => {
       };
 
       const handlePurchase = () => {
-        console.log(`Item purchased: ${selectedItemId}`);
-        // 아이템 구매 로직 추가
-        setSilverCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0));
-                // 구매한 아이템 ID를 상태에 추가
-                setPurchasedItems(prevItems => [...prevItems, selectedItemId]);
-                // console.log(purchasedItems)
-                setModalVisible(false);
+        // const selectedItem = item[activeCategory].find(i => i.id === selectedItemId);
+
+        const silvercoinCost = (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0);  // 실버 코인 가격
+        const goldcoinCost = (item[activeCategory].find(i => i.id === selectedItemId)?.goldcoin || 0);      // 골드 코인 가격
+
+        // 실버 코인으로 구매하는 경우
+        if (silvercoinCost > 0) {
+          if (silverCoinCount >= silvercoinCost) {
+            // 코인이 충분하면 구매 가능
+            setSilverCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0));
+          } else {
+            setErrorMessage('코인부족');  // 실버 코인이 부족할 경우 메시지
+            return;
+          }
+        }
+
+        // 골드 코인으로 구매하는 경우
+        if (goldcoinCost > 0) {
+          if (goldCoinCount >= goldcoinCost) {
+            // 코인이 충분하면 구매 가능
+            setGoldCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.goldcoin || 0));  // 골드 코인 차감
+          } else {
+            setErrorMessage('코인부족');  // 골드 코인이 부족할 경우 메시지
+            return;
+          }
+        }
+
+        // 구매한 아이템 ID를 상태에 추가
+        setPurchasedItems(prevItems => [...prevItems, selectedItemId]);
+        setModalVisible(false);
+        setErrorMessage('확인');  // 구매 성공 시, 에러 메시지 초기화
+
+
       };
 
       /*==============미션 가져오기==============*/

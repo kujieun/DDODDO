@@ -75,4 +75,4 @@ import Tip from './screens/Tip'
 
 import {name as appName} from './app.json';
 
-AppRegistry.registerComponent(appName, () => TestNavigation_makeschedule);
+AppRegistry.registerComponent(appName, () => App);
