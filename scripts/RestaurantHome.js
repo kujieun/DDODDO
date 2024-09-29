@@ -2,6 +2,7 @@ import React, { useState, useEffect ,useMemo} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
 import { useCurrentLocation } from './MyLocation';
+import firestore from '@react-native-firebase/firestore';
 
 const categories = [
   { id: 1, label: '전체', code: null },
@@ -13,7 +14,7 @@ const categories = [
   { id: 7, label: '카페', code: 'A05020900' },
 ];
 
-const SignupScreen = () => {
+const SignupScreen = ({route}) => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,10 @@ const SignupScreen = () => {
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+
+  const { userInfo } = route.params;
+  const postsCollection = firestore().collection('location');
+  const [likedStates, setLikedStates] = useState({});
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
@@ -104,12 +109,78 @@ const fetchTourData = async () => {
     fetchTourData(pageNo);
   }, [pageNo, selectedCategory]);
 
-  const handleLikePress = (id) => {
-    setLikedItems(prev => ({
+  // 좋아요 기능 처리 함수
+  const handleLikePress = async (item) => {
+    const isLiked = likedStates[item.contentid] || false;
+
+    setLikedItems((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [item.contentid]: !isLiked,
     }));
+    // like 상태 반전
+    setLikedStates((prev) => ({
+      ...prev,
+      [item.contentid]: !isLiked,
+    }));
+  
+    try {
+      // item.contentid와 userInfo.email이 정의되어 있는지 확인 필요
+      if (!item.contentid || !userInfo.email) {
+        console.error('Invalid contentId or user email');
+        return;
+      }
+  
+      const locationRef = postsCollection
+        .where('contentId', '==', item.contentid) // 필드명이 정확한지 확인
+        .where('email', '==', userInfo.email); // 필드명이 정확한지 확인
+  
+      const snapshot = await locationRef.get();
+  
+      if (!isLiked) {
+        // 좋아요 상태라면 Firestore에 추가
+        if (snapshot.empty) {
+          await postsCollection.add({
+            contentId: item.contentid,
+            title: item.title,
+            image: item.image,
+            email: userInfo.email,
+            liked: true,
+          });
+        }
+      } else {
+        // 좋아요 취소 상태라면 Firestore에서 삭제
+        snapshot.forEach(async (doc) => {
+          await postsCollection.doc(doc.id).delete();
+        });
+      }
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
   };
+  
+
+  // 좋아요 상태 불러오기
+  useEffect(() => {
+    const fetchLikedStates = async () => {
+      try {
+        const snapshot = await postsCollection
+          .where('email', '==', userInfo.email) // 사용자 이메일로 조회
+          .get();
+
+        const likes = {};
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          likes[data.contentId] = data.liked; // 해당 contentId의 liked 상태 저장
+        });
+
+        setLikedStates(likes); // 불러온 liked 상태를 상태로 설정
+      } catch (error) {
+        console.error('Error fetching liked states:', error);
+      }
+    };
+
+    fetchLikedStates(); // 페이지 로드 시 liked 상태 불러오기
+  }, []);
 
   const loadMoreData = () => {
     if (!loading && tourData.length < totalCount) {
@@ -147,11 +218,11 @@ const fetchTourData = async () => {
         </View>
       </View>
       <TouchableOpacity
-        onPress={() => handleLikePress(item.contentid)}
+        onPress={() => handleLikePress(item)}
         style={styles.actionButton}
       >
         <Image
-          source={likedItems[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+          source={likedStates[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
           style={styles.actionIcon}
         />
       </TouchableOpacity>
