@@ -2,8 +2,10 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, TextInput } from 'react-native';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
-const SignupScreen = () => {
+const SignupScreen = ({route}) => {
 const navigation = useNavigation();
+const {userInfo} = route.params;
+
   const handleBackButton = () => {
     navigation.goBack(); // 이전 화면으로 돌아가는 함수
   };
@@ -44,7 +46,7 @@ const navigation = useNavigation();
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() =>  navigation.navigate('setdate1', {tripName})}
+        onPress={() =>  navigation.navigate('setdate1', {tripName, userInfo})}
       >
         <Text style={styles.submitButtonText}>다음</Text>
       </TouchableOpacity>

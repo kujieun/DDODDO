@@ -3,6 +3,7 @@ import { View, Text, Image, StyleSheet, TouchableOpacity, FlatList } from 'react
 import firestore from '@react-native-firebase/firestore';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native'; 
+// import firestore from '@react-native-firebase/firestore';
 
 const MyPage = ({ route }) => {
   
@@ -10,6 +11,10 @@ const MyPage = ({ route }) => {
   const [likedLocations, setLikedLocations] = useState([]);
   const navigation = useNavigation();
   const { userInfo } = route.params;
+  const [tripName, setTripName] = useState('');
+const [startDate, setStartDate] = useState('');
+const [endDate, setEndDate] = useState('');
+const [courseDetails, setCourseDetails] = useState([]);
 
    // 추가한 상태 (아이콘 변경 관리)
    const [selectedTab, setSelectedTab] = useState({
@@ -46,12 +51,30 @@ const MyPage = ({ route }) => {
     fetchUserPosts();
   }, [userInfo.email]);
 
- // Firestore에서 사용자가 좋아요한 장소 데이터 가져오기
- 
 
-  // likedLocations의 contentid로 API에서 상세 데이터 가져오기
+  
+  // Firestore에서 일정 가져오기
+useEffect(() => {
+  const fetchUserPlans = async () => {
+    try {
+      const plansCollection = await firestore()
+        .collection('plan') // 일정 컬렉션
+        .where('email', '==', userInfo.email) // 이메일이 일치하는 일정만 필터링
+        .get();
+
+      const userPlans = plansCollection.docs.map((doc) => doc.data());
+      setCourseDetails(userPlans); // 모든 일정 데이터를 설정
+    } catch (error) {
+      console.error('Error fetching plans: ', error);
+    }
+  };
+
+  fetchUserPlans();
+}, [userInfo.email]);
+
   
 
+ 
   
   
   // 이미지 선택 핸들러
@@ -113,28 +136,49 @@ const MyPage = ({ route }) => {
     </View>
   );
 
-  // like한 location 목록 렌더링
-  const renderLocation = ({ item }) => (
-    <View style={styles.postContainer}>
-      <Text style={styles.postTitle}>{item.title}</Text>
-      <Text style={styles.postContent}>{item.description}</Text>
-  
-      {/* location 이미지 렌더링 */}
-      {item.image ? (
-        <Image
-          source={{ uri: item.image }}
-          style={styles.postImage}
-        />
-      ) : (
-        <View />
-      )}
-  
-      <View style={styles.line44} />
-    </View>
-  );
-  
-  
-  
+    // like한 location 목록 렌더링
+    const renderLocation = ({ item }) => (
+        <View style={styles.locationItem}>
+            
+            {/* location 이미지 렌더링 */}
+            <Image
+                source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+                style={styles.locationImage}
+            />
+    
+            <View style={styles.locationInfo}>
+                <Text style={styles.locationTitle}>{item.title}</Text>
+                <Text style={styles.locationAddress}>
+                    {item.address}
+                </Text>
+    
+                <View style={styles.ratingRow}>
+                    <View style={styles.starRating}>
+                        <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
+                        <Text style={styles.ratingText}>0.0 (0)</Text>
+                    </View>
+                    <View style={styles.distanceRow}>
+                        <View style={styles.dot} />
+                        <Text style={styles.distanceText}>{item.address}</Text>
+                    </View>
+                </View>
+            </View>
+        </View>
+    );
+
+
+   // 일정 목록 렌더링
+const renderPlan = ({ item }) => (
+  <View style={styles.scheduleContainer}>
+    <Text style={styles.tripName}>{item.tripName}</Text>
+    <Text style={styles.dateTextContainer}>
+      {`시작일: ${item.startDate} 종료일: ${item.endDate}`}
+    </Text>
+    {/* <View style={styles.line44} /> */}
+  </View>
+
+);
+
 
   return (
     <View style={styles.container}>
@@ -217,6 +261,20 @@ const MyPage = ({ route }) => {
           ListEmptyComponent={<Text>좋아요한 장소가 없습니다.</Text>}
         />
       )}
+
+      {/* 사용자의 일정 표시 */}
+{selectedTab.plan && (
+  <View style={{ width: '100%', marginBottom: 210 }}>
+    <FlatList
+      data={courseDetails} // 업데이트된 데이터
+      renderItem={renderPlan}
+      keyExtractor={(item, index) => index.toString()}
+      ListEmptyComponent={<Text>일정이 없습니다.</Text>}
+    />
+  </View>
+)}
+
+
     </View>
   );
 };
@@ -371,6 +429,106 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: 'contain',  // 이미지를 비율에 맞게
   },
+
+  locationItem: {
+    flexDirection: 'row',
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    padding: 10,
+    backgroundColor: '#FFFFFF',
+    borderRadius: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 3,
+    marginBottom: 10,
+},
+locationImage: {
+    width: 90,
+    height: 90,
+    borderRadius: 10,
+    backgroundColor: '#D9D9D9',
+},
+locationInfo: {
+    flex: 1,
+    marginLeft: 12,
+    justifyContent: 'center',
+},
+locationTitle: {
+    fontSize: 16,
+    fontWeight: '500',
+    color: '#111111',
+},
+locationAddress: {
+    fontSize: 12,
+    color: '#646C79',
+    marginTop: 4,
+},
+ratingRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+},
+starRating: {
+    flexDirection: 'row',
+    alignItems: 'center',
+},
+distanceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 8,
+},
+dot: {
+    width: 4,
+    height: 4,
+    backgroundColor: '#D9D9D9',
+    borderRadius: 2,
+},
+distanceText: {
+    fontSize: 10,
+    lineHeight: 14,
+    color: '#B8B6C3',
+    marginLeft: 4,
+},
+scheduleContainer: {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+  padding: 25,
+  // position: 'absolute',
+  height: 131,
+  left: 20,
+  right: 20,
+  // top: 180,
+  backgroundColor: '#DCEFFF',
+  borderRadius: 20,
+  elevation: 2,
+  marginBottom: 20,
+  width: '90%',
+},
+tripName: {
+  fontFamily: 'Pretendard-SemiBold',
+  fontSize: 16,
+  lineHeight: 24,
+  letterSpacing: -0.5,
+  color: '#111111',
+  marginBottom: 2,
+},
+dateTextContainer: {
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'flex-start',
+},
+dateText: {
+  fontFamily: 'Pretendard-Regular',
+  fontSize: 14,
+  lineHeight: 20,
+  letterSpacing: -0.5,
+  color: '#646C79',
+},
+
 });
 
 export default MyPage;
