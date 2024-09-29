@@ -182,8 +182,12 @@ const fetchTourData = async () => {
         if (snapshot.empty) {
           await postsCollection.add({
             contentId: item.contentid,
+            title: item.title,
+            image: item.image,
             email: userInfo.email,
             liked: true,
+            address: item.address,
+            distance: calculateDistance(item),
           });
         }
       } else {
@@ -270,7 +274,7 @@ const fetchTourData = async () => {
         style={styles.actionButton}
       >
         <Image
-          source={likedItems[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+          source={likedStates[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
           style={styles.actionIcon}
         />
       </TouchableOpacity>
