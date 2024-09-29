@@ -26,25 +26,6 @@ const MyPage = ({ route }) => {
     navigation.navigate('SignupNickname', {userInfo});
   }
 
-  // Firestore에서 사용자가 좋아요한 장소 데이터 가져오기
-    useEffect(() => {
-        const fetchLikedLocations = async () => {
-        try {
-            const likedCollection = await firestore()
-            .collection('location') // 좋아요한 장소 컬렉션
-            .where('email', '==', userInfo.email) // 이메일이 일치하는 장소만 필터링
-            .get();
-    
-            const likedData = likedCollection.docs.map((doc) => doc.data());
-            setLikedLocations(likedData);
-        } catch (error) {
-            console.error('Error fetching liked locations: ', error);
-        }
-        };
-    
-        fetchLikedLocations();
-    }, [userInfo.email]);
-
 
   // Firestore에서 해당 유저의 게시글 가져오기
   useEffect(() => {
@@ -65,11 +46,10 @@ const MyPage = ({ route }) => {
     fetchUserPosts();
   }, [userInfo.email]);
 
-  
-
+ // Firestore에서 사용자가 좋아요한 장소 데이터 가져오기
  
 
-
+  // likedLocations의 contentid로 API에서 상세 데이터 가져오기
   
 
   
@@ -133,35 +113,25 @@ const MyPage = ({ route }) => {
     </View>
   );
 
-    // like한 location 목록 렌더링
-    const renderLocation = ({ item }) => (
-        <View style={styles.locationItem}>
-            
-            {/* location 이미지 렌더링 */}
-            <Image
-                source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
-                style={styles.locationImage}
-            />
-    
-            <View style={styles.locationInfo}>
-                <Text style={styles.locationTitle}>{item.title}</Text>
-                <Text style={styles.locationAddress}>
-                    {item.address}
-                </Text>
-    
-                <View style={styles.ratingRow}>
-                    <View style={styles.starRating}>
-                        <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
-                        <Text style={styles.ratingText}>0.0 (0)</Text>
-                    </View>
-                    <View style={styles.distanceRow}>
-                        <View style={styles.dot} />
-                        <Text style={styles.distanceText}>{item.address}</Text>
-                    </View>
-                </View>
-            </View>
-        </View>
-    );
+  // like한 location 목록 렌더링
+  const renderLocation = ({ item }) => (
+    <View style={styles.postContainer}>
+      <Text style={styles.postTitle}>{item.title}</Text>
+      <Text style={styles.postContent}>{item.description}</Text>
+  
+      {/* location 이미지 렌더링 */}
+      {item.image ? (
+        <Image
+          source={{ uri: item.image }}
+          style={styles.postImage}
+        />
+      ) : (
+        <View />
+      )}
+  
+      <View style={styles.line44} />
+    </View>
+  );
   
   
   
@@ -240,14 +210,12 @@ const MyPage = ({ route }) => {
 
         {/* 사용자가 like한 location 정보 표시 */}
         {selectedTab.location && (
-        <View style={{ width: '100%', marginBottom: 210, }}>
-            <FlatList
-            data={likedLocations}
-            renderItem={renderLocation}
-            keyExtractor={(item) => item.contentId.toString()}
-            ListEmptyComponent={<Text>좋아요한 장소가 없습니다.</Text>}
-            />
-         </View>
+        <FlatList
+          data={likedLocations}
+          renderItem={renderLocation}
+          keyExtractor={(item) => item.contentId.toString()}
+          ListEmptyComponent={<Text>좋아요한 장소가 없습니다.</Text>}
+        />
       )}
     </View>
   );
@@ -403,69 +371,6 @@ const styles = StyleSheet.create({
     height: 100,
     resizeMode: 'contain',  // 이미지를 비율에 맞게
   },
-  locationItem: {
-    flexDirection: 'row',
-    flex: 1,
-    width: '100%',
-    alignItems: 'center',
-    padding: 10,
-    backgroundColor: '#FFFFFF',
-    borderRadius: 10,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 3,
-    marginBottom: 10,
-},
-locationImage: {
-    width: 90,
-    height: 90,
-    borderRadius: 10,
-    backgroundColor: '#D9D9D9',
-},
-locationInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'center',
-},
-locationTitle: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#111111',
-},
-locationAddress: {
-    fontSize: 12,
-    color: '#646C79',
-    marginTop: 4,
-},
-ratingRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-},
-starRating: {
-    flexDirection: 'row',
-    alignItems: 'center',
-},
-distanceRow: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 8,
-},
-dot: {
-    width: 4,
-    height: 4,
-    backgroundColor: '#D9D9D9',
-    borderRadius: 2,
-},
-distanceText: {
-    fontSize: 10,
-    lineHeight: 14,
-    color: '#B8B6C3',
-    marginLeft: 4,
-},
-
 });
 
 export default MyPage;

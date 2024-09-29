@@ -20,7 +20,7 @@ const Community = ({route}) => {
     }
 
     const gotoDetailPage = (post) => {
-      navigation.navigate('CommunityDetail', { userInfo, post });
+      navigation.navigate('CommunityDetail', { post });
     };
     
  
@@ -175,15 +175,12 @@ const renderItem = ({ item }) => {
                         />
                     )}
                     keyExtractor={(item, index) => index.toString()}
-                    // horizontal
-                    numColumns={3}  // 2열로 설정
-                    initialNumToRender={6}  // 초기에 렌더링할 항목 수
-                    // showsHorizontalScrollIndicator={false}
+                    horizontal
+                    showsHorizontalScrollIndicator={false}
                 />
             ) : (
               <View />
             )}
-
 
             {/* 태그 */}
             <View style={styles.tagsContainer}>
@@ -436,12 +433,11 @@ const styles = StyleSheet.create({
   nickname: {
     fontFamily: 'Pretendard',
     fontStyle: 'normal',
-    fontWeight: '700',
-    fontSize: 14,
+    fontWeight: '600',
+    fontSize: 15,
     lineHeight: 22,
     color: '#111111',
-    marginBottom: 8,
-    marginLeft: 5,
+    marginBottom: 10,
   },
   description: {
     fontFamily: 'Pretendard',
@@ -599,8 +595,6 @@ postImage: {
   height: 100,
   resizeMode: 'cover', 
   marginRight: 10, 
-  marginTop: 10, 
-  borderRadius: 10,
 },
 });
 
