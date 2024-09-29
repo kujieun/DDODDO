@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useNavigation, useRoute  } from '@react-navigation/native';
 
-const SignupScreen = () => {
+const Courseyn = () => {
     const navigation = useNavigation();
       const handleBackButton = () => {
         navigation.goBack(); // 이전 화면으로 돌아가는 함수
@@ -42,7 +42,7 @@ const SignupScreen = () => {
       {/* Submit 버튼 */}
             <TouchableOpacity
               style={styles.noButton}
-              onPress={() => { /* 제출 버튼 클릭 시 실행될 동작 */ }}
+              onPress={() =>  navigation.navigate('scheduledetail', {tripName, startDate, endDate })}
             >
               <Text style={styles.noButtonText}>괜찮아요, 직접 만들게요!</Text>
             </TouchableOpacity>
@@ -129,4 +129,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SignupScreen;
+export default Courseyn;

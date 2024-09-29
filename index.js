@@ -28,11 +28,14 @@ import TourPlaceHome from './scripts/TourPlaceHome'; // 추천 여행지
 
 /*----------------------일정 정하기-------------------------------*/
 import home from './scripts/MakeSchedule/home'; // 일정정하기 홈
-import setdate from './scripts/MakeSchedule/setdate'; // 일정정하기 - 날짜
-import setdate1 from './scripts/MakeSchedule/setdate1'; // 일정정하기 - 날짜1
-import courseyn from './scripts/MakeSchedule/courseyn'; // 일정정하기 - 날짜1
-import getcourse from './scripts/MakeSchedule/getcourse'; // 일정정하기 - 날짜1
-import scheduledetail from './scripts/MakeSchedule/scheduledetail'; // 일정정하기 - 날짜1
+import setdate from './scripts/MakeSchedule/setdate'; // 이름 정하기
+import setdate1 from './scripts/MakeSchedule/setdate1'; // 달력
+//import setstyle from './scripts/MakeSchedule/setstyle'; // 여행 스타일 카테고리
+import courseyn from './scripts/MakeSchedule/courseyn'; // 코스 추천 여부
+import getcourse from './scripts/MakeSchedule/getcourse'; // 추천 코스 제공
+import scheduledetail from './scripts/MakeSchedule/scheduledetail'; // 본격 일정 정하기
+import pickplace from './scripts/MakeSchedule/pickplace'; // 본격 일정 정하기
+import end from './scripts/MakeSchedule/end'; // 본격 일정 정하기
 
 /*---------------------추천코스-------------------------------*/
 import Coursehome from './scripts/Course/Coursehome';

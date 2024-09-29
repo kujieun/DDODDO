@@ -26,14 +26,14 @@ const SignupScreen = () => {
 
 
 
-  const daysArray = Array.from({ length: daysCount }, (_, i) => `${i + 1}일차`);
+
   const [selectedDayIndex, setSelectedDayIndex] = useState(null); // 선택된 일자의 인덱스
 
  // selectedDayIndex가 변경될 때마다 콘솔에 출력
   useEffect(() => {
     if (selectedDayIndex !== null) {
       console.log("Selected Day Index:", selectedDayIndex);
-      navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex });
+      //navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex });
     }
   }, [selectedDayIndex])
 
@@ -71,45 +71,34 @@ const SignupScreen = () => {
         </View>
       </View>
 
-      <Text style={styles.titleText}>코스를 어디에 추가하시나요?</Text>
-        <TouchableOpacity
-          style={styles.frame280}
-          onPress={() => {
+      <Text style={styles.titleText}>여행 예정 일정</Text>
 
-          }}
-        >
-          <Text style={styles.subTitleText}>새로운 일정 만들기</Text>
-        </TouchableOpacity>
 
-      <Text style={{ fontFamily: 'Pretendard-SemiBold', fontSize: 15, top: 226, left: 20, color: '#000000' }}>
-        내 일정
-      </Text>
+{/* 여행 일정 컨테이너 */}
+<View style={styles.scheduleContainer}>
+  <Text style={styles.tripName}>{tripName}</Text>
+  <View style={styles.dateTextContainer}>
+    <Text style={styles.dateText}>{`${startDate}~${endDate}`}</Text>
 
-    {/* 여행 일정 컨테이너 */}
-    <View style={styles.scheduleContainer}>
-      <Text style={styles.tripName}>{tripName}</Text>
-      <View style={styles.dateTextContainer}>
-        <Text style={styles.dateText}>{`${startDate}~${endDate}`}</Text>
-        <View style={styles.daysCountContainer}>
-          {daysArray && daysArray.length > 0 ? (
-            daysArray.map((day, index) => (
-              <TouchableOpacity
-                key={index}
-                style={[styles.dayBox, { width: getDayBoxWidth(daysArray.length) }]} // Adjust width
-                onPress={() => {
-                  setSelectedDayIndex(index+1); // 선택된 인덱스 저장
-                  navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex });
-                }}
-              >
-                <Text style={styles.dayText}>{day}</Text>
-              </TouchableOpacity>
-            ))
-          ) : (
-            <Text style={styles.noDaysText}>일정이 없습니다.</Text> // 비어있는 경우 처리
-          )}
-        </View>
-      </View>
-    </View>
+    {daysArray && daysArray.length > 0 ? (
+      daysArray.map((day, index) => (
+        <Text key={index} style={styles.dayText}>{day}</Text> // 각 날짜를 텍스트로 표시
+      ))
+    ) : (
+      <Text style={styles.noDaysText}>일정이 없습니다.</Text> // 비어있는 경우 처리
+    )}
+  </View>
+</View>
+
+
+    <TouchableOpacity
+      style={styles.submitButton} // submit 대신 submitButton으로 수정
+      onPress={() => navigation.navigate('courseyn', {tripName, startDate, endDate })}
+    >
+      <Text style={styles.submitButtonText}>새로운 일정 만들기</Text>
+    </TouchableOpacity>
+
+
   </View>
 );
 };
@@ -199,7 +188,7 @@ const styles = StyleSheet.create({
     height: 131,
     left: 20,
     right: 20,
-    top: 263,
+    top: 180,
     backgroundColor: '#DCEFFF',
     borderRadius: 20,
     elevation: 2,
@@ -245,6 +234,23 @@ const styles = StyleSheet.create({
     letterSpacing: -0.025,
     color: '#646C79',
   },
+    submitButton: {
+      position: 'absolute',
+      height: 48,
+      left: 20,
+      right: 20,
+      bottom: 25,
+      borderRadius: 12,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: '#6495ED',
+    },
+    submitButtonText: {
+      fontFamily: 'Pretendard',
+      fontWeight: '400',
+      fontSize: 16,
+      color: '#FFFFFF',
+    },
 });
 
 export default SignupScreen;

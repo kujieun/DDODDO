@@ -14,12 +14,20 @@ const locations = [
     category: '관광지',
     places: [
       {
+      // 강릉ㅋㅋ
         name: 'JeongDongJin',
         image: JeongDongJin,
         coordinates: {
-          latitude: 37.6900911,
-          longitude: 129.0344160,
+          latitude: 37.7546233,
+          longitude: 128.8799170,
         },
+        //{
+        //name: 'JeongDongJin',
+        //image: JeongDongJin,
+        //coordinates: {
+        //  latitude: 37.6900911,
+        //  longitude: 129.0344160,
+        //},
       },
       {
         name: 'sun',

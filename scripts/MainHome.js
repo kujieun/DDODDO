@@ -219,6 +219,9 @@ const MainHome = ({ route, navigation }) => {
          if (menuIndex === 5) {
             navigation.navigate('gangneungnow');
         }
+        //if (menuIndex === 3) {  // 일정만들기 연결할 부분
+        //    navigation.navigate('gangneungnow');
+        //}
         
 
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
