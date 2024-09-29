@@ -24,7 +24,7 @@ const Coursehome = () => {
   const [totalCount, setTotalCount] = useState(1000);
   const navigation = useNavigation();
   const route = useRoute(); // route 가져오기
-  const { tripName, startDate, endDate } = route.params;
+  const { tripName, startDate, endDate, userInfo } = route.params;
 
   const cat3Mapping = {
     '가족': 'C01120001',
@@ -207,7 +207,7 @@ const Coursehome = () => {
           <View style={styles.cardTitleContainer}>
             <Text style={styles.cardTitle}>{item.title}</Text>
             <TouchableOpacity
-              onPress={() => {navigation.navigate('addcourseone', {tripName, startDate, endDate, contentid: item.contentid });
+              onPress={() => {navigation.navigate('addcourseone', {tripName, startDate, endDate, contentid: item.contentid, userInfo });
               }}
             >
               <Image

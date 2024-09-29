@@ -58,8 +58,6 @@ const Coursehome = ({route}) => {
             contentId: item.contentid,
             email: userInfo.email, // 사용자 이메일
             liked: true, // 좋아요 상태
-            title: item.title, // 제목 추가
-            image: item.image, // 이미지 URL 추가
           });
         }
       } else {

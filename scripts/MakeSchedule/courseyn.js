@@ -9,7 +9,8 @@ const Courseyn = () => {
       };
 
     const route = useRoute(); // route 가져오기
-    const { tripName, startDate, endDate } = route.params;
+    const { tripName, startDate, endDate, userInfo } = route.params;
+    console.log(userInfo)
 
   return (
 <View style={styles.container}>
@@ -34,7 +35,7 @@ const Courseyn = () => {
       {/* Submit 버튼 */}
       <TouchableOpacity
         style={styles.yesButton}
-        onPress={() =>  navigation.navigate('getcourse', {tripName, startDate, endDate })}
+        onPress={() =>  navigation.navigate('getcourse', {tripName, startDate, endDate ,  userInfo })}
       >
         <Text style={styles.yesButtonText}>네, 추천해주세요!</Text>
       </TouchableOpacity>
@@ -42,7 +43,7 @@ const Courseyn = () => {
       {/* Submit 버튼 */}
             <TouchableOpacity
               style={styles.noButton}
-              onPress={() =>  navigation.navigate('scheduledetail', {tripName, startDate, endDate })}
+              onPress={() =>  navigation.navigate('scheduledetail', {tripName, startDate, endDate , userInfo })}
             >
               <Text style={styles.noButtonText}>괜찮아요, 직접 만들게요!</Text>
             </TouchableOpacity>

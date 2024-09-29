@@ -7,7 +7,6 @@ const PostDetail = ({route}) => {
 
     const navigation = useNavigation();
     const { post } = route.params;
-    const { userInfo } = route.params;
 
     const [comments, setComments] = useState([]);
     const [newComment, setNewComment] = useState("");
@@ -16,24 +15,7 @@ const PostDetail = ({route}) => {
     const [commentcount, setCount] = useState(0);
     const [liked, setLiked] = useState(false); // 좋아요 상태
 
-    const postsCollection = firestore().collection('game');
     const [currentPost, setCurrentPost] = useState(post);
-    const [likedPostsCount, setLikedPostsCount] = useState(0); // 사용자가 좋아요 누른 게시글 수 상태 추가
-
-     // Firestore에서 좋아요 수 가져오기
-     useEffect(() => {
-        const unsubscribe = firestore()
-            .collection('game')
-            .doc(userInfo.email)
-            .onSnapshot(doc => {
-                const userData = doc.data();
-                if (userData && userData.likedPosts) {
-                    setLiked(userData.likedPosts.includes(post.id));
-                }
-            });
-        return () => unsubscribe();
-    }, [userInfo.email, post.id]);
-    
 
     useEffect(() => {
         const unsubscribe = firestore()
@@ -52,26 +34,15 @@ const PostDetail = ({route}) => {
     
 
 
-    const toggleLike = async () => {
-        const userDocRef = firestore().collection('game').doc(userInfo.email);
-        const likedPosts = (await userDocRef.get()).data()?.likedPosts || [];
-        
-        const updatedLikedPosts = liked ? likedPosts.filter(id => id !== post.id) : [...likedPosts, post.id];
-        setLiked(!liked);
-    
-        await userDocRef.set({ likedPosts: updatedLikedPosts }, { merge: true });
-    
+    const toggleLike = () => {
         const updatedLikes = liked ? likes - 1 : likes + 1;
         setLikes(updatedLikes);
-    
-        // 게시물의 좋아요 수 업데이트
-        await firestore()
-            .collection('community')
-            .doc(post.id)
-            .update({ likes: updatedLikes });
+        setLiked(!liked);
+        firestore()
+        .collection('community')
+        .doc(post.id)
+        .update({ likes: updatedLikes }); // update the likes in Firestore
     };
-    
-    
 
 
     const addComment = () => {
@@ -114,11 +85,11 @@ const PostDetail = ({route}) => {
                     ) : (
                       <View style={styles.nullprofile} /> 
                     )}
-                    <Text style={styles.profileName}>{post.user.name || "user"}</Text>
+                    <Text style={styles.profileName}>{post.user.name || "닉네임 없음"}</Text>
                 </View>
 
                 {/* 게시글 내용 */}
-                <Text style={styles.description}>{post.content}</Text>
+                <Text style={styles.content}>{post.content}</Text>
 
                 {/* 이미지 그리드 */}
                 <View style={styles.imageGrid}>
@@ -128,10 +99,7 @@ const PostDetail = ({route}) => {
                             source={{ uri: image }} 
                             style={styles.postImage} 
                             onError={(error) => console.log('Image load error:', error.nativeEvent.error)}
-                            numColumns={3}  // 2열로 설정
-                            initialNumToRender={6}  // 초기에 렌더링할 항목 수
                         />
-                        
                     ))}
                 </View>
 
@@ -148,8 +116,8 @@ const PostDetail = ({route}) => {
                 <View style={styles.interactionContainer}>
                     <TouchableOpacity onPress={toggleLike} style={styles.interactionButton}>
                         <Image
-                            source={liked ? require('../image/gangneungmap/like.png') : require('../image/gangneungmap/unlike.png')}
-                            style={styles.likeIcon}
+                            source={liked ? require('../img/SelectLike.png') : require('../img/Like.png')}
+                            style={styles.interactionIcon}
                         />
                         <Text style={styles.interactionText}>{likes}</Text>
                     </TouchableOpacity>
@@ -162,23 +130,12 @@ const PostDetail = ({route}) => {
                     </TouchableOpacity>
                 </View>
 
-               {/* 댓글 목록 */}
+                {/* 댓글 목록 */}
                 <View style={styles.commentsContainer}>
                     {Array.isArray(comments) && comments.length > 0 ? (
                         comments.map((comment, index) => (
-                            <View key={index} style={styles.commentContainer}>
-                                <View style={styles.profileContainer}>
-                                    {post.user.profileImage ? (
-                                        <Image
-                                            source={{ uri: post.user.profileImage }} 
-                                            style={styles.profile}
-                                        />
-                                    ) : (
-                                        <View style={styles.nullprofile} /> 
-                                    )}
-                                    <Text style={styles.profileName}>{post.user.name || "user"}</Text>
-                                </View>
-                                <Text style={styles.commentText}>{comment}</Text>
+                            <View key={index} style={styles.comment}>
+                                <Text>{comment}</Text>
                             </View>
                         ))
                     ) : (
@@ -196,9 +153,7 @@ const PostDetail = ({route}) => {
                     value={newComment}
                     onChangeText={setNewComment}
                 />
-                <TouchableOpacity onPress={addComment} >
-                            <Image source={require('../img/commentinput.png')}  style={styles.enterIcon}/>
-                    </TouchableOpacity>
+                <Button title="작성" onPress={addComment} />
             </View>
         </View>
     );
@@ -212,12 +167,20 @@ const styles = StyleSheet.create({
     contentContainer: {
         flex: 1,
         padding: 16,
-        marginTop: '-10%',
     },
     profileContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         marginBottom: 8,
+    },
+    profileName: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        marginLeft: 10,  // 이미지와 텍스트 사이에 공간 추가
+    },
+    content: {
+        fontSize: 16,
+        marginBottom: 16,
     },
     imageGrid: {
         flexDirection: 'row',
@@ -225,32 +188,28 @@ const styles = StyleSheet.create({
         marginBottom: 16,
     },
     postImage: {
-        width: 100, 
-        height: 100,
-        resizeMode: 'cover', 
-        marginRight: 10, 
-        marginTop: 10, 
-        borderRadius: 10,
-      },
-      tagsContainer: {
+        width: '30%',         
+        height: 120,         
+        margin: '1.5%',     
+        borderRadius: 8,      
+        backgroundColor: '#ccc',
+        resizeMode: 'cover',  
+    },
+    tagsContainer: {
         flexDirection: 'row',
         flexWrap: 'wrap',
-        marginTop: 5,
-        marginBottom: 10,
+        marginBottom: 16,
     },
     tag: {
-        borderWidth: 1,
-        borderColor: '#DDDEE0', 
+        backgroundColor: '#f0f0f0',
+        padding: 6,
         borderRadius: 12,
-        paddingHorizontal: 8,
-        paddingVertical: 4,
-        marginRight: 5,
-        marginBottom: 5,
+        marginRight: 8,
+        marginBottom: 8,
     },
     tagText: {
-        fontFamily: 'Pretendard',
         fontSize: 12,
-        color: '#646C79',
+        color: '#333',
     },
     interactionContainer: {
         flexDirection: 'row',
@@ -267,17 +226,6 @@ const styles = StyleSheet.create({
         height: 24,
         marginRight: 8,
     },
-    likeIcon: {
-        width: 20,
-        height: 17,
-        marginRight: 8,
-    },
-    enterIcon: {
-        width: 20,
-        height: 20,
-        marginRight: 2,
-        resizeMode: 'contain',
-    },
     interactionText: {
         fontSize: 14,
         color: '#333',
@@ -287,100 +235,57 @@ const styles = StyleSheet.create({
         borderTopColor: '#f0f0f0',
         paddingTop: 8,
     },
-    commentContainer: {
-        flexDirection: 'cloumn',
-        alignItems: 'left',
-        marginBottom: 12,
-        borderBottomWidth: 1,
-        borderBottomColor: '#f0f0f0',
-        paddingBottom: 20,
-    },
     comment: {
         marginBottom: 16,
-    },
-    commentText: {
-        fontFamily: 'Pretendard',
-        fontStyle: 'normal',
-        fontWeight: '400',
-        fontSize: 14,
-        lineHeight: 20,
-        letterSpacing: -0.025,
-        color: '#646C79',
-        textAlign: 'left',
-        marginBottom: 10,
-        marginTop: '-2%',
-        marginLeft: '2%',
-
     },
     commentInputContainer: {
         flexDirection: 'row',
         alignItems: 'center',
         padding: 8,
         borderTopWidth: 1,
-        borderColor: 'rgba(100, 149, 237, 0.2)',
+        borderColor: '#ddd',
         backgroundColor: '#fff',
     },
     commentInput: {
         flex: 1,
         padding: 8,
-        // borderRadius: 5,
-        // borderWidth: 1,
-        // borderColor: '#ddd',
+        borderRadius: 5,
+        borderWidth: 1,
+        borderColor: '#ddd',
         marginRight: 8,
     },
-    header: {
-        width: '86%',
-        resizeMode: 'contain',
-        marginTop: '-7%',
-        marginLeft: '7%',
-    },
-    Back: {
-        width: 50, // Back 이미지 크기
-        height: 50, // 높이 설정
-        resizeMode: 'contain',
-        position: 'absolute', // 위치 고정
-        top: '25%',
-    },
-    heaaderContainer: {
-        flexDirection: 'row',
-        justifyContent: 'flex-start',
-    },
-      nullprofile: {
+    nullprofile: {
         width: 40,
         height: 40,
         backgroundColor: '#D9D9D9',
         borderRadius: 12,
         marginBottom: 10,
         marginRight: 10,
+    },
+    profile: {
+    width: 40,
+    height: 40,
+    borderRadius: 12,
+    marginBottom: 10,
+    marginRight: 10,
+    },
+    header: {
+        width: '86%',
+        resizeMode: 'contain',
+        marginTop: '-7%',
+        marginLeft: '7%',
       },
-      profile: {
-        width: 40,
-        height: 40,
-        borderRadius: 12,
-        marginBottom: 10,
-        marginRight: 10,
+      Back: {
+        width: 50, // Back 이미지 크기
+        height: 50, // 높이 설정
+        resizeMode: 'contain',
+        position: 'absolute', // 위치 고정
+        top: '25%',
       },
-      profileName: {
-        fontFamily: 'Pretendard',
-        fontStyle: 'normal',
-        fontWeight: '700',
-        fontSize: 14,
-        lineHeight: 22,
-        color: '#111111',
-        marginBottom: 8,
-        marginLeft: 5,
-      },
-      description: {
-        fontFamily: 'Pretendard',
-        fontStyle: 'normal',
-        fontWeight: '400',
-        fontSize: 14,
-        lineHeight: 20,
-        letterSpacing: -0.025,
-        color: '#646C79',
-        textAlign: 'left',
-        marginBottom: 10,
-      },
+      heaaderContainer: {
+        flexDirection: 'row',
+        justifyContent: 'flex-start',
+      }
       
 });
 

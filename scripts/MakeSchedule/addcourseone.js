@@ -10,7 +10,7 @@ const SignupScreen = () => {
   };
 
   const route = useRoute(); // route 가져오기
-  const { tripName, startDate, endDate, contentid } = route.params;
+  const { tripName, startDate, endDate, contentid, userInfo } = route.params;
 
 
       // 여행 일수 계산
@@ -33,7 +33,7 @@ const SignupScreen = () => {
   useEffect(() => {
     if (selectedDayIndex !== null) {
       console.log("Selected Day Index:", selectedDayIndex);
-      navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex });
+      navigation.navigate('scheduledetail', { tripName, startDate, endDate, daysCount, contentid, selectedDayIndex, userInfo });
     }
   }, [selectedDayIndex])
 
