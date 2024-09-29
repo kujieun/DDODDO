@@ -59,7 +59,8 @@ const MainHome = ({ route, navigation }) => {
     };
 
     const gotoGame = () => {
-        navigation.navigate('Tutorial');
+        navigation.navigate('Tutorial', {userInfo});
+        
     };
 
     const gotoAR = () => {
@@ -199,8 +200,8 @@ const MainHome = ({ route, navigation }) => {
     const handleMenuPress = (menuIndex) => {
         console.log(`Menu ${menuIndex} pressed`);
         if (menuIndex === 7) {
-                    navigation.navigate('RestaurantHome'); // Test2로 이동
-                }
+            navigation.navigate('RestaurantHome', { userInfo }); // Test2로 이동
+        }
         if (menuIndex === 8) {
             navigation.navigate('gangneungmap'); // Test2로 이동
         }

@@ -38,6 +38,46 @@ const CameraMenu = () => {
         { id: 'filter1', image: require('../img/home/camerafilter1.png') },
       ],
     },
+    {
+      id: '3',
+      locationImage: require('../img/home/location3.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+    {
+      id: '4',
+      locationImage: require('../img/home/location4.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+    {
+      id: '5',
+      locationImage: require('../img/home/location5.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+    {
+      id: '6',
+      locationImage: require('../img/home/location6.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
+    {
+      id: '7',
+      locationImage: require('../img/home/location7.png'),
+      filters: [
+        { id: 'filter2', image: require('../img/home/camerafilter2.png') },
+        { id: 'filter1', image: require('../img/home/camerafilter1.png') },
+      ],
+    },
   ];
 
   // 버튼 클릭 시 호출되는 함수
@@ -45,13 +85,15 @@ const CameraMenu = () => {
     setSelectedButton(buttonName);
   };
 
-  // 필터링된 이미지 데이터
-  const filteredImageData = imageData.filter(item => {
-    if (selectedButton === 'all') return true; // 모든 항목 표시
-    if (selectedButton === 'drama') return item.id === '1'; // location1만 표시
-    if (selectedButton === 'musicVideo') return item.id === '2'; // location2만 표시
-    return false;
-  });
+    // 필터링된 이미지 데이터
+    const filteredImageData = imageData.filter(item => {
+      if (selectedButton === 'all') return true; // 모든 항목 표시
+      if (selectedButton === 'drama') return ['1', '4', '6', '7'].includes(item.id); // 드라마에 해당하는 아이디만 표시
+      if (selectedButton === 'musicVideo') return item.id === '2'; // 뮤직비디오에 해당하는 아이디만 표시
+      if (selectedButton === 'movie') return ['3', '5'].includes(item.id); // 영화에 해당하는 아이디만 표시
+      return false; // 그 외의 경우는 표시하지 않음
+    });
+
 
   const handleFilterPress = (locationId, filterId) => {
     let filterImageUri = '';
@@ -63,6 +105,10 @@ const CameraMenu = () => {
     } else if (locationId === '2') {
       filterImageUri = filterId === 'filter1' 
         ? 'https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2Flocation2%2Fcharacter.png?alt=media&token=b2e99438-1eb8-413f-b7df-6849437deb7c'  // filter2의 이미지 URL
+        : ''; // filter2는 백그라운드 제거
+    }else{
+      filterImageUri = filterId === 'filter1' 
+        ? 'https://firebasestorage.googleapis.com/v0/b/ddoddo-e621b.appspot.com/o/camera%2F%E1%84%83%E1%85%A1%E1%86%B7%E1%84%8B%E1%85%B3%E1%86%AB%20%E1%84%8C%E1%85%A1%E1%86%BC%E1%84%89%E1%85%A9-%20%E1%84%8B%E1%85%A7%E1%84%92%E1%85%A2%E1%86%BC%E1%84%8C%E1%85%B5.png?alt=media&token=5076d00b-4553-4763-a989-36f1140f7b03'  // filter2의 이미지 URL
         : ''; // filter2는 백그라운드 제거
     }
   
