@@ -5,6 +5,11 @@ import { useNavigation } from '@react-navigation/native'; // Import useNavigatio
 const SignupScreen = ({route}) => {
   const navigation = useNavigation();
   const {userInfo} = route.params;
+
+    const handleBackButton = () => {
+      navigation.goBack(); // 이전 화면으로 돌아가는 함수
+    };
+
   return (
 <View style={styles.container}>
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
@@ -12,7 +17,7 @@ const SignupScreen = ({route}) => {
       <View style={styles.headerContainer}>
         <View style={styles.header}>
           <TouchableOpacity
-            onPress={() => { /* 뒤로 가기 기능 구현 예정 */ }}
+            onPress={handleBackButton}
             style={styles.backButtonContainer}
           >
             <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />

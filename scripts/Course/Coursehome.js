@@ -14,6 +14,13 @@ import axios from 'axios';
 import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const Coursehome = () => {
+
+const navigation = useNavigation();
+
+const handleBackButton = () => {
+      navigation.goBack(); // 이전 화면으로 돌아가는 함수
+    };
+
   const [tripstylePanelVisible, setTripstylePanelVisible] = useState(false);
   const [withwhoPanelVisible, setWithwhoPanelVisible] = useState(false);
   const [tourData, setTourData] = useState([]);
@@ -22,7 +29,7 @@ const Coursehome = () => {
   const [likedStates, setLikedStates] = useState({});
   const [pageNo, setPageNo] = useState(1);
   const [totalCount, setTotalCount] = useState(1000);
-  const navigation = useNavigation();
+
 
   const cat3Mapping = {
     '가족': 'C01120001',
@@ -30,6 +37,8 @@ const Coursehome = () => {
     '힐링코스': 'C01140001',
     '도보코스': 'C01150001',
   };
+
+
 
   const getCategoryLabel = (cat3) => {
     return Object.keys(cat3Mapping).find(key => cat3Mapping[key] === cat3) || '기타';
@@ -115,7 +124,7 @@ const Coursehome = () => {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => { /* 뒤로가기 기능 구현 */ }} style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={handleBackButton} style={styles.backButtonContainer}>
           <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>추천 코스</Text>

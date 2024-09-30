@@ -43,15 +43,16 @@ const TourPlaceHome = ({ route }) => {
         const items = response.data.response.body.items.item;
 
         const formattedData = items.map(item => ({
-          title: item.title || "No Title",
-          overview: item.overview || "No Overview",
-          firstimage: item.firstimage || '',
-          addr1: item.addr1 || "No Address",
-          tel: item.tel || "No Phone Number",
-          homepage: item.homepage || "No Website",
-          mapx: item.mapx || null,
-          mapy: item.mapy || null,
+          title: item.title || '', // 제목이 없으면 공란
+          overview: item.overview || '', // 개요가 없으면 공란
+          firstimage: item.firstimage || '', // 첫 번째 이미지가 없으면 공란
+          addr1: item.addr1 || '', // 주소가 없으면 공란
+          tel: item.tel || '', // 전화번호가 없으면 공란
+          homepage: item.homepage || '', // 홈페이지가 없으면 공란
+          mapx: item.mapx || null, // mapx 값이 없으면 null 유지
+          mapy: item.mapy || null, // mapy 값이 없으면 null 유지
         }));
+
 
         setTourData(formattedData);
         setPlaceName(items[0].title || 'Unknown Place');
@@ -230,7 +231,7 @@ const cleanURL = (url) => {
 
     <View style={styles.placedetailcontainer}>
       {/* 장소 소개 */}
-      <Text style={styles.placeTitle}>장소 소개</Text>
+      <Text style={styles.placeTitle}>축제 소개</Text>
       <Text style={[styles.description, {marginTop:5}]}>
         {overview} {/* 개요에서 첫 문장만 렌더링 */}
       </Text>
@@ -275,9 +276,7 @@ const cleanURL = (url) => {
         </TouchableOpacity>
       </View>
 
-<View style={styles.line3} />
 
-          <Text style={styles.placeTitle}>기본 정보</Text>
         </View>
       </ScrollView>
     </View>

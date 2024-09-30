@@ -4,6 +4,7 @@ import LinearGradient from "react-native-linear-gradient";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 
+
 import { useNavigation } from '@react-navigation/native';
 
 // 화면 너비 가져오기
@@ -14,7 +15,7 @@ const API_KEY = "9fd5c9fdde5b224d48ca942a3984d6c8";
 // 강릉 경도와 위도(openweathermap)
 const LATITUDE = 37.7514;
 const LONGITUDE = 128.8760;
-//날씨 이미지 
+//날씨 이미지
 const Cloud = require('../img/Cloud.png');
 const Clear = require('../img/Clear.png');
 const Rain = require('../img/Rain.png');
@@ -39,7 +40,7 @@ const images = {
     museum: require('../img/tip/museum.png'),
     rain: require('../img/tip/rain.png'),
   };
-  
+
 
 
 const MainHome = ({ route, navigation }) => {
@@ -54,13 +55,13 @@ const MainHome = ({ route, navigation }) => {
 
     // 각 버튼 클릭 시 TipDetail 페이지로 이동하며 선택한 이미지명을 전달
     const handleNavigate = (imageName) => {
-   
+
        navigation.navigate('TipDetail', { selectedImage: imageName });
         };
 
     const gotoGame = () => {
         navigation.navigate('Tutorial', {userInfo});
-        
+
     };
 
             const gotoAR = () => {
@@ -71,13 +72,13 @@ const MainHome = ({ route, navigation }) => {
     const { userInfo } = route.params;
 
     //하단 바 선택 메뉴
-    const [selectedMenu, setSelectedMenu] = useState(null);
+    const [selectedMenu, setSelectedMenu] = useState('home');
 
         state = {
             isLoading: true,
             currentWeather: {},
         };
-    
+
       // 날씨 상태를 분류하는 함수
       classifyCondition = (id) => {
         if (id >= 200 && id <= 599) {
@@ -91,7 +92,7 @@ const MainHome = ({ route, navigation }) => {
         }
         return Else;
       };
-    
+
       // 현재 날씨 정보 가져오기
       getWeather = async (latitude, longitude) => {
         try {
@@ -102,12 +103,12 @@ const MainHome = ({ route, navigation }) => {
               wind: { speed },
             },
           } = await axios.get(
-            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`  
+            `http://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${API_KEY}&units=metric`
         );
-    
+
           const { id } = weather[0];
           const condition = this.classifyCondition(id);
-        
+
           // 상태 업데이트
         setWeather({
             icon: condition,
@@ -131,6 +132,9 @@ const MainHome = ({ route, navigation }) => {
             case 'community':
                 navigation.navigate('Community', { userInfo }); // userInfo 포함해서 Community 화면으로 이동
                 break;
+            case 'more':
+                navigation.navigate('More', { userInfo }); // userInfo 포함해서 More 화면으로 이동
+            break;
             // 다른 케이스를 여기에 추가하세요.
             default:
                 // 예를 들어, 존재하지 않는 메뉴 처리
@@ -144,6 +148,10 @@ const MainHome = ({ route, navigation }) => {
 
     const gotoMyPage = () => {
         navigation.navigate('MyPage',  { userInfo });
+    }
+
+    const gotoMore = () => {
+        navigation.navigate('More',  { userInfo });
     }
 
 
@@ -200,22 +208,22 @@ const MainHome = ({ route, navigation }) => {
     const handleMenuPress = (menuIndex) => {
         console.log(`Menu ${menuIndex} pressed`);
         if (menuIndex === 7) {
-            navigation.navigate('RestaurantHome', { userInfo }); // Test2로 이동
-        }
+                    navigation.navigate('RestaurantHome', {userInfo}); // Test2로 이동
+                }
         if (menuIndex === 8) {
             navigation.navigate('gangneungmap'); // Test2로 이동
         }
         if (menuIndex === 4) {
-            navigation.navigate('CameraMenu'); 
+            navigation.navigate('CameraMenu');
         }
         if (menuIndex === 2) {
-            navigation.navigate('Coursehome',  { userInfo }); 
+            navigation.navigate('Coursehome',  { userInfo });
         }
         if (menuIndex === 6) {
-            navigation.navigate('TourPlaceHome',  { userInfo }); 
+            navigation.navigate('TourPlaceHome',  { userInfo });
         }
         if (menuIndex === 1) {
-            navigation.navigate('Tip'); 
+            navigation.navigate('Tip');
         }
          if (menuIndex === 5) {
             navigation.navigate('gangneungnow');
@@ -223,7 +231,7 @@ const MainHome = ({ route, navigation }) => {
         if (menuIndex === 3) {
             navigation.navigate('home', {userInfo});
         }
-        
+
 
         // 다른 메뉴에 대한 추가 동작은 여기에 추가할 수 있습니다.
     };
@@ -251,7 +259,7 @@ return (
                 source={require('../image/mainhome/alarm.png')}
                 style={styles.alarm}
             />
-            <View style={styles.alarmWarning} />
+
         </View>
         <Text style={styles.nickname}>
             {userInfo.name}님,{'\n'}
@@ -260,12 +268,12 @@ return (
             {' '}남았습니다!
         </Text>
 
-        <View style={styles.checkschedule}>
+        {/* <View style={styles.checkschedule}>
             <Image
                 source={require('../image/mainhome/checkschedule.png')}
                 style={styles.checkscheduleImage}
             />
-        </View>
+        </View> */}
 
         <View style={styles.weathercontainer}>
             <Frame weather={weather} />
@@ -382,7 +390,7 @@ return (
                 />
             </TouchableOpacity>
 
-            <TouchableOpacity onPress={() => handleBarMenu('more')}>
+            <TouchableOpacity onPress={() => {handleBarMenu('more'); gotoMore();}}>
                 <Image
                     source={selectedMenu === 'more'
                         ? require('../image/mainhome/barmenu/select/more.png')

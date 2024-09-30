@@ -7,29 +7,16 @@ import firestore from '@react-native-firebase/firestore';
 
 const categories = [
   { id: 1, label: '전체', code: null },
-  { id: 2, label: '촬영지' },
-  { id: 3, label: '자연명소', code: 'A01' },
-  { id: 4, label: '해수욕장', code: 'A01011200' },
-  { id: 5, label: '휴양', code: 'A0202' },
-  { id: 6, label: '문화유적', code: 'A0201' },
-  { id: 7, label: '체험관광', code: 'A0203' },
+  //{ id: 2, label: '촬영지' },
+  { id: 2, label: '자연명소', code: 'A0101' },
+  { id: 3, label: '해수욕장', code: 'A01011200' },
+  { id: 4, label: '휴양', code: 'A0202' },
+  { id: 5, label: '문화유적', code: 'A0201' },
+  { id: 6, label: '체험관광', code: 'A0203' },
 ];
 
-const filmingLocations = [
-  {
-    title: "도깨비 촬영지",
-    address: "강원도 강릉시 주문진읍 해안동",
-    image: "https://example.com/filminglocation1.jpg",
-    contentid: 'filmingLocation1'
-  },
-  {
-    title: "미스터 션샤인 촬영지",
-    address: "강원도 강릉시 낙산동 산 1-1",
-    image: "https://example.com/filminglocation2.jpg",
-    contentid: 'filminglocation2'
-  },
-  // ... 더 많은 촬영지를 추가
-];
+
+
 
 const TourPlaceHome = ({route}) => {
   const [selectedCategory, setSelectedCategory] = useState(1);
@@ -39,11 +26,15 @@ const TourPlaceHome = ({route}) => {
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
-  const navigation = useNavigation();
+   const navigation = useNavigation(); // useNavigation 훅으로 navigation 객체 가져오기
   const [likedStates, setLikedStates] = useState({});
 
   const { userInfo } = route.params;
   const postsCollection = firestore().collection('location');
+
+  const handleBackButton = () => {
+      navigation.goBack(); // 이전 화면으로 돌아가는 함수
+    };
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
@@ -64,16 +55,15 @@ const TourPlaceHome = ({route}) => {
 
 
 
-    //tourData 필터링
- const filteredData = useMemo(() => {
-    const filteredByCategory =
-      selectedCategory === 1
-        ? [...tourData, ...filmingLocations] // 전체 선택 시 API 데이터와 filmingLocations 합침
-        : selectedCategory === 2
-        ? filmingLocations // 촬영지 선택 시 filmingLocations만 사용
-        : tourData.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase()));
-    return filteredByCategory;
-  }, [searchText, tourData, filmingLocations, selectedCategory]);
+// tourData 필터링
+const filteredData = useMemo(() => {
+  const filteredByCategory =
+    selectedCategory === 1
+      ? tourData // 전체 선택 시 API 데이터만 사용
+      : tourData.filter((item) => item.title.toLowerCase().includes(searchText.toLowerCase())); // 검색어 필터링
+  return filteredByCategory;
+}, [searchText, tourData, selectedCategory]);
+
 
 
 const fetchTourData = async () => {
@@ -263,10 +253,7 @@ const fetchTourData = async () => {
             <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
             <Text style={styles.ratingText}>0.0 (0)</Text>
           </View>
-          <View style={styles.distanceRow}>
-            <View style={styles.dot} />
-            <Text style={styles.distanceText}>{calculateDistance(item)}</Text>
-          </View>
+
         </View>
       </View>
       <TouchableOpacity
@@ -292,7 +279,7 @@ const fetchTourData = async () => {
 
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => { /* 뒤로가기 기능 */ }}
+          onPress={handleBackButton}
           style={styles.backButtonContainer}
         >
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />

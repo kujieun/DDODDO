@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Button, Modal, ScrollView, Text,StatusBar, View, StyleSheet, TouchableOpacity, Image, Dimensions, TouchableWithoutFeedback  } from "react-native";
 import FastImage from 'react-native-fast-image';
-import firestore from '@react-native-firebase/firestore';
 
 const backtohomeImage = require('../../image/game/backtohome.png');
 const backgroundRectangleImage = require('../../image/game/tutorialbackground.png');
@@ -40,44 +39,6 @@ const images = {
   'present_1': require('../../image/game/store/store_gift1.png'),
   'present_2': require('../../image/game/store/store_gift2.png'),
   'present_3': require('../../image/game/store/store_gift3.png'),
-};
-
-const storageimages = {
-  'store_sea': require('../../image/game/storage/storageitem/box_sea.png'),
-  'store_vintage': require('../../image/game/storage/storageitem/box_vintage.png'),
-  'store_forest': require('../../image/game/storage/storageitem/box_forest.png'),
-  'store_window_sea': require('../../image/game/storage/storageitem/box_window_sea.png'),
-  'store_frame': require('../../image/game/storage/storageitem/box_frame.png'),
-  'store_wheel': require('../../image/game/storage/storageitem/box_wheel.png'),
-  'store_round_rug': require('../../image/game/storage/storageitem/box_round_rug.png'),
-  'store_rectangle_rug': require('../../image/game/storage/storageitem/box_rectangle_rug.png'),
-  'store_shell_sofa': require('../../image/game/storage/storageitem/box_shell_sofa.png'),
-  'store_green_sofa': require('../../image/game/storage/storageitem/box_green_sofa.png'),
-  'store_pot': require('../../image/game/storage/storageitem/box_pot.png'),
-  'store_shell': require('../../image/game/storage/storageitem/box_shell.png'),
-  'store_bottle': require('../../image/game/storage/storageitem/box_bottle.png'),
-  'store_desk': require('../../image/game/storage/storageitem/box_desk.png'),
-  'store_eye': require('../../image/game/storage/storageitem/box_eye.png'),
-  'store_dragon': require('../../image/game/storage/storageitem/box_dragon.png'),
-};
-
-const placeimages = {
-  'store_sea': require('../../image/game/placeitem/background_sea.png'),
-  'store_vintage': require('../../image/game/placeitem/background_vintage.png'),
-  'store_forest': require('../../image/game/placeitem/window_forest.png'),
-  'store_window_sea': require('../../image/game/placeitem/window_sea.png'),
-  'store_frame': require('../../image/game/placeitem/wall_frame.png'),
-  'store_wheel': require('../../image/game/placeitem/wall_wheel.png'),
-  'store_round_rug': require('../../image/game/placeitem/rug_round.png'),
-  'store_rectangle_rug': require('../../image/game/placeitem/rug_rectangle.png'),
-  'store_shell_sofa': require('../../image/game/placeitem/sofa_shell.png'),
-  'store_green_sofa': require('../../image/game/placeitem/sofa_green.png'),
-  'store_pot': require('../../image/game/placeitem/right_pot.png'),
-  'store_shell': require('../../image/game/placeitem/right_shell.png'),
-  'store_bottle': require('../../image/game/placeitem/left_bottle.png'),
-  'store_desk': require('../../image/game/placeitem/left_desk.png'),
-  'store_eye': require('../../image/game/placeitem/cloth.png'),
-  'store_dragon': require('../../image/game/placeitem/dragon.png'),
 };
 
 
@@ -147,12 +108,12 @@ const Present = [
 const screenWidth = Dimensions.get('window').width;
 const screenHeight = Dimensions.get('window').height; // 화면 높이 추가
 
-const FrameComponent = ({route}) => {
+const FrameComponent = () => {
   const [selectedMenu, setSelectedMenu] = useState('menu1'); // 기본값은 'menu1'
   const [currentTextIndex, setCurrentTextIndex] = useState(0); // 텍스트 인덱스 상태
   const [isAngry, setIsAngry] = useState(false);
   const [goldCoinCount, setGoldCoinCount] = useState(0); // 예시 값
-  const [silverCoinCount, setSilverCoinCount] = useState(0); // 예시 값
+  const [silverCoinCount, setSilverCoinCount] = useState(25); // 예시 값
   const [isItemBoxVisible, setIsItemBoxVisible] = useState(false); // 새 상태 추가
   const [isItem1BoxVisible, setIsItem1BoxVisible] = useState(false); // 새 상태 추가
   const [isItem2BoxVisible, setIsItem2BoxVisible] = useState(false); // 새 상태 추가
@@ -165,154 +126,6 @@ const FrameComponent = ({route}) => {
     const [selectedPresent, setSelectedPresent] = useState(null);
     const [missionVisible, setMissionVisible] = useState(false); // 미션 창 표시 상태
     const [purchasedItems, setPurchasedItems] = useState([]);
-    const [errorMessage, setErrorMessage] = useState('확인');  // 에러 메시지 상태
-
-    const {userInfo} = route.params;
-    const screenWidth = Dimensions.get('window').width;
-    
-    const [selectedImage, setSelectedImage] = useState(null); // 선택된 이미지 상태
-    const [background, setbackground] = useState(backgroundRectangleImage); // 선택된 이미지 상태
-    const [left, setleft] = useState(null); 
-    const [right, setright] = useState(null); 
-    const [window, setwindow] = useState(null); 
-    const [wall, setwall] = useState(null); 
-    const [rug, setrug] = useState(null); 
-    const [sofa, setsofa] = useState(null); 
-    const [cloth, setcloth] = useState(null); 
-
-    const [itemcheck, setitemcheck] = useState(false);
-
-
-    const handleImgPress = (itemId) => {
-      // 모든 카테고리에서 아이템을 검색
-      const selectedItem = Object.values(item).flat().find(i => i.id === itemId);
-      
-      if (selectedItem) {
-        console.log(`Image pressed: ${itemId}`);
-        setSelectedItemId(itemId);
-        setSelectedItemName(selectedItem.name); // 선택한 아이템 이름 설정
-        setModalVisible(true);
-        setErrorMessage('확인');
-        // console.log(selectedItem.name)
- 
-    
-        if(selectedItem.name === '바다 배경' || selectedItem.name === '빈티지 배경'){
-          const image = placeimages[selectedItem.storeImage]; 
-          setbackground(image); // 선택된 이미지를 상태에 저장
-          setitemcheck(true);
-        } else if (selectedItem.name === '숲 속 창문' || selectedItem.name === '바닷속 창문') {
-          const image = placeimages[selectedItem.storeImage]; 
-          setwindow(image); 
-          setitemcheck(true);
-        } else if (selectedItem.name === '액자' || selectedItem.name === '타륜 장식') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setwall(image); 
-            setitemcheck(true);
-        } else if (selectedItem.name === '둥근 러그' || selectedItem.name === '사각 러그') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setrug(image); 
-            setitemcheck(true);
-        } else if (selectedItem.name === '조개 소파' || selectedItem.name === '초록 소파') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setsofa(image); 
-            setitemcheck(true);
-        } else if (selectedItem.name === '화분' || selectedItem.name === '조개 조명') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setright(image); 
-            setitemcheck(true);
-        } else if (selectedItem.name === '오크통' || selectedItem.name === '협탁') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setleft(image); 
-            setitemcheck(true);
-        } else if (selectedItem.name === '잠옷' || selectedItem.name === '용용이') {
-            const image = placeimages[selectedItem.storeImage]; 
-            setcloth(image); 
-            setitemcheck(true);
-        }
-
-        setitemcheck(false);
-
-
-
-      }
-
-     
-    };
-    
-
-
-   // DB에 보관함, 미션 클리어 내용, 코인 값 업로드
-    useEffect(() => {
-      const uploadUserData = async () => {
-        try {
-          // 보관함, 미션 클리어 내용, 코인 값 설정
-          const userData = {
-            purchasedItems: purchasedItems,      // 보관함 (구매한 아이템)
-            missionsCleared: isClaimed,    // 미션 클리어 상태
-            silverCoin: silverCoinCount,         // 실버 코인 값
-            goldCoin: goldCoinCount,              // 골드 코인 값
-            background: background,
-            left: left,
-            right: right,
-            window: window,
-            wall: wall,
-            rug: rug,
-            sofa: sofa,
-            cloth: cloth,
-          };
-
-          // 해당 유저의 도큐먼트를 업데이트 또는 생성
-          await firestore().collection('game').doc(userInfo.email).set(userData, { merge: true });
-
-          console.log('데이터 업로드 성공:', userData);
-        } catch (error) {
-          console.error('데이터 업로드 중 에러 발생:', error);
-        }
-      };
-
-      // 실버코인, 골드코인, 미션 클리어 내용이 업데이트될 때 업로드 실행
-      uploadUserData();
-    }, [silverCoinCount, goldCoinCount, purchasedItems, isClaimed, itemcheck]);
-
-
-
-    // 보관함, 미션 클리어 내용, 코인 값 받아오기
-    useEffect(() => {
-      const fetchUserData = async () => {
-        try {
-          const userDoc = await firestore().collection('game').doc(userInfo.email).get();
-
-          if (userDoc.exists) {
-            const userData = userDoc.data();
-            
-          // 가져온 데이터를 상태로 설정
-          setPurchasedItems(userData.purchasedItems || []); // 보관함
-          setIsClaimed(userData.missionsCleared || []); // 미션 클리어 내용
-          setSilverCoinCount(userData.silverCoin || 0); // 실버 코인 값
-          setGoldCoinCount(userData.goldCoin || 0); // 골드 코인 값
-
-          setbackground(userData.background || null);
-          setleft(userData.left || null);
-          setright(userData.right || null);
-          setwindow(userData.window || null);
-          setwall(userData.wall || null);
-          setrug(userData.rug || null);
-          setsofa(userData.sofa || null);
-          setcloth(userData.cloth || null);
-
-          console.log('사용자 데이터 불러오기 성공:', userData);
-        } else {
-          console.log('사용자 문서가 존재하지 않습니다.');
-        }
-      } catch (error) {
-        console.error('데이터를 가져오는 중 에러 발생:', error);
-      }
-    };
-
-    fetchUserData(); // 컴포넌트가 마운트될 때 데이터 가져오기
-  }, []);     
-
-    
 
   const handleBackToHomePress = () => {
     console.log('버튼 눌렀습니다');
@@ -356,13 +169,6 @@ const handleBarMenu = (menu) => {
     }
 };
 
-  // 사용 시 storeImage 경로를 동적으로 설정
-  const getImage = (isItem1BoxVisible, storeImage) => {
-    if (isItem1BoxVisible) {
-      return storageimages[storeImage] || images[storeImage];
-    }
-    return images[storeImage];
-  };
 
    const closeItemBox = () => {
        setIsItemBoxVisible(false); // item box 닫기
@@ -399,10 +205,6 @@ const handleCategoryPress = (category) => {
       return item[activeCategory] || []; // 선택된 카테고리의 아이템 반환
     };
 
-    const getItems = () => {
-      return item.전체; // 선택된 카테고리의 아이템 반환
-    };
-
     const chunkArray = (array, chunkSize) => {
       const result = [];
       for (let i = 0; i < array.length; i += chunkSize) {
@@ -417,7 +219,6 @@ const handleCategoryPress = (category) => {
           setSelectedItemId(itemId);
           setSelectedItemName(selectedItem.name); // 선택한 아이템 이름 설정
           setModalVisible(true);
-          setErrorMessage('확인');
         }
       };
 
@@ -428,39 +229,13 @@ const handleCategoryPress = (category) => {
       };
 
       const handlePurchase = () => {
-        // const selectedItem = item[activeCategory].find(i => i.id === selectedItemId);
-
-        const silvercoinCost = (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0);  // 실버 코인 가격
-        const goldcoinCost = (item[activeCategory].find(i => i.id === selectedItemId)?.goldcoin || 0);      // 골드 코인 가격
-
-        // 실버 코인으로 구매하는 경우
-        if (silvercoinCost > 0) {
-          if (silverCoinCount >= silvercoinCost) {
-            // 코인이 충분하면 구매 가능
-            setSilverCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0));
-          } else {
-            setErrorMessage('코인부족');  // 실버 코인이 부족할 경우 메시지
-            return;
-          }
-        }
-
-        // 골드 코인으로 구매하는 경우
-        if (goldcoinCost > 0) {
-          if (goldCoinCount >= goldcoinCost) {
-            // 코인이 충분하면 구매 가능
-            setGoldCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.goldcoin || 0));  // 골드 코인 차감
-          } else {
-            setErrorMessage('코인부족');  // 골드 코인이 부족할 경우 메시지
-            return;
-          }
-        }
-
-        // 구매한 아이템 ID를 상태에 추가
-        setPurchasedItems(prevItems => [...prevItems, selectedItemId]);
-        setModalVisible(false);
-        setErrorMessage('확인');  // 구매 성공 시, 에러 메시지 초기화
-
-
+        console.log(`Item purchased: ${selectedItemId}`);
+        // 아이템 구매 로직 추가
+        setSilverCoinCount(prevCount => prevCount - (item[activeCategory].find(i => i.id === selectedItemId)?.silvercoin || 0));
+                // 구매한 아이템 ID를 상태에 추가
+                setPurchasedItems(prevItems => [...prevItems, selectedItemId]);
+                // console.log(purchasedItems)
+                setModalVisible(false);
       };
 
       /*==============미션 가져오기==============*/
@@ -468,121 +243,49 @@ const handleCategoryPress = (category) => {
       // 미션 데이터 배열
       const missions = [
           { index: 1, text: '회원 가입하기', silvercoin: 5 },
-          // { index: 2, text: '여행 계획 세우기', silvercoin: 3 },
-          // { index: 3, text: '카카오톡 공유하기', silvercoin: 3 },
-          // { index: 4, text: '카카오톡 공유하기(0/5)', silvercoin: 6 },
+          { index: 2, text: '여행 계획 세우기', silvercoin: 3 },
+          { index: 3, text: '카카오톡 공유하기', silvercoin: 3 },
+          { index: 4, text: '카카오톡 공유하기(0/5)', silvercoin: 6 },
           { index: 5, text: '커뮤니티 좋아요 누르기 (0/10)', silvercoin: 4 },
           { index: 6, text: '커뮤니티 좋아요 누르기 (0/20)', silvercoin: 5 },
           { index: 7, text: '커뮤니티 좋아요 누르기 (0/30)', silvercoin: 6 },
       ];
- 
-      const [likes, setLikes] = useState(0);
-      const [likedPosts, setLikedPosts] = useState([]);
-      const [check, setCheck] = useState(false);
-      const [isClaimed, setIsClaimed] = useState({}); // 미션 완료 상태를 객체로 관리
 
-     // Firestore에서 좋아요 수와 사용자 좋아요 목록 가져오기
-      useEffect(() => {
-        const fetchUserData = async () => {
-          try {
-            const userDoc = await firestore()
-              .collection('game')
-              .doc(userInfo.email)
-              .get();
-
-            if (userDoc.exists) {
-              const userData = userDoc.data();
-              setLikedPosts(userData.likedPosts || []); // 사용자 좋아요 목록
-              setLikes(likedPosts.length);
-            } else {
-              console.log('사용자 문서가 존재하지 않습니다.');
-            }
-          } catch (error) {
-            console.error('사용자 데이터를 가져오는 중 에러 발생:', error);
-          }
-        };
-
-        fetchUserData();
-      }, [check]); 
-      
-      
-      
-    
-      
-
-      const TaskItem = ({ text, silvercoin, onTaskComplete }) => {
-        // checkLikedPosts();
-        console.log(likes);
-        setCheck(true)
-        const handleClaim = () => {
-            if (text === '회원 가입하기') {
-                onTaskComplete(silvercoin); // 은화 추가 
-                setIsClaimed(prev => ({ ...prev, [text]: true }));
-            }else if (text.includes('커뮤니티 좋아요 누르기')) {
-              const requiredLikes = parseInt(text.match(/\d+/g)[1]); // 현재 좋아요 수를 가져옴
-              if (likes >= requiredLikes) {
-                  onTaskComplete(silvercoin); // 은화 추가 
-                  setIsClaimed(prev => ({ ...prev, [text]: true })); // 상태 업데이트
-              } else {
-                  alert(`이 작업을 완료할 수 없습니다. 현재 좋아요 수: ${likes}`);
-              }
-          }
-
-          }
-
-          // 커뮤니티 좋아요 수에 따라 텍스트 업데이트
-          const requiredLikes = text.match(/\d+/g) ? text.match(/\d+/g)[1] : '10'; // 기본값 10으로 설정
-          const updatedText = text.includes('커뮤니티 좋아요 누르기')
-              ? text.replace(/\d+\/\d+/, `${likes}/${requiredLikes}`)
-              : text;
-                    
-    
-        return (
+        const TaskItem = ({ index, text, silvercoin }) => (
             <View style={styles.taskContainer}>
                 <Text style={styles.taskText}>
-                  {updatedText} {'\n'}보상:
+                    {text} {'\n'}보상:
                     <Image
                         source={require('../../image/game/missioncontent/silvercoin.png')}
                         style={styles.rewardIcon}
                     />
                     +{silvercoin}
                 </Text>
-    
-                <TouchableOpacity
-                    style={styles.yetbutton}
-                    onPress={handleClaim} // handleClaim 호출
-                    disabled={isClaimed[text]} // text가 isClaimed와 같을 경우 비활성화
-                    >
-                      <Text style={styles.buttonText}>{isClaimed[text] ? '받기 완료' : '받기'}</Text>
-                </TouchableOpacity>
-  
+
+{/* 버튼 추가 */}
+        <TouchableOpacity
+            style={styles.yetbutton}
+            onPress={() => alert(`Task ${index + 1} 버튼 클릭!`)}
+        >
+            <Text style={styles.buttonText}>받기</Text>
+        </TouchableOpacity>
+
+        <View style={styles.line} />
+
                 <View style={styles.line} />
             </View>
         );
-    };
-    
 
-    const TaskList = ({ tasks, onTaskComplete }) => (
-      <ScrollView style={styles.scrollContainer}>
-          {tasks.map((task) => (
-              <TaskItem
-                  key={task.index}
-                  text={task.text} // text 전달
-                  silvercoin={task.silvercoin}
-                  onTaskComplete={onTaskComplete}
-              />
-          ))}
-      </ScrollView>
-  );
-
-  const handleTaskComplete = (silvercoin) => {
-    setSilverCoinCount(prevCount => prevCount + silvercoin); // 은화를 추가하는 함수
-};
-
-  
+        // 메인 컴포넌트
+        const TaskList = ({ tasks }) => (
+            <ScrollView style={styles.scrollContainer}>
+                {tasks.map((task, index) => (
+                    <TaskItem key={index} index={index} text={task.text} silvercoin={task.silvercoin} />
+                ))}
+            </ScrollView>
+        );
 
 return (
-  
   <View style={styles.container}>
     <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
@@ -590,17 +293,7 @@ return (
       <Image source={backtohomeImage} style={styles.backtohomeImage} resizeMode="contain" />
     </TouchableOpacity>
 
-    
-    <Image source={background} style={styles.backgroundRectangle} />
-
-    <Image source={window} style={styles.backgroundRectangle} />
-    <Image source={wall} style={styles.backgroundRectangle} />
-    <Image source={rug} style={styles.backgroundRectangle} />
-    <Image source={sofa} style={styles.backgroundRectangle} />
-    <Image source={cloth} style={styles.backgroundRectangle} />
-    <Image source={left} style={styles.backgroundRectangle} />
-    <Image source={right} style={styles.backgroundRectangle} />
-   
+    <Image source={backgroundRectangleImage} style={styles.backgroundRectangle} />
 
     <View style={styles.goldcoinContainer}>
       <Image source={goldCoinImage} style={styles.goldcoinImage} />
@@ -730,7 +423,7 @@ return (
                 <Text style={styles.buttonText}>취소</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.confirmButton} onPress={handlePurchase}>
-               <Text style={styles.buttonText}>{errorMessage}</Text>
+                <Text style={styles.buttonText}>확인</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -744,10 +437,10 @@ return (
 {isItem1BoxVisible && (
     <View style={styles.itemboxContainer}>
         <View style={styles.itemBox}>
-              <View style={{flexDirection: 'column', marginBottom: '10%',padding: 3,}}>
+              <View style={{flexDirection: 'column', marginBottom: '7%',padding: 15,}}>
                   <Image
                   source={require('../../image/game/storage/storagemenu/menubutton.png')}
-                  style={styles.storageImage}
+                  style={styles.itemTitleImage}
                   resizeMode="contain"
                   />
               </View>
@@ -756,7 +449,7 @@ return (
                   {/* 구매한 아이템들만 표시 */}
                     <ScrollView style={styles.itemsContainer}>
                       {chunkArray(
-                        getItems().filter((item) => purchasedItems.includes(item.id)), // 구매한 아이템 필터링
+                        getFilteredItems().filter((item) => purchasedItems.includes(item.id)), // 구매한 아이템 필터링
                         4
                       ).map((row, rowIndex) => (
                         <View key={rowIndex} style={styles.rowContainer}>
@@ -764,20 +457,49 @@ return (
                             <TouchableOpacity
                               key={item.id}
                               style={styles.itemCard}
-                              onPress={() => handleImgPress(item.id)}
+                              onPress={() => handleImagePress(item.id)}
                             >
-                              <Image
-                                  source={getImage(isItem1BoxVisible, item.storeImage)}  // 경로를 동적으로 변경
-                                  style={styles.itemImage}
-                                />
+                              <Image source={images[item.storeImage]} style={styles.itemImage} />
                             </TouchableOpacity>
                           ))}
                         </View>
                       ))}
                     </ScrollView>
 
+            </View>
+        </View>
+    </View>
+)}
 
 
+{isItem2BoxVisible && (
+    <View style={styles.itemboxContainer}>
+        <View style={styles.itemBox2}>
+            <View style={styles.presentimageContainer}>
+                {/* gift1 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift1.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
+                {/* gift2 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift2.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
+                {/* gift3 */}
+                <View style={styles.imageWrapper}>
+                    <Image
+                        source={require('../../image/game/present/gift3.png')}
+                        style={styles.presentimage}
+                    />
+                    <Text style={styles.textOverlay}>0</Text>
+                </View>
             </View>
         </View>
     </View>
@@ -814,14 +536,14 @@ return (
               />
             </TouchableOpacity>
 
-            {/* <TouchableOpacity onPress={() => handleBarMenu('menu4')}>
+            <TouchableOpacity onPress={() => handleBarMenu('menu4')}>
               <Image
                 source={selectedMenu === 'menu4'
                   ? require('../../image/game/barmenu/menu4on.png')
                   : require('../../image/game/barmenu/menu4off.png')}
                 style={styles.bottombarImg}
               />
-            </TouchableOpacity> */}
+            </TouchableOpacity>
 
             <TouchableOpacity onPress={() => handleBarMenu('menu5')}>
               <Image
@@ -849,7 +571,6 @@ return (
                     //index={mission.index}
                     text={mission.text}
                     silvercoin={mission.silvercoin}
-                    onTaskComplete={handleTaskComplete} 
                 />
             ))}
         </ScrollView>
@@ -881,15 +602,6 @@ const styles = StyleSheet.create({
     width: '100%',
     resizeMode: 'cover',
     zIndex: -1,
-  },
-  window: {
-    position: 'absolute',
-    width:10,
-    height:10,
-    top: 1000,
-    resizeMode: 'contain',
-    zIndex: 0, // background 위에
-    opacity: 0.2, 
   },
   backtohome: {
     position: 'absolute',
@@ -1009,12 +721,6 @@ const styles = StyleSheet.create({
         width: 58,  // Adjust as necessary
         height: 24,  // Adjust as necessary
         paddingHorizontal: 10, // Add some spacing between the images
-      },
-      storageImage: {
-        left:20,
-        top:20,
-        width: 70,  // Adjust as necessary
-        height: 30,  // Adjust as necessary
       },
     categoryContainer: {
         flexDirection: 'row',

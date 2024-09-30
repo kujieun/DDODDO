@@ -107,7 +107,7 @@ const cleanURL = (url) => {
     if (!text) return '';
     const periodIndex = text.indexOf('.');
     if (periodIndex === -1) return text; // 문장이 없으면 원본 반환
-    return text.substring(0, periodIndex + 1); // 첫 문장만 반환
+    return text.substring(0, periodIndex + 2); // 첫 문장만 반환
   };
   /*===============기본정보 조회==================*/
 
@@ -144,16 +144,23 @@ const cleanURL = (url) => {
  </View>
 
 <ScrollView contentContainerStyle={styles.scrollContainer}>
-      <View horizontal style={styles.imageView}>
-        {tourData.map((place, index) => (
-          <View key={index} style={styles.imageContainer}>
-            <Image
-              source={{ uri: place.firstimage }}
-              style={styles.placeImage}
-            />
+  <View horizontal style={styles.imageView}>
+    {tourData.map((place, index) => (
+      <View key={index} style={styles.imageContainer}>
+        {place.firstimage ? (
+          <Image
+            source={{ uri: place.firstimage }}
+            style={styles.placeImage}
+          />
+        ) : (
+          <View style={styles.placeholderContainer}>
+            <Text style={styles.placeholderText}>이미지 준비중입니다</Text>
           </View>
-        ))}
+        )}
       </View>
+    ))}
+  </View>
+
 
 
     <View style={styles.placeTitleReviewContainer}>
@@ -268,9 +275,7 @@ const cleanURL = (url) => {
         </TouchableOpacity>
       </View>
 
-<View style={styles.line3} />
 
-          <Text style={styles.placeTitle}>기본 정보</Text>
         </View>
       </ScrollView>
     </View>
@@ -509,6 +514,17 @@ placeTitle: {
       spotDetail: {
         fontSize: 14,
       },
+      placeholderContainer: {
+          width: '100%',
+          height: '100%', // Adjust according to your layout
+          backgroundColor: '#DCEFFF', // Gray background
+          justifyContent: 'center',
+          alignItems: 'center',
+        },
+        placeholderText: {
+          color: 'black', // White text
+          textAlign: 'center',
+        },
 });
 
 export default TourPlaceHome;
