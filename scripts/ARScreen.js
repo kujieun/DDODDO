@@ -8,6 +8,8 @@ import {
 } from "@reactvision/react-viro";
 import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
 import Geolocation from 'react-native-geolocation-service';
+import { useNavigation } from '@react-navigation/native';
+
 
 const alarmImage = require('../image/ar/alarm.png');
 const noPlacesImage = require('../image/ar/alarm2.png'); // 추가된 이미지
@@ -23,6 +25,7 @@ const sun = require('../image/ar/place/sun.png');
 const santorini = require('../image/ar/place/santorini.png');
 const bosa = require('../image/ar/place/bosa.png');
 const eastcoffee = require('../image/ar/place/eastcoffee.png');
+const sibi = require('../image/ar/place/sibi.png');
 
 const locations = [
   {
@@ -38,6 +41,11 @@ const locations = [
         image: sun,
         coordinates: { latitude: 37.7866796, longitude: 128.8851259 },
       },
+      {
+          name: 'sibi',
+          image: sibi,
+          coordinates: { latitude: 37.8399325, longitude: 128.8697820 },
+        },
     ],
   },
   {
@@ -120,6 +128,8 @@ const filterPlacesWithin1km = (currentCoords) => {
     getCurrentPosition();
   }, []);
 
+
+
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
       {/* 초기 이미지 제거 */}
@@ -136,8 +146,10 @@ const filterPlacesWithin1km = (currentCoords) => {
 };
 
 const App = () => {
+const navigation = useNavigation();
+
   const handleBackToHomePress = () => {
-    // Handle back to home button press
+    navigation.goBack();
   };
 
   const handlePress = (category) => {

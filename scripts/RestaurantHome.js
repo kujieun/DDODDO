@@ -2,6 +2,8 @@ import React, { useState, useEffect ,useMemo} from 'react';
 import { StyleSheet, Text, View, TouchableOpacity, StatusBar,  Image, FlatList, ActivityIndicator, ScrollView , TextInput} from 'react-native';
 import axios from 'axios';
 import { useCurrentLocation } from './MyLocation';
+import firestore from '@react-native-firebase/firestore';
+import { useNavigation } from '@react-navigation/native'; // Import useNavigation
 
 const categories = [
   { id: 1, label: '전체', code: null },
@@ -21,6 +23,18 @@ const SignupScreen = () => {
   const [totalCount, setTotalCount] = useState(1000);
   const [likedItems, setLikedItems] = useState({});
   const { currentLocation, getDistanceBetweenCoordinates } = useCurrentLocation();
+
+  const { userInfo } = route.params;
+  const postsCollection = firestore().collection('location');
+  const [likedStates, setLikedStates] = useState({});
+
+const navigation = useNavigation();
+
+const handleBackButton = () => {
+      navigation.goBack(); // 이전 화면으로 돌아가는 함수
+    };
+
+
 
   // searchbox 표시 여부를 관리하는 상태 추가
     const [searchVisible, setSearchVisible] = useState(false);
@@ -73,7 +87,7 @@ const fetchTourData = async () => {
       if (Array.isArray(items)) {
         const formattedData = items.map(item => ({
           title: item.title || "No Title",
-          overview: item.overview || "No Overview",
+          address: item.addr1 || "No Address",
           image: item.firstimage || '',
           tel: item.tel || "",
           contentid: item.contentid,
@@ -109,7 +123,70 @@ const fetchTourData = async () => {
       ...prev,
       [id]: !prev[id],
     }));
+    // like 상태 반전
+    setLikedStates((prev) => ({
+      ...prev,
+      [item.contentid]: !isLiked,
+    }));
+
+    try {
+      // item.contentid와 userInfo.email이 정의되어 있는지 확인 필요
+      if (!item.contentid || !userInfo.email) {
+        console.error('Invalid contentId or user email');
+        return;
+      }
+
+      const locationRef = postsCollection
+        .where('contentId', '==', item.contentid) // 필드명이 정확한지 확인
+        .where('email', '==', userInfo.email); // 필드명이 정확한지 확인
+
+      const snapshot = await locationRef.get();
+
+      if (!isLiked) {
+        // 좋아요 상태라면 Firestore에 추가
+        if (snapshot.empty) {
+          await postsCollection.add({
+            contentId: item.contentid,
+            title: item.title,
+            image: item.image,
+            email: userInfo.email,
+            liked: true,
+          });
+        }
+      } else {
+        // 좋아요 취소 상태라면 Firestore에서 삭제
+        snapshot.forEach(async (doc) => {
+          await postsCollection.doc(doc.id).delete();
+        });
+      }
+    } catch (error) {
+      console.error('Error updating document: ', error);
+    }
   };
+
+
+  // 좋아요 상태 불러오기
+  useEffect(() => {
+    const fetchLikedStates = async () => {
+      try {
+        const snapshot = await postsCollection
+          .where('email', '==', userInfo.email) // 사용자 이메일로 조회
+          .get();
+
+        const likes = {};
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          likes[data.contentId] = data.liked; // 해당 contentId의 liked 상태 저장
+        });
+
+        setLikedStates(likes); // 불러온 liked 상태를 상태로 설정
+      } catch (error) {
+        console.error('Error fetching liked states:', error);
+      }
+    };
+
+    fetchLikedStates(); // 페이지 로드 시 liked 상태 불러오기
+  }, []);
 
   const loadMoreData = () => {
     if (!loading && tourData.length < totalCount) {
@@ -127,22 +204,24 @@ const fetchTourData = async () => {
   };
 
   const renderItem = ({ item }) => (
- <View style={styles.restaurantItem}>
-    <Image
-      source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
-      style={styles.restaurantImage}
-    />
+    <TouchableOpacity
+      style={styles.restaurantItem}
+      onPress={() => navigation.navigate('RestaurantDetail', { contentid: item.contentid })}
+    >
+      <Image
+        source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+        style={styles.restaurantImage}
+      />
       <View style={styles.restaurantInfo}>
         <Text style={styles.restaurantName}>{item.title}</Text>
-        <Text style={styles.restaurantDescription}>{item.overview}</Text>
+        <Text style={styles.restaurantDescription}>
+          {item.address ? item.address.replace('강원특별자치도 강릉시', '').trim() : ''}
+        </Text>
+
         <View style={styles.ratingRow}>
           <View style={styles.starRating}>
             <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
             <Text style={styles.ratingText}>0.0 (0)</Text>
-          </View>
-          <View style={styles.distanceRow}>
-            <View style={styles.dot} />
-            <Text style={styles.distanceText}>{calculateDistance(item)}</Text>
           </View>
         </View>
       </View>
@@ -155,8 +234,9 @@ const fetchTourData = async () => {
           style={styles.actionIcon}
         />
       </TouchableOpacity>
-    </View>
+    </TouchableOpacity>
   );
+
 
   const renderFooter = () => {
     if (!loading) return null;
@@ -169,7 +249,7 @@ const fetchTourData = async () => {
 
       <View style={styles.header}>
         <TouchableOpacity
-          onPress={() => { /* 뒤로가기 기능 */ }}
+          onPress={handleBackButton}
           style={styles.backButtonContainer}
         >
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />

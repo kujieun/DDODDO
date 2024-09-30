@@ -39,6 +39,10 @@ const TourPlaceHome = () => {
       setSearchVisible(!searchVisible);
     };
 
+     const handleBackButton = () => {
+        navigation.goBack(); // 이전 화면으로 돌아가는 함수
+      };
+
 
 
     //tourData 필터링
@@ -168,39 +172,24 @@ const fetchTourData = async () => {
     return <ActivityIndicator size="large" color="#6495ED" />;
   };
 
-  return (
-    <View style={styles.container}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
+return (
+  <View style={styles.container}>
+    <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
-      <View style={styles.header}>
-        <TouchableOpacity
-          onPress={() => { /* 뒤로가기 기능 */ }}
-          style={styles.backButtonContainer}
-        >
-          <Image source={require('../../image/now/backbutton.png')} style={styles.backButton} />
-        </TouchableOpacity>
-        <Text style={styles.headerText}>추천 여행지</Text>
-        <TouchableOpacity
-          onPress={handleSearchPress}
-          style={styles.searchButtonContainer}
-        >
-          <Image source={require('../../image/restaurant/searchicon.png')} style={styles.searchIcon} />
-        </TouchableOpacity>
-      </View>
+    <View style={styles.header}>
+      <TouchableOpacity
+        onPress={handleBackButton}
+        style={styles.backButtonContainer}
+      >
+        <Image source={require('../../image/now/backbutton.png')} style={styles.backButton} />
+      </TouchableOpacity>
+      <Text style={styles.headerText}>강릉나우</Text>
 
-      {/* searchbox 표시 */}
-            {searchVisible && (
-              <View style={styles.searchBoxContainer}>
-                <Image source={require('../../image/restaurant/searchbox.png')} style={styles.searchBox} />
-                <TextInput
-                  style={styles.searchInput}
-                  placeholder="장소 이름 검색"
-                  placeholderTextColor="#999"
-                  value={searchText}
-                  onChangeText={(text) => setSearchText(text)}
-                />
-              </View>
-            )}
+    </View>
+
+
+
+
 
       <View style={styles.navContainer}>
         <ScrollView

@@ -10,6 +10,7 @@ const SignupScreen = ( {route}) => {
   const [modalVisible, setModalVisible] = useState(false);
   const [profileImage, setProfileImage] = useState(null);
   const [buttonColor, setButtonColor] = useState('#B3B6BD');
+  const [buttonEnabled, setButtonEnabled] = useState(false);
 
   const navigation = useNavigation();
   const { userInfo } = route.params;
@@ -17,7 +18,7 @@ const SignupScreen = ( {route}) => {
   const handleDuplicateCheck = () => {
     setModalVisible(true);
     setButtonColor('#4A90E2'); // 버튼 색상 변경
-    // TODO: Firebase에 닉네임 연결, 중복될 때의 알림창도 구현
+    setButtonEnabled(true);
   };
 
   const handleModalClose = () => {
@@ -59,6 +60,10 @@ const SignupScreen = ( {route}) => {
     });
   };
 
+  const handleBackButton = () => {
+            navigation.goBack(); // 이전 화면으로 돌아가는 함수
+          };
+
   const handleSaveAndNext = async() => {
     let imageUrl = profileImage;
 
@@ -80,7 +85,7 @@ const SignupScreen = ( {route}) => {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => { /* 뒤로가기 기능 */ }} style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={handleBackButton} style={styles.backButtonContainer}>
           <Image source={require('../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>정보 입력</Text>

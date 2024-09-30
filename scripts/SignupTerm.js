@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
+import {Linking, StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { WebView } from 'react-native-webview';
 
 const SignupScreen = ({route}) => {
   const navigation = useNavigation();
@@ -39,6 +40,10 @@ const SignupScreen = ({route}) => {
           }
       };
 
+        const handleBackButton = () => {
+          navigation.goBack(); // 이전 화면으로 돌아가는 함수
+        };
+
   return (
     <View style={styles.container}>
       <StatusBar
@@ -48,7 +53,7 @@ const SignupScreen = ({route}) => {
       />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => {/* 뒤로가기 기능 */}} style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={handleBackButton} style={styles.backButtonContainer}>
           <Image
             source={require('../image/signup/backbutton.png')}
             style={styles.backButton}
@@ -89,20 +94,26 @@ const SignupScreen = ({route}) => {
         isChecked={serviceTerms}
         onPress={() => setServiceTerms(!serviceTerms)}
         text="[필수] 서비스 이용약관"
-        onDetailPress={() => {/* 서비스 이용약관 상세 페이지 열기 */}}
+        onDetailPress={() => {
+                  Linking.openURL('https://spectacular-shoemaker-d54.notion.site/110de141614f80f38c5dfcf827057150?pvs=4');
+                }}
       />
       <AgreementDetailBox
         isChecked={privacyConsent}
         onPress={() => setPrivacyConsent(!privacyConsent)}
         text="[필수] 개인정보 수집 및 이용 동의"
-        onDetailPress={() => {/* 개인정보 수집 및 이용 동의 상세 페이지 열기 */}}
+        onDetailPress={() => {
+          Linking.openURL('https://spectacular-shoemaker-d54.notion.site/110de141614f80839d33edcc5541f792?pvs=4');
+        }}
       />
       <AgreementDetailBox
         isChecked={locationConsent}
         onPress={() => setLocationConsent(!locationConsent)}
         text="[선택] 위치 서비스 이용 동의"
         optional
-        onDetailPress={() => {/* 위치 서비스 이용 동의 상세 페이지 열기 */}}
+                onDetailPress={() => {
+                  Linking.openURL('https://spectacular-shoemaker-d54.notion.site/110de141614f80eca497cd44c50aedfc?pvs=4');
+                }}
       />
 
  <TouchableOpacity

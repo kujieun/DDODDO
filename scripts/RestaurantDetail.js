@@ -109,14 +109,6 @@ const cleanURL = (url) => {
     if (periodIndex === -1) return text; // 문장이 없으면 원본 반환
     return text.substring(0, periodIndex + 1); // 첫 문장만 반환
   };
-  /*===============기본정보 조회==================*/
-
-
-
-
-
-
-
 
 
   return (
@@ -268,9 +260,7 @@ const cleanURL = (url) => {
         </TouchableOpacity>
       </View>
 
-<View style={styles.line3} />
 
-          <Text style={styles.placeTitle}>기본 정보</Text>
         </View>
       </ScrollView>
     </View>
