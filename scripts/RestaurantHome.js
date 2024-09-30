@@ -15,7 +15,7 @@ const categories = [
   { id: 7, label: '카페', code: 'A05020900' },
 ];
 
-const SignupScreen = () => {
+const SignupScreen = ({route}) => {
   const [selectedCategory, setSelectedCategory] = useState(1);
   const [tourData, setTourData] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -118,10 +118,13 @@ const fetchTourData = async () => {
     fetchTourData(pageNo);
   }, [pageNo, selectedCategory]);
 
-  const handleLikePress = (id) => {
-    setLikedItems(prev => ({
+  // 좋아요 기능 처리 함수
+  const handleLikePress = async (item) => {
+    const isLiked = likedStates[item.contentid] || false;
+
+    setLikedItems((prev) => ({
       ...prev,
-      [id]: !prev[id],
+      [item.contentid]: !isLiked,
     }));
     // like 상태 반전
     setLikedStates((prev) => ({
@@ -226,11 +229,11 @@ const fetchTourData = async () => {
         </View>
       </View>
       <TouchableOpacity
-        onPress={() => handleLikePress(item.contentid)}
+        onPress={() => handleLikePress(item)}
         style={styles.actionButton}
       >
         <Image
-          source={likedItems[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+          source={likedStates[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
           style={styles.actionIcon}
         />
       </TouchableOpacity>
