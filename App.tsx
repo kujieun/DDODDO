@@ -11,6 +11,7 @@ import SignupNickname from './scripts/SignupNickname';
 import MainHome from './scripts/MainHome';
 import gangneungmap from './scripts/gangneungmap';
 import RestaurantHome from './scripts/RestaurantHome';
+import RestaurantDetail from './scripts/RestaurantDetail';
 import More from './scripts/More';
 import Weather from './screens/Weather';
 
@@ -78,6 +79,7 @@ const App = () => {
 
         {/* 강릉 지도 */}
         <Stack.Screen name="RestaurantHome" component={RestaurantHome} />
+        <Stack.Screen name="RestaurantDetail" component={RestaurantDetail} />
 
         {/* 커뮤니티 */}
         <Stack.Screen name="Community" component={Community} />

@@ -41,12 +41,12 @@ const Courseyn = () => {
       </TouchableOpacity>
 
       {/* Submit 버튼 */}
-            <TouchableOpacity
+            {/* <TouchableOpacity
               style={styles.noButton}
               onPress={() =>  navigation.navigate('scheduledetail', {tripName, startDate, endDate , userInfo })}
             >
               <Text style={styles.noButtonText}>괜찮아요, 직접 만들게요!</Text>
-            </TouchableOpacity>
+            </TouchableOpacity> */}
     </View>
   );
 };

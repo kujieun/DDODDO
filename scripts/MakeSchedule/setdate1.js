@@ -29,7 +29,7 @@ const onDayPress = (day) => {
       newSelectedDays.splice(newSelectedDays.indexOf(dayString), 1);
     } else {
       // 최대 2일까지 선택 가능
-      if (newSelectedDays.length < 3) {
+      if (newSelectedDays.length < 1) {
         if (newSelectedDays.length === 0 || isNextDay(newSelectedDays[newSelectedDays.length - 1], dayString)) {
           newSelectedDays.push(dayString);
         } else if (isPrevDay(newSelectedDays[0], dayString)) {
@@ -102,7 +102,7 @@ if (newSelectedDays.length > 0) {
       </View>
 
       <Text style={styles.titleText}>언제 여행을 떠나시나요?</Text>
-      <Text style={styles.subTitleText}>최대 2박 3일까지 일정을 만들 수 있어요</Text>
+      <Text style={styles.subTitleText}>당일치기 일정을 만들 수 있어요</Text>
 
       <Calendar
         monthFormat={'M월'}
@@ -120,17 +120,12 @@ if (newSelectedDays.length > 0) {
       />
 <View style={styles.dateContainer}>
         <View style={styles.dateBox}>
-          <Text style={styles.dateText}>여행 시작일</Text>
+          <Text style={styles.dateText}>여행일</Text>
           <Text style={[styles.actualDateText, { color: dateChanged ? '#6495ED' : '#696969' }]}>
             {startDate}
           </Text>
         </View>
-        <View style={styles.dateBox}>
-          <Text style={styles.dateText}>여행 종료일</Text>
-          <Text style={[styles.actualDateText, { color: dateChanged ? '#6495ED' : '#696969' }]}>
-            {endDate}
-          </Text>
-        </View>
+
       </View>
 
 

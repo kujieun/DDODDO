@@ -162,34 +162,6 @@ const MainHome = ({ route, navigation }) => {
 
     const handleCharacterPress = () => {
         setIsCharacterPressed(!isCharacterPressed); // 상태 반전
-
-        if (!isCharacterPressed) {
-            // 애니메이션 실행 (메뉴 보이게)
-            Animated.timing(animatedValue1, {
-                toValue: -100, // 위로 100px 이동
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-
-            Animated.timing(animatedValue2, {
-                toValue: -100, // 위로 100px 이동
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-        } else {
-            // 애니메이션 종료 (메뉴 사라지게)
-            Animated.timing(animatedValue1, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-
-            Animated.timing(animatedValue2, {
-                toValue: 0,
-                duration: 300,
-                useNativeDriver: true,
-            }).start();
-        }
     };
 
 
@@ -229,7 +201,7 @@ const MainHome = ({ route, navigation }) => {
             navigation.navigate('gangneungnow');
         }
         if (menuIndex === 3) {
-            navigation.navigate('home', {userInfo});
+            navigation.navigate('setdate', {userInfo});
         }
 
 
@@ -347,17 +319,17 @@ return (
 
             {isCharacterPressed && (
                 <>
-                    <Animated.View style={[styles.animatedButtonContainer1, { transform: [{ translateY: animatedValue1 }] }]}>
+                    <View style={styles.animatedButtonContainer1}>
                         <TouchableOpacity onPress={gotoGame}>
                             <Image source={require('../image/mainhome/barmenu/sunjji.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
-                    </Animated.View>
+                    </View>
 
-                    <Animated.View style={[styles.animatedButtonContainer2, { transform: [{ translateY: animatedValue2 }] }]}>
+                    <View style={styles.animatedButtonContainer2}>
                          <TouchableOpacity onPress={gotoAR}>
                             <Image source={require('../image/mainhome/barmenu/ar.png')} style={styles.buttonImage} />
                         </TouchableOpacity>
-                    </Animated.View>
+                    </View>
                 </>
             )}
 
@@ -638,12 +610,12 @@ const styles = StyleSheet.create({
     },
     animatedButtonContainer1: {
         position: 'absolute',
-        bottom: 10,
+        bottom: 85,
         left: 110, // 왼쪽으로 배치
     },
     animatedButtonContainer2: {
         position: 'absolute',
-        bottom: 10,
+        bottom: 85,
         right: 110, // 오른쪽으로 배치
     },
     buttonImage: {
@@ -654,7 +626,9 @@ const styles = StyleSheet.create({
     characterConatiner: {
         position: 'absolute',
         left: (screenWidth / 2) - 30, // 중앙에 위치
-        bottom: 110,
+        bottom: 0,
+        width:100,
+        height:100,
     },
       scrollViewContent: {
         paddingRight: 20,

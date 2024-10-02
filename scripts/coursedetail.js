@@ -174,15 +174,27 @@ useEffect(() => {
 
 <ScrollView contentContainerStyle={styles.scrollContainer}>
       <View horizontal style={styles.imageView}>
-        {tourData.map((place, index) => (
-          <View key={index} style={styles.imageContainer}>
-            <Image
-              source={{ uri: place.firstimage }}
-              style={styles.placeImage}
-            />
-          </View>
-        ))}
+        {tourData.map((place, index) => {
+          // http를 https로 변환
+          const formattedImage = place.firstimage ? place.firstimage.replace('http://', 'https://') : '';
+
+          return (
+            <View key={index} style={styles.imageContainer}>
+              {formattedImage ? (
+                <Image
+                  source={{ uri: formattedImage }}
+                  style={styles.placeImage}
+                />
+              ) : (
+                <View style={styles.placeholderContainer}>
+                  <Text style={styles.placeholderText}>이미지 준비중입니다</Text>
+                </View>
+              )}
+            </View>
+          );
+        })}
       </View>
+
 
 
 <View style={styles.placeTitleReviewContainer}>

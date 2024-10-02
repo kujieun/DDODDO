@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import {
     Dimensions,
@@ -48,7 +49,7 @@ const TourPlaceHome = ({route}) => {
             email: userInfo.email,
           });
     
-           navigation.navigate('end', { userInfo });
+          navigation.navigate('end', { tripName, startDate, endDate, daysCount, userInfo });
         } catch (error) {
           console.log(error.message);
         }
@@ -282,13 +283,7 @@ const renderItem = ({ item, index, drag, isActive }) => {
 
             {/* 일정추가 버튼 */}
             <View style={styles.buttonframeContainer}>
-                 <TouchableOpacity style={styles.frame234} onPress={handleAddSchedule}>
-                     <Text style={styles.frameText}>일정추가</Text>
-                 </TouchableOpacity>
 
-                 <TouchableOpacity style={styles.frame234} onPress={handleAddCourse}>
-                     <Text style={styles.frameText}>코스추가</Text>
-                 </TouchableOpacity>
 
                  <TouchableOpacity style={styles.frame236} onPress={handleCompleteSchedule}>
                      <Text style={styles.frameTextWhite}>일정완료</Text>

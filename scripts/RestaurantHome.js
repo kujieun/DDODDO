@@ -206,39 +206,43 @@ const fetchTourData = async () => {
     return '정보 없음';
   };
 
-  const renderItem = ({ item }) => (
-    <TouchableOpacity
-      style={styles.restaurantItem}
-      onPress={() => navigation.navigate('RestaurantDetail', { contentid: item.contentid })}
-    >
-      <Image
-        source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
-        style={styles.restaurantImage}
-      />
-      <View style={styles.restaurantInfo}>
-        <Text style={styles.restaurantName}>{item.title}</Text>
-        <Text style={styles.restaurantDescription}>
-          {item.address ? item.address.replace('강원특별자치도 강릉시', '').trim() : ''}
-        </Text>
+  const renderItem = ({ item }) => {
+    const formattedImage = item.image ? item.image.replace('http://', 'https://') : ''; 
 
-        <View style={styles.ratingRow}>
-          <View style={styles.starRating}>
-            <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
-            <Text style={styles.ratingText}>0.0 (0)</Text>
-          </View>
-        </View>
-      </View>
+      return(
       <TouchableOpacity
-        onPress={() => handleLikePress(item)}
-        style={styles.actionButton}
+        style={styles.restaurantItem}
+        onPress={() => navigation.navigate('RestaurantDetail', { contentid: item.contentid })}
       >
         <Image
-          source={likedStates[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
-          style={styles.actionIcon}
+          source={item.image ? { uri: formattedImage } : require('../image/restaurant/emptythumbnail.png')}
+          style={styles.restaurantImage}
         />
+        <View style={styles.restaurantInfo}>
+          <Text style={styles.restaurantName}>{item.title}</Text>
+          <Text style={styles.restaurantDescription}>
+            {item.address ? item.address.replace('강원특별자치도 강릉시', '').trim() : ''}
+          </Text>
+
+          <View style={styles.ratingRow}>
+            <View style={styles.starRating}>
+              <Image source={require('../image/restaurant/yellowstar.png')} style={styles.star} />
+              <Text style={styles.ratingText}>0.0 (0)</Text>
+            </View>
+          </View>
+        </View>
+        <TouchableOpacity
+          onPress={() => handleLikePress(item)}
+          style={styles.actionButton}
+        >
+          <Image
+            source={likedStates[item.contentid] ? require('../image/restaurant/like.png') : require('../image/restaurant/unlike.png')}
+            style={styles.actionIcon}
+          />
+        </TouchableOpacity>
       </TouchableOpacity>
-    </TouchableOpacity>
   );
+};
 
 
   const renderFooter = () => {

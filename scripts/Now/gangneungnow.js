@@ -132,7 +132,10 @@ const fetchTourData = async () => {
   };
 
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => {
+    const formattedImage = item.image ? item.image.replace('http://', 'https://') : ''; 
+
+    return(
     // TourPlaceHome.js
     <TouchableOpacity
       style={styles.restaurantItem}
@@ -140,7 +143,7 @@ const fetchTourData = async () => {
     >
 
     <Image
-      source={item.image ? { uri: item.image } : require('../../image/restaurant/emptythumbnail.png')}
+      source={item.image ? { uri: formattedImage } : require('../../image/restaurant/emptythumbnail.png')}
       style={styles.restaurantImage}
     />
       <View style={styles.restaurantInfo}>
@@ -165,7 +168,8 @@ const fetchTourData = async () => {
         />
       </TouchableOpacity>
      </TouchableOpacity>
-  );
+    );
+  };
 
   const renderFooter = () => {
     if (!loading) return null;

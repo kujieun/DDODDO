@@ -242,15 +242,18 @@ const fetchTourData = async () => {
     return '정보 없음';
   };
 
-  const renderItem = ({ item }) => (
+  const renderItem = ({ item }) => {
+    const formattedImage = item.image ? item.image.replace('http://', 'https://') : ''; // http를 https로 변경
     // TourPlaceHome.js
+
+    return(
     <TouchableOpacity
       style={styles.restaurantItem}
       onPress={() => navigation.navigate('Detail', { contentid: item.contentid })} // Pass contentId
     >
 
     <Image
-      source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+      source={item.image ? { uri: formattedImage } : require('../image/restaurant/emptythumbnail.png')}
       style={styles.restaurantImage}
     />
       <View style={styles.restaurantInfo}>
@@ -279,7 +282,8 @@ const fetchTourData = async () => {
         />
       </TouchableOpacity>
      </TouchableOpacity>
-  );
+    );
+  };
 
   const renderFooter = () => {
     if (!loading) return null;

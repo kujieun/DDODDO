@@ -72,14 +72,14 @@ const SignupScreen = () => {
       </View>
 
       <Text style={styles.titleText}>코스를 어디에 추가하시나요?</Text>
-        <TouchableOpacity
+        {/* <TouchableOpacity
           style={styles.frame280}
           onPress={() => {
 
           }}
-        >
-          <Text style={styles.subTitleText}>새로운 일정 만들기</Text>
-        </TouchableOpacity>
+        > */}
+          {/* <Text style={styles.subTitleText}>새로운 일정 만들기</Text> */}
+        {/* </TouchableOpacity> */}
 
       <Text style={{ fontFamily: 'Pretendard-SemiBold', fontSize: 15, top: 226, left: 20, color: '#000000' }}>
         내 일정

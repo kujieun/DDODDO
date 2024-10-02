@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
+import { Linking, View, Text, TouchableOpacity, StyleSheet, Image, StatusBar } from 'react-native';
 import { login, getProfile as getKakaoProfile, } from "@react-native-seoul/kakao-login";  // Kakao Login 모듈 임포트
 import { useNavigation } from '@react-navigation/native';
 import firestore from '@react-native-firebase/firestore'; //추가, db업로드
+import { WebView } from 'react-native-webview';
 
 const SignUpHome = () => {
     const navigation = useNavigation();
@@ -86,11 +87,16 @@ const SignUpHome = () => {
       </Text>
 
       <View style={styles.termsWrapper}>
-        <TouchableOpacity onPress={handlePrivacyPolicyPress}>
+        <TouchableOpacity onPress={() => {
+          Linking.openURL('https://spectacular-shoemaker-d54.notion.site/110de141614f80839d33edcc5541f792?pvs=4');
+        }}>
           <Text style={styles.termsText}>개인정보 처리방침</Text>
+          
         </TouchableOpacity>
 
-        <TouchableOpacity onPress={handleTermsOfServicePress}>
+        <TouchableOpacity onPress={() => {
+                  Linking.openURL('https://spectacular-shoemaker-d54.notion.site/110de141614f80f38c5dfcf827057150?pvs=4');
+                }}>
           <Text style={styles.termsText}>이용약관</Text>
         </TouchableOpacity>
       </View>

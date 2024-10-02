@@ -28,7 +28,7 @@ const SignupScreen = ({route}) => {
       </View>
 
       {/* 중앙 텍스트 */}
-      <Text style={styles.centerText}>아직 일정이 하나도 없어요</Text>
+      <Text style={styles.centerText}>강릉 여행을 떠나요!</Text>
 
       {/* Submit 버튼 */}
       <TouchableOpacity

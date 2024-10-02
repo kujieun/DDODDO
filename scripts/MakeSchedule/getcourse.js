@@ -117,7 +117,7 @@ const Coursehome = () => {
       <StatusBar translucent backgroundColor="transparent" barStyle="dark-content" />
 
       <View style={styles.header}>
-        <TouchableOpacity onPress={() => { /* 뒤로가기 기능 구현 */ }} style={styles.backButtonContainer}>
+        <TouchableOpacity onPress={() => { navigation.goBack()}} style={styles.backButtonContainer}>
           <Image source={require('../../image/signup/backbutton.png')} style={styles.backButton} />
         </TouchableOpacity>
         <Text style={styles.headerText}>추천 코스</Text>
@@ -192,13 +192,15 @@ const Coursehome = () => {
     onEndReached={loadMoreData}
     onEndReachedThreshold={0.5}
     renderItem={({ item }) => {
+      const formattedImage = item.image ? item.image.replace('http://', 'https://') : ''; // http를 https로 변경
+
       return (
         <TouchableOpacity
           onPress={() => navigation.navigate('coursedetail', { contentid: item.contentid })}
           style={styles.card}
         >
           {item.image ? (
-            <Image source={{ uri: item.image }} style={styles.cardImage} />
+            <Image source={{ uri: formattedImage }} style={styles.cardImage} />
           ) : (
             <View style={styles.placeholderImage}>
               <Text style={{ textAlign: 'center', justifyContent: 'center' }}>이미지 준비중입니다</Text>

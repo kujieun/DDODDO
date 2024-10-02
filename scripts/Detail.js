@@ -17,6 +17,7 @@ const TourPlaceHome = ({ route }) => {
   const [mapx, setMapx] = useState(null);
   const [mapy, setMapy] = useState(null);
 
+
   const fetchItemDetails = async () => {
     try {
       const response = await axios.get('https://apis.data.go.kr/B551011/KorService1/detailCommon1', {
@@ -145,20 +146,26 @@ const cleanURL = (url) => {
 
 <ScrollView contentContainerStyle={styles.scrollContainer}>
   <View horizontal style={styles.imageView}>
-    {tourData.map((place, index) => (
-      <View key={index} style={styles.imageContainer}>
-        {place.firstimage ? (
-          <Image
-            source={{ uri: place.firstimage }}
-            style={styles.placeImage}
-          />
-        ) : (
-          <View style={styles.placeholderContainer}>
-            <Text style={styles.placeholderText}>이미지 준비중입니다</Text>
-          </View>
-        )}
-      </View>
-    ))}
+  {tourData.map((place, index) => {
+      const formattedImage = place.firstimage
+        ? place.firstimage.replace('http://', 'https://')
+        : ''; // http를 https로 변경
+
+      return (
+        <View key={index} style={styles.imageContainer}>
+          {formattedImage ? (
+            <Image
+              source={{ uri: formattedImage }}
+              style={styles.placeImage}
+            />
+          ) : (
+            <View style={styles.placeholderContainer}>
+              <Text style={styles.placeholderText}>이미지 준비중입니다</Text>
+            </View>
+          )}
+        </View>
+      );
+    })}
   </View>
 
 

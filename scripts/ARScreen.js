@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   ViroARScene,
@@ -6,10 +7,9 @@ import {
   ViroTrackingReason,
   ViroTrackingStateConstants,
 } from "@reactvision/react-viro";
-import { StyleSheet, View, TouchableOpacity, Text, Image } from "react-native";
+import { StyleSheet, View, TouchableOpacity, Text, Image, PermissionsAndroid  } from "react-native";
 import Geolocation from 'react-native-geolocation-service';
 import { useNavigation } from '@react-navigation/native';
-
 
 const alarmImage = require('../image/ar/alarm.png');
 const noPlacesImage = require('../image/ar/alarm2.png'); // 추가된 이미지
@@ -18,6 +18,7 @@ const foundcoinpaper = require('../image/ar/foundcoin/foundcoinpaper.png');
 
 // 이미지 파일 경로를 require로 불러오기
 const JeongDongJin = require('../image/ar/place/JeongDongJin.png');
+const station = require('../image/ar/foundcoin/foundcoinpaper.png');
 const noodle = require('../image/ar/place/noodle.png');
 const eateryg = require('../image/ar/place/eateryg.png');
 const bori = require('../image/ar/place/bori.png');
@@ -34,8 +35,13 @@ const locations = [
       {
         name: 'JeongDongJin',
         image: JeongDongJin,
-        coordinates: { latitude: 37.7546233, longitude: 128.8799170 },
+        coordinates: { latitude: 37.6900911, longitude: 129.0344160 },
       },
+    {
+      name: 'station',
+      image: station,
+      coordinates: { latitude: 37.7546233, longitude: 128.8799170 },
+    },
       {
         name: 'sun',
         image: sun,
@@ -68,7 +74,7 @@ const locations = [
 
 const HelloWorldSceneAR = () => {
   const [text, setText] = useState("Initializing AR...");
-  const [showAlarm, setShowAlarm] = useState(false);
+  const [showAlarm, setShowAlarm] = useState(true);
   const [showNoPlaces, setShowNoPlaces] = useState(false);
   const [filteredPlaces, setFilteredPlaces] = useState([]);
   const [currentPosition, setCurrentPosition] = useState(null);
@@ -81,6 +87,43 @@ const HelloWorldSceneAR = () => {
       // Handle loss of tracking
     }
   }
+  useEffect(() => {
+      // 5초 후 알람 이미지를 제거하는 타이머 설정
+      const timer = setTimeout(() => {
+        setShowAlarm(false);
+      }, 5000);
+
+      return () => clearTimeout(timer); // 컴포넌트 언마운트 시 타이머 정리
+    }, []);
+
+     const requestLocationPermission = async () => {
+        try {
+          const granted = await PermissionsAndroid.request(
+            PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+            {
+              title: "Location Permission",
+              message: "This app needs access to your location.",
+              buttonNeutral: "Ask Me Later",
+              buttonNegative: "Cancel",
+              buttonPositive: "OK",
+            }
+          );
+          if (granted === PermissionsAndroid.RESULTS.GRANTED) {
+            console.log("You can use the location");
+            getCurrentPosition(); // Call the function to get current position if permission is granted
+          } else {
+            console.log("Location permission denied");
+          }
+        } catch (err) {
+          console.warn(err);
+        }
+      };
+
+       useEffect(() => {
+          requestLocationPermission(); // Request permission when the component mounts
+        }, []);
+
+
 
   const getCurrentPosition = () => {
     Geolocation.getCurrentPosition(
@@ -106,6 +149,7 @@ const filterPlacesWithin1km = (currentCoords) => {
         return distance <= 100;  // 거리 계산 (미터 단위)
     });
     setFilteredPlaces(nearbyPlaces);
+     setShowNoPlaces(nearbyPlaces.length === 0);
 };
 
 
@@ -132,13 +176,29 @@ const filterPlacesWithin1km = (currentCoords) => {
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
-      {/* 초기 이미지 제거 */}
+    {showAlarm && (
+            <ViroImage
+              source={alarmImage}
+              scale={[4, 1, 1]} // 이미지 크기 조정
+              position={[0, 0, -3]} // 이미지 위치 설정
+            />
+          )}
+          {/* 장소가 없을 때 alarm2.png 이미지 표시 */}
+                {showNoPlaces && (
+                  <ViroImage
+                    source={noPlacesImage}
+                    scale={[4, 1, 1]} // 이미지 크기 조정
+                    position={[0, 0, -5]} // 이미지 위치 설정
+                  />
+                )}
+
+
       {filteredPlaces.length > 0 && filteredPlaces.map((place, index) => (
         <ViroImage
           key={index}
           source={place.image}
           scale={[1, 0.5, 0.5]} // 이미지 크기 조정
-          position={[0, 0, -3]} // 위치 설정
+          position={[0, 0, -5]} // 위치 설정
         />
       ))}
     </ViroARScene>
@@ -177,21 +237,6 @@ const navigation = useNavigation();
         <Text style={styles.textSmall}>카페</Text>
       </TouchableOpacity>
 
-      {showAlarm && (
-        <Image
-          source={alarmImage}
-          style={styles.alarmImage}
-        />
-      )}
-
-      {showNoPlaces && (
-        <Image
-          source={noPlacesImage}
-          style={styles.alarmImage}
-          onLoad={() => console.log("No Places Image Loaded")}
-          onError={() => console.log("No Places Image Error")}
-        />
-      )}
     </View>
   );
 };

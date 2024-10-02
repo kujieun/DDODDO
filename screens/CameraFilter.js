@@ -96,7 +96,7 @@ const CameraFilter = ({ route, navigation }) => {
                     ];
             
                     // 이미지 조작 수행
-                    const mergedImageUri = await RNPhotoManipulator.batch(photoUri, operations, cropRegion, targetSize);
+                    const mergedImageUri = await RNPhotoManipulator.batch(photoUri, operations, cropRegion, targetSize, 90);
                     
                     console.log('Merged image URI:', mergedImageUri);
             

@@ -158,12 +158,15 @@ const MyPage = ({ route }) => {
   );
 
     // like한 location 목록 렌더링
-    const renderLocation = ({ item }) => (
+    const renderLocation = ({ item }) => {
+
+      const formattedImage = item.image ? item.image.replace('http://', 'https://') : '';
+      return(
         <View style={styles.locationItem}>
             
             {/* location 이미지 렌더링 */}
             <Image
-                source={item.image ? { uri: item.image } : require('../image/restaurant/emptythumbnail.png')}
+                source={item.image ? { uri: formattedImage } : require('../image/restaurant/emptythumbnail.png')}
                 style={styles.locationImage}
             />
     
@@ -186,6 +189,7 @@ const MyPage = ({ route }) => {
             </View>
         </View>
     );
+  };
   
 
    // 일정 목록 렌더링
@@ -223,9 +227,10 @@ const renderPlan = ({ item }) => (
         <View style={styles.profileInfo}>
           <Text style={styles.name}>{userInfo.name}</Text>
 
-          <View style={styles.editContainer}>
-            <Text style={styles.editText}>프로필 편집</Text>
-            <TouchableOpacity onPress={gotoeditpage}>
+          <View >
+            
+            <TouchableOpacity onPress={gotoeditpage} style={styles.editContainer}>
+              <Text style={styles.editText}>프로필 편집</Text>
               <Image source={require('../img/mypage/edit.png')} style={styles.editIcon} />
             </TouchableOpacity>
           </View>

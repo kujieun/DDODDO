@@ -1,46 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image, FlatList } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity, StatusBar, Image } from 'react-native';
 import { useNavigation, useRoute } from '@react-navigation/native';
-import firestore from '@react-native-firebase/firestore';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { userInfo } = route.params;
-  const [tripName, setTripName] = useState('');
-  const [startDate, setStartDate] = useState('0000.00.00');
-  const [endDate, setEndDate] = useState('0000.00.00');
-  const [courseDetails, setcourseDetails] = useState([]);
-  
-
-
-  // Firestore에서 가져오기
-  useEffect(() => {
-    const fetchUserPosts = async () => {
-      try {
-        const postsCollection = await firestore()
-          .collection('plan') // 게시글 컬렉션
-          .where('email', '==', userInfo.email) // 이메일이 일치하는 게시글만 필터링
-          .get();
-  
-        if (!postsCollection.empty) {
-          const data = postsCollection.docs.map((doc) => doc.data())[0]; // 첫 번째 데이터 사용
-          setTripName(data.tripName);
-          setStartDate(data.startDate);
-          setEndDate(data.endDate);
-          setcourseDetails(data.courseDetails || []);
-        } else {
-          console.error('No data found');
-        }
-      } catch (error) {
-        console.error('Error fetching posts: ', error);
-      }
-    };
-  
-    fetchUserPosts();
-  }, [userInfo.email]);
-
-  
+  const { tripName, startDate, endDate, contentid, userInfo } = route.params;
 
   const handleBackButton = () => {
     navigation.goBack(); // 이전 화면으로 돌아가는 함수
@@ -107,15 +72,15 @@ const SignupScreen = () => {
         <Text style={styles.tripName}>{tripName}</Text>
         <View style={styles.dateTextContainer}>
           <Text style={styles.dateText}>{`${startDate}~${endDate}`}</Text>
-          <Text style={styles.noDaysText}>일정이 없습니다.</Text>
+          {/* <Text style={styles.noDaysText}>일정이 없습니다.</Text> */}
         </View>
       </View>
 
       <TouchableOpacity
         style={styles.submitButton}
-        onPress={() => navigation.navigate('courseyn', { tripName, startDate, endDate })}
+        onPress={() => navigation.navigate('MainHome', { userInfo })}
       >
-        <Text style={styles.submitButtonText}>새로운 일정 만들기</Text>
+        <Text style={styles.submitButtonText}>홈 화면으로 이동</Text>
       </TouchableOpacity>
     </View>
   );

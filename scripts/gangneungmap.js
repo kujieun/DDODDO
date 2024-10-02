@@ -1,5 +1,7 @@
+//강릉맵.js
+
 import React, { useState, useEffect, useCallback, useRef, useMemo } from 'react';
-import { Linking, View, StyleSheet, Dimensions, StatusBar, TextInput, Image, Text, TouchableOpacity, FlatList, Animated, ScrollView, TouchableWithoutFeedback , PermissionsAndroid,   BackHandler,} from 'react-native';
+import { Linking, View, StyleSheet, Dimensions, StatusBar, TextInput, Image, Text, TouchableOpacity, FlatList, Animated, ScrollView, TouchableWithoutFeedback , PermissionsAndroid,   BackHandler} from 'react-native';
 import MapView, { Marker } from 'react-native-maps';
 import axios from 'axios';
 import Geolocation from "react-native-geolocation-service"
@@ -208,26 +210,7 @@ const TopSection = () => {
     }, [handleBackPress]);
 
 
-useEffect(() => {
-    const watchId = Geolocation.watchPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
-        setCurrentLocation({ latitude, longitude });
-      },
-      (error) => {
-        console.log(error);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 20000,
-        maximumAge: 0,
-        distanceFilter: 1,
-      }
-    );
-    return () => {
-      Geolocation.clearWatch(watchId);
-    };
-  }, []);
+
 
 
   const categoryMappings = useMemo(() => ({
@@ -453,15 +436,17 @@ const handleMarkerPress = useCallback(async (marker) => {
                 />
                 <Text style={{ fontSize: 15 }}>{selectedPlace?.rating || '정보 없음'}</Text>
               </View>
-              <View style={styles.panelDistance}>
-                <Image
-                  source={require('../image/gangneungmap/distance.png')}
-                  style={styles.distanceImage}
-                />
-                <Text style={{ fontSize: 15 }}>
-                  거리: {selectedPlace?.distance ? `${selectedPlace.distance} km` : '정보 없음'}
-                </Text>
-              </View>
+              {/*
+            //  <View style={styles.panelDistance}>
+            //    <Image
+            //      source={require('../image/gangneungmap/distance.png')}
+            //      style={styles.distanceImage}
+            //    />
+            //    <Text style={{ fontSize: 15 }}>
+            //      거리: {selectedPlace?.distance ? `${selectedPlace.distance} km` : '정보 없음'}
+            //    </Text>
+            //  </View>
+            */}
             </View>
 
             {/* 여러 이미지 출력 및 가로 스크롤 */}
