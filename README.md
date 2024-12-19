@@ -1,3 +1,7 @@
+# 최종본 릴리즈 apk 파일
+# 링크: https://drive.google.com/drive/folders/1cisulR5-Ax5nbp2-ORPaDX6fLcXMqPo1?usp=drive_link
+
+
 This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
 # Getting Started
